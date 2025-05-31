@@ -4,7 +4,7 @@ sudo apt update && sudo apt install -y jq && sudo apt-get install -y unzip
 
 # install aws
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
+unzip -o awscliv2.zip
 sudo ./aws/install
 
 # download flyway
