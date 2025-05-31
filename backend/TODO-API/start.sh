@@ -88,41 +88,26 @@ sudo systemctl status "$SERVICE_NAME" --no-pager
 
 
 # setup nginx and https
-
 echo "Setting up nginx and https"
-set -e
 
+set -e
 DOMAIN="todo.pastpaperportal.co.za"
-EMAIL="cadesayner@gmail.com"
+EMAIL="admin@$DOMAIN"  # Can be a dummy; won't be validated
 NGINX_CONF="/etc/nginx/sites-available/$DOMAIN"
+NGINX_LINK="/etc/nginx/sites-enabled/$DOMAIN"
 
 echo "Installing nginx and certbot..."
 sudo apt update
 sudo apt install -y nginx certbot python3-certbot-nginx
 
-echo "Creating nginx config for $DOMAIN..."
-
+echo "Creating temporary HTTP-only nginx config for $DOMAIN..."
 sudo tee $NGINX_CONF > /dev/null <<EOF
 server {
     listen 80;
-    server_name $DOMAIN www.$DOMAIN;
-
-    # Redirect all HTTP requests to HTTPS
-    return 301 https://\$host\$request_uri;
-}
-
-server {
-    listen 443 ssl;
-    server_name $DOMAIN www.$DOMAIN;
-
-    ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;
-
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_prefer_server_ciphers on;
+    server_name $DOMAIN;
 
     location / {
-        proxy_pass http://localhost:5000;  # Adjust backend port if needed
+        proxy_pass http://localhost:5000;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -131,24 +116,19 @@ server {
 }
 EOF
 
-echo "Enabling site and testing nginx config..."
-sudo ln -sf $NGINX_CONF /etc/nginx/sites-enabled/
+# Enable the config
+sudo ln -sf $NGINX_CONF $NGINX_LINK
+
+echo "Testing nginx config..."
 sudo nginx -t
 
-echo "Starting nginx..."
-sudo systemctl restart nginx
-
-echo "Running certbot to get SSL certificate..."
-
-# not unsafe really since the domain is still validated and i dont want to pay for an email
-sudo certbot --nginx --non-interactive --agree-tos --register-unsafely-without-email -d $DOMAIN -d www.$DOMAIN
-
-echo "Reloading nginx to apply certificate..."
+echo "Reloading nginx..."
 sudo systemctl reload nginx
 
-echo "All done! Your site should now have HTTPS with a valid Let's Encrypt certificate."
+echo "Obtaining HTTPS certificate via Certbot..."
+sudo certbot --nginx --non-interactive --agree-tos --register-unsafely-without-email -d $DOMAIN
 
+echo "Reloading nginx after Certbot config changes..."
+sudo systemctl reload nginx
 
-
-
-
+echo "✅ HTTPS is now enabled for https://$DOMAIN and traffic is forwarded to http://localhost:5000"
