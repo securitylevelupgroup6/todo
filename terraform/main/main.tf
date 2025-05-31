@@ -212,6 +212,7 @@ resource "aws_instance" "app_server" {
   tags = {
     Name = "todo-backend"
   }
+  key_name = "EC2 key"
   vpc_security_group_ids = [aws_security_group.ec2-security-group.id]
 }
 
