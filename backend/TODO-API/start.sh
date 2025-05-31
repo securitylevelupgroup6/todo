@@ -10,7 +10,7 @@ export PATH=$PATH:/usr/local/bin
 
 # download flyway
 echo "Downloading and installing flyway"
-wget https://download.red-gate.com/maven/release/com/redgate/flyway/flyway-commandline/10.11.0/flyway-commandline-10.11.0-linux-x64.tar.gz
+wget https://download.red-gate.com/maven/release/com/redgate/flyway/flyway-commandline/10.11.0/flyway-commandline-10.11.0-linux-x64.tar.gz > /dev/null 2>&1
 tar -xzf flyway-commandline-10.11.0-linux-x64.tar.gz > /dev/null 2>&1
 sudo rm -rf /opt/flyway/flyway-10.11.0
 sudo mv flyway-10.11.0 /opt/flyway
