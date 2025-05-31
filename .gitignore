@@ -1,0 +1,79 @@
+## .NET
+bin/
+obj/
+packages/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+## dotCover
+*.dotCover
+
+## NCrunch
+*.ncrunch*
+.*crunch*.local.xml
+nCrunchTemp_*
+
+## Visual Studio
+.vs/
+*.dbmdl
+*.psess
+*.vsp
+*.pdb
+
+## Rider
+.idea/
+
+## Logs
+*.log
+
+## User-specific files
+*.vspscc
+*.vssscc
+*.orig
+
+## Build results
+*.dll
+*.exe
+
+## NuGet
+*.nupkg
+*.snupkg
+.nuget/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Resharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+## dotnet secrets
+secrets.json
+
+## Other
+*.cache
+*.bak
+*.tmp
+
+## Azure Pipelines
+.vsts/
+
+## JetBrains Rider
+.idea/
+
+## Coverage Results
+coverage*.json
+coverage*.xml
+coverage*.info
+lcov.info
+coverage/
+
+## Local environment files
+.env
+.env.*
