@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
-sudo apt update && sudo apt install -y jq && sudo apt-get install -y unzip
+sudo apt update && sudo apt install -y jq && sudo apt-get install -y unzip && sudo apt install -y openjdk-17-jre-headless
+
 
 # install aws
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
