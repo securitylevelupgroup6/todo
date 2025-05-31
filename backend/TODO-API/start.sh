@@ -38,7 +38,7 @@ CONNECTION_STRING="Host=$DB_HOST;Port=5432;Database=todo-db;Username=$DB_USER;Pa
 echo $CONNECTION_STRING
 
 # run flyway migrations 
-flyway -url="jdbc:postgresql://$DB_HOST:5432/todo-api" -user="$DB_USER" -password="$DB_PASS" -locations=filesystem:~/migrations migrate
+flyway -url="jdbc:postgresql://$DB_HOST:5432/tododb" -user="$DB_USER" -password="$DB_PASS" -locations=filesystem:~/migrations migrate
 
 # start the process as a systemd service
 
