@@ -29,7 +29,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Apply
-        working-directory: terraform/bootstap
+        working-directory: terraform/bootstrap
         if: github.ref == 'refs/heads/main'
         run: terraform apply -auto-approve
 
