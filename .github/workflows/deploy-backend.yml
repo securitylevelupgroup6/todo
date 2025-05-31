@@ -23,10 +23,15 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
           chmod 600 ec2_key.pem
       
-      - name: Copy over start.sh
+      - name: Copy over start.sh 
         working-directory: backend/TODO-API
         run: |
           scp -o StrictHostKeyChecking=no -i ../../ec2_key.pem ./start.sh ubuntu@$EC2_IP:~/start.sh
+
+      - name: Copy over the migrations directory
+        working-directory: .
+        run: |
+          scp -r -o StrictHostKeyChecking=no -i ../../ec2_key.pem migrations ubuntu@$EC2_IP:~/migrations
 
       - name: SSH into EC2 and run commands
         run: |
