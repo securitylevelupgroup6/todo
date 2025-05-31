@@ -16,7 +16,7 @@ jobs:
       - name: Get EC2 public IP from the repo variable
         id: tf_output
         run: |
-          run: echo "EC2_IP=${{ vars.EC2_PUBLIC_IP }}" >> $GITHUB_ENV
+          echo "EC2_IP=${{ vars.EC2_PUBLIC_IP }}" >> $GITHUB_ENV
 
       - name: Setup SSH key
         run: |
