@@ -12,7 +12,6 @@ terraform {
     bucket         = "terraform-state-bucket-security-levelup-grp-6"
     key            = "env/dev/terraform.tfstate"
     region         = "us-west-2"
-    dynamodb_table = "terraform-locks"
     encrypt        = true
   }
 }
@@ -32,7 +31,6 @@ locals {
 provider "aws" {
   region  = "us-west-2"
 }
-
 
 data "aws_ami" "ubuntu" {
   most_recent = true
@@ -212,7 +210,7 @@ resource "aws_instance" "app_server" {
   subnet_id = aws_subnet.public.id
   iam_instance_profile = aws_iam_instance_profile.ec2_instance_profile.name
   tags = {
-    Name = "ExampleAppServerInstance"
+    Name = "todo-backend"
   }
   vpc_security_group_ids = [aws_security_group.ec2-security-group.id]
 }
@@ -224,4 +222,8 @@ resource "aws_secretsmanager_secret" "db_hostname" {
 resource "aws_secretsmanager_secret_version" "db_credentials_version" {
   secret_id     = aws_secretsmanager_secret.db_hostname.id
   secret_string = aws_db_instance.postgres.address
+}
+
+output "ec2_public_ip" {
+  value = aws_instance.app_server.public_ip
 }
