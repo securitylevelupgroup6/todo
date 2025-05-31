@@ -154,7 +154,7 @@ resource "aws_db_instance" "postgres" {
   password             = local.secret_data.db_password
   parameter_group_name = "default.postgres15"
   skip_final_snapshot  = true
-  db_name              = "todo-db"
+  db_name              = "tododb"
   vpc_security_group_ids = [aws_security_group.rds-security-group.id]
   db_subnet_group_name   = aws_db_subnet_group.private-group.name
   
