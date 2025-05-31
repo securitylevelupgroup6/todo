@@ -31,7 +31,7 @@ jobs:
       - name: Copy over the migrations directory
         working-directory: .
         run: |
-          scp -r -o StrictHostKeyChecking=no -i ec2_key.pem migrations ubuntu@$EC2_IP:~/migrations
+          scp -r -o StrictHostKeyChecking=no -i ec2_key.pem migrations/* ubuntu@$EC2_IP:~/migrations
 
       - name: SSH into EC2 and run commands
         run: |
