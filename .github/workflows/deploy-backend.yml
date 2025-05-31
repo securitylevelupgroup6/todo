@@ -1,0 +1,39 @@
+name: Deploy Backend
+
+on:
+  workflow_dispatch: 
+    
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Get EC2 public IP from the repo variable
+        id: tf_output
+        run: |
+          run: echo "EC2_IP=${{ vars.EC2_PUBLIC_IP }}" >> $GITHUB_ENV
+
+      - name: Setup SSH key
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
+          chmod 600 ec2_key.pem
+
+      - name: SSH into EC2 and run commands
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ec2_key.pem ec2-user@$EC2_IP << 'EOF'
+            echo "Connected to EC2 instance!"
+            hostname
+            uptime
+            # Add more commands here as needed
+          EOF
+
+      
+
+
+
+
