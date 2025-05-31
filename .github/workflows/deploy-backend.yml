@@ -25,7 +25,7 @@ jobs:
 
       - name: SSH into EC2 and run commands
         run: |
-          ssh -o StrictHostKeyChecking=no -i ec2_key.pem ec2-user@$EC2_IP << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@$EC2_IP << 'EOF'
             echo "Connected to EC2 instance!"
             hostname
             uptime
