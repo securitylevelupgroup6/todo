@@ -217,7 +217,7 @@ resource "aws_instance" "app_server" {
 }
 
 resource "aws_secretsmanager_secret" "db_hostname" {
-  name = "rds-hostname"
+  name = "rds-host"
 }
 
 resource "aws_secretsmanager_secret_version" "db_credentials_version" {
