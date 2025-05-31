@@ -92,7 +92,7 @@ echo "Setting up nginx and https"
 
 set -e
 DOMAIN="todo.pastpaperportal.co.za"
-EMAIL="admin@$DOMAIN"  # Can be a dummy; won't be validated
+EMAIL="admin@$DOMAIN" 
 NGINX_CONF="/etc/nginx/sites-available/$DOMAIN"
 NGINX_LINK="/etc/nginx/sites-enabled/$DOMAIN"
 
@@ -116,19 +116,9 @@ server {
 }
 EOF
 
-# Enable the config
 sudo ln -sf $NGINX_CONF $NGINX_LINK
-
-echo "Testing nginx config..."
 sudo nginx -t
-
-echo "Reloading nginx..."
 sudo systemctl reload nginx
-
-echo "Obtaining HTTPS certificate via Certbot..."
 sudo certbot --nginx --non-interactive --agree-tos --register-unsafely-without-email -d $DOMAIN
-
-echo "Reloading nginx after Certbot config changes..."
 sudo systemctl reload nginx
 
-echo "✅ HTTPS is now enabled for https://$DOMAIN and traffic is forwarded to http://localhost:5000"
