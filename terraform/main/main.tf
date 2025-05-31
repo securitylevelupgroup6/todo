@@ -159,6 +159,7 @@ resource "aws_db_instance" "postgres" {
 
   vpc_security_group_ids = [aws_security_group.rds-security-group.id]
   db_subnet_group_name   = aws_db_subnet_group.private-group.name
+  
 
   tags = {
     Name = "test rds instance"
@@ -222,6 +223,5 @@ resource "aws_secretsmanager_secret" "db_hostname" {
 
 resource "aws_secretsmanager_secret_version" "db_credentials_version" {
   secret_id     = aws_secretsmanager_secret.db_hostname.id
-
   secret_string = aws_db_instance.postgres.address
 }

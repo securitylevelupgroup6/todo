@@ -4,7 +4,7 @@ on:
   workflow_dispatch: 
 
 jobs:
-  terraform-bootstrap:
+  terraform-main:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
