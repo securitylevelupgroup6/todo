@@ -40,5 +40,50 @@ rm awscliv2.zip && rm flyway-commandline-10.11.0-linux-x64.tar.gz
 
 # start the process as a systemd service
 
+APP_NAME="TODO-API"
+APP_USER="ubuntu"
+APP_DIR="~/build"
+EXECUTABLE="$APP_DIR/$APP_NAME"
+SERVICE_NAME="todo-api"
+SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
+
+# ensure the binary is executable ===
+echo "Making $EXECUTABLE executable..."
+chmod +x "$EXECUTABLE" || { echo "Failed to chmod +x"; exit 1; }
+
+# create systemd service file ===
+echo "Creating systemd service at $SERVICE_FILE..."
+
+sudo bash -c "cat > $SERVICE_FILE" <<EOF
+[Unit]
+Description=TODO API .NET Service
+After=network.target
+
+[Service]
+WorkingDirectory=$APP_DIR
+ExecStart=$EXECUTABLE
+Restart=always
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Reload and start the service
+echo "Reloading systemd and starting the service..."
+sudo systemctl daemon-reexec
+sudo systemctl daemon-reload
+sudo systemctl enable "$SERVICE_NAME"
+sudo systemctl start "$SERVICE_NAME"
+
+# Show status ===
+echo "Service status:"
+sudo systemctl status "$SERVICE_NAME" --no-pager
+
+
 
 
