@@ -38,8 +38,6 @@ flyway -url="jdbc:postgresql://$DB_HOST:5432/tododb" -user="$DB_USER" -password=
 # clean up crap
 rm awscliv2.zip && rm flyway-commandline-10.11.0-linux-x64.tar.gz
 
-
-
 # start the process as a systemd service
 
 APP_NAME="TODO-API"
