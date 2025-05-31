@@ -1,0 +1,37 @@
+name: Terraform Main
+
+on:
+  workflow_dispatch: 
+  push:
+    branches:
+      - main
+
+jobs:
+  terraform-bootstrap:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+            role-to-assume: arn:aws:iam::085960855966:role/github-action-iam-role
+            aws-region: us-west-2
+
+      - name: Terraform Init
+        working-directory: terraform/main
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: terraform/main
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve
+
+  
