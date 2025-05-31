@@ -5,7 +5,7 @@ sudo apt update && sudo apt install -y jq && sudo apt-get install -y unzip
 # install aws
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip -o awscliv2.zip
-sudo ./aws/install
+sudo ./aws/install --update
 
 # download flyway
 curl -L https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/9.22.1/flyway-commandline-9.22.1-linux-x64.tar.gz -o flyway.tar.gz
