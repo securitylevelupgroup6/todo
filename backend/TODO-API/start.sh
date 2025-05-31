@@ -9,10 +9,11 @@ unzip -o awscliv2.zip
 sudo ./aws/install --update
 
 # download flyway
-curl -L https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/9.22.1/flyway-commandline-9.22.1-linux-x64.tar.gz -o flyway.tar.gz
-tar -xzf flyway.tar.gz
-sudo mv flyway-9.22.1/flyway /usr/local/bin/
-rm -rf flyway.tar.gz flyway-9.22.1
+echo "Downloading and installing flyway"
+wget -q https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/10.11.0/flyway-commandline-10.11.0-linux-x64.tar.gz
+tar -xzf flyway-commandline-10.11.0-linux-x64.tar.gz
+sudo mv flyway-10.11.0 /opt/flyway
+sudo ln -s /opt/flyway/flyway /usr/local/bin/flyway
 
 export PATH=$PATH:/usr/local/bin
 
