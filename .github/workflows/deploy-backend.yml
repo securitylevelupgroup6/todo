@@ -33,6 +33,12 @@ jobs:
         run: |
           scp -r -o StrictHostKeyChecking=no -i ec2_key.pem migrations/* ubuntu@$EC2_IP:~/migrations
 
+      - name: build the api and move copy to the ec2
+        working-directory: backend/TODO-API
+        run: |
+            dotnet publish -c Release -r linux-x64 --self-contained true /p:PublishSingleFile=true
+            scp -o StrictHostKeyChecking=no -i publish/* ubuntu@$EC2_IP:~/build 
+
       - name: SSH into EC2 and run commands
         run: |
           ssh -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@$EC2_IP << 'EOF'
