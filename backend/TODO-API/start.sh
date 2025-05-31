@@ -42,7 +42,7 @@ rm awscliv2.zip && rm flyway-commandline-10.11.0-linux-x64.tar.gz
 
 APP_NAME="TODO-API"
 APP_USER="ubuntu"
-APP_DIR="home/ubuntu/build"
+APP_DIR="/home/ubuntu/build"
 EXECUTABLE="$APP_DIR/$APP_NAME"
 SERVICE_NAME="todo-api"
 SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
