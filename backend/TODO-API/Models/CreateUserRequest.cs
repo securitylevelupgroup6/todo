@@ -1,9 +1,6 @@
 ﻿namespace TODO_API.Models;
 
-public class CreateUserRequest
+public class CreateRoleRequest
 {
-    public string Username { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
-    public string FirstName { get; set; } = string.Empty;
-    public string LastName { get; set; } = string.Empty;
+    public string roleName { get; set; } = string.Empty;
 }
