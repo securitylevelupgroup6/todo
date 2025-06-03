@@ -9,7 +9,9 @@ public static class RoleEndpoints
 {
     public static void AddRoleEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet("/roles", GetRolesHandler);
+        endpoints.MapGet("/roles", GetRolesHandler)
+        .WithName("Get Roles")
+        .WithTags("Get All Roles");;
     }
 
     public static IResult GetRolesHandler(RoleService roleService)
