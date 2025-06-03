@@ -9,8 +9,6 @@ namespace TODO_API.Endpoints;
 
 public static class AuthEndpoints
 {
-    private static readonly JsonSerializerOptions CachedJsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
-
     public static void AddAuthEndpoints(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost("/auth/register", RegisterUserHandler)
@@ -25,14 +23,26 @@ public static class AuthEndpoints
         .WithName("Refresh Token")
         .WithTags("Refresh");
 
+        endpoints.MapGet("/auth/logout", LogoutUserHandler)
+        .WithName("Logout")
+        .WithTags("Logout");
+
         endpoints.MapGet("auth/protected", ProtectedHandler);
+
+        endpoints.MapGet("auth/authorized", AuthorizedHandler);
     }
-    
+
 
     [Authorize]
     public static IResult ProtectedHandler()
     {
-        return Results.Ok("this is a protected endpoint");
+        return Results.Ok("this is a authenticated endpoint");
+    }
+
+    [Authorize(Roles = "USER")]
+    public static IResult AuthorizedHandler()
+    {
+        return Results.Ok("This is an authorized endpoint");
     }
 
     public static IResult RefreshHandler(HttpContext http, UserService userService, HttpResponse response)
@@ -87,7 +97,6 @@ public static class AuthEndpoints
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTimeOffset.UtcNow.AddDays(85)
             });
-
             return Results.Ok();
         }
 
@@ -96,12 +105,32 @@ public static class AuthEndpoints
             LoginResult.UnknownError => Results.InternalServerError(),
             _ => Results.Unauthorized(),
         };
+    }
 
+
+    public static IResult LogoutUserHandler(HttpContext http, UserService userService)
+    {
+        var jwt = http.Request.Cookies["access_token"];
+        var refreshToken = http.Request.Cookies["refresh_token"];
+        if (jwt == null || refreshToken == null)
+        {
+            return Results.BadRequest("No refresh token and/or existing jwt");
+        }
+
+        if (userService.Logout(jwt, refreshToken))
+        {
+            http.Response.Cookies.Delete("access_token");
+            http.Response.Cookies.Delete("refresh_token");
+            return Results.Ok();
+        }
+        else
+        {
+            return Results.Unauthorized();
+        }
     }
 
     public static IResult RegisterUserHandler([FromBody] RegisterUserRequest request, UserService userService)
     {
-        // validate request body
         var errorResults = RequestValidator.Validate(request);
         if (errorResults != null)
         {
@@ -113,10 +142,9 @@ public static class AuthEndpoints
         {
             RegistrationResult.Success => Results.Ok(new { OtpUri = otpUri?.ToString() }),
             RegistrationResult.UsernameAlreadyTaken => Results.Conflict(new { Error = "Username already taken." }),
-            RegistrationResult.InvalidPassword => Results.BadRequest(new { Error = "Invalid password" }),
-            RegistrationResult.DatabaseError => Results.InternalServerError(new { Error = "An error occurred while adding the user to the database." }),
-            RegistrationResult.UnknownError => Results.InternalServerError(new { Error = "An unknown error occured." }),
-            _ => Results.InternalServerError(),
+            RegistrationResult.InvalidPassword => Results.BadRequest(new { Error = "Invalid password." }),
+            _ => Results.InternalServerError("Something went wrong while trying to register."),
         };
     }
 }
+

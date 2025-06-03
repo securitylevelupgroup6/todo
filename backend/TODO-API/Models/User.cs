@@ -1,5 +1,4 @@
 ﻿namespace TODO_API.Models;
-
 using System.ComponentModel.DataAnnotations.Schema;
 
 [Table("users")]
@@ -23,6 +22,8 @@ public class User
     [Column("two_factor_secret")]
     public string TwoFactorKey { get; set; }
 
-    public List<RefreshToken> refreshTokens { get; set; } = [];
+    public List<RefreshToken> RefreshTokens { get; set; } = [];
+
+    public ICollection<UserRole> UserRoles { get; set; } = [];
 
 }
