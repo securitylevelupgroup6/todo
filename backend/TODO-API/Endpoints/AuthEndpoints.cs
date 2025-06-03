@@ -25,6 +25,10 @@ public static class AuthEndpoints
         .WithName("Refresh Token")
         .WithTags("Refresh");
 
+        endpoints.MapGet("/auth/logout", LogoutUserHandler)
+        .WithName("Logout")
+        .WithTags("Logout");
+
         endpoints.MapGet("auth/protected", ProtectedHandler);
     }
     
@@ -97,6 +101,28 @@ public static class AuthEndpoints
             _ => Results.Unauthorized(),
         };
 
+    }
+
+
+    public static IResult LogoutUserHandler(HttpContext http, UserService userService)
+    {
+        var jwt = http.Request.Cookies["access_token"];
+        var refreshToken = http.Request.Cookies["refresh_token"];
+        if (jwt == null || refreshToken == null)
+        {
+            return Results.BadRequest("No refresh token and/or existing jwt");
+        }
+
+        if (userService.Logout(jwt, refreshToken))
+        {
+            http.Response.Cookies.Delete("access_token");
+            http.Response.Cookies.Delete("refresh_token");
+            return Results.Ok();
+        }
+        else
+        {
+            return Results.Unauthorized();
+        }
     }
 
     public static IResult RegisterUserHandler([FromBody] RegisterUserRequest request, UserService userService)

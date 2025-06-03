@@ -41,7 +41,6 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
 
     private readonly TodoContext _todoContext = dbContext;
 
-
     private User? GetUser(string username)
     {
         return dbContext.Users.Include(u => u.refreshTokens).FirstOrDefault(u => u.Username == username);
@@ -109,7 +108,7 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
     {
         try
         {
-            user.refreshTokens.Add(new RefreshToken { RefreshTokenHash = refreshTokenHash, ExpiresAt = DateTime.Now.AddDays(85).ToUniversalTime(), User = user });
+            user.refreshTokens.Add(new RefreshToken { RefreshTokenHash = refreshTokenHash, ExpiresAt = DateTime.Now.AddDays(85).ToUniversalTime(), User = user, Revoked=false });
             _todoContext.SaveChanges();
             return true;
         }
@@ -127,16 +126,38 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
 
         // get the user from the jwt
         var user = _todoContext.Users.Include(u => u.refreshTokens).FirstOrDefault(u => u.Id.ToString() == jwtToken.Subject.ToString());
-        var matchedToken = user?.refreshTokens.Where(encryptedToken => BCrypt.Net.BCrypt.Verify(refreshToken, encryptedToken.RefreshTokenHash)).FirstOrDefault();
+        var matchedToken = user?.refreshTokens.Where(encryptedToken => BCrypt.Net.BCrypt.Verify(refreshToken, encryptedToken.RefreshTokenHash) && !encryptedToken.Revoked).FirstOrDefault();
 
         if (user == null || matchedToken == null || matchedToken?.ExpiresAt <= DateTime.UtcNow)
         {
-            // something is not lekka
+            // something is not lekka, 
+            // someone is using an expired/revoked refresh token or the user does not have any refresh tokens at all
             return null;
         }
 
         // this is a valid refresh token so refresh the token
         return CreateJwt(user.Username);
+    }
+
+    public bool Logout(string jwt, string refreshToken)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(jwt);
+
+        var user = _todoContext.Users.Include(u => u.refreshTokens).FirstOrDefault(u => u.Id.ToString() == jwtToken.Subject.ToString());
+
+        // this is the refresh token that the user is currently logged in with
+        var matchedToken = user?.refreshTokens.Where(encryptedToken => BCrypt.Net.BCrypt.Verify(refreshToken, encryptedToken.RefreshTokenHash) && !encryptedToken.Revoked).FirstOrDefault();
+        if (matchedToken == null || user == null)
+        {
+            // the user cannot be logged out because they do not have a valid refresh token in the first place or the user does not exist
+            return false;
+        }
+
+        // revoke the token
+        matchedToken.Revoked = true;
+        _todoContext.SaveChanges();
+        return true;
     }
 
     public RegistrationResult RegisterUser(string username, string password, string firstName, string lastName, out OtpUri? otpUri)

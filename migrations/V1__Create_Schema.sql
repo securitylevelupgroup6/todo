@@ -11,7 +11,8 @@ CREATE TABLE refresh_tokens (
   id SERIAL PRIMARY KEY,
   user_id INT NOT NULL,
   refresh_token VARCHAR(255) NOT NULL,
-  expires_at instant  NOT NULL
+  expires_at TIMESTAMPTZ  NOT NULL,
+  revoked boolean NOT NULL
 );
 
 CREATE TABLE teams (

@@ -17,4 +17,7 @@ public class RefreshToken
 
     [Column("expires_at")]
     public DateTime ExpiresAt { get; set; }
+
+    [Column("revoked")]
+    public bool Revoked { get; set; }
 }
