@@ -9,7 +9,6 @@ using TODO_API.Common;
 using System.Text;
 using System.Security.Cryptography;
 using System.Security.Claims;
-using System.Text.Json;
 
 namespace TODO_API.Services;
 
@@ -114,6 +113,21 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
 
         // this is a valid refresh token so refresh the token
         return CreateJwt(user.Username);
+    }
+
+
+    public void AddRoles(string username, List<int> roleIds)
+    {
+        User user = GetUser(username) ?? throw new UserNotFoundException();
+        roleIds.ForEach(rid =>
+        {
+            if (!user.UserRoles.Any(ur => ur.RoleId == rid))
+            {
+                // only add the role if it doesn't exist already
+                user.UserRoles.Add(new UserRole { RoleId = rid, UserId = user.Id });
+                _todoContext.SaveChanges();
+            }
+        });
     }
 
     public bool Logout(string jwt, string refreshToken)

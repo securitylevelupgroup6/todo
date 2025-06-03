@@ -47,6 +47,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<RoleService>();
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -81,14 +82,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         
     });
 
-builder.Services.AddAuthorization((options)=>
+builder.Services.AddAuthorization((options) =>
 {
     options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("ADMIN"));
     options.AddPolicy("RequireTeamRole", policy => policy.RequireRole("TEAM_LEAD"));
     options.AddPolicy("RequireUserRole", policy => policy.RequireRole("USER"));
 });
 
+
+
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.AddEndpoints();
 app.UseAuthentication();
