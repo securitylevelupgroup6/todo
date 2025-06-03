@@ -5,34 +5,13 @@ using OtpNet;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using TODO_API.Common;
 using System.Text;
 using System.Security.Cryptography;
-using BCrypt.Net;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace TODO_API.Services;
-
-public enum RegistrationResult
-{
-    Success,
-    UsernameAlreadyTaken,
-    InvalidPassword,
-    DatabaseError,
-    UnknownError
-}
-
-public enum LoginResult
-{
-    Success,
-    UsernameDoesNotExist,
-    IncorrectPassword,
-    OtpFailed,
-    DatabaseError,
-    UnknownError
-}
 
 public class UserService(TodoContext dbContext, IDataProtectionProvider provider)
 {
@@ -43,7 +22,7 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
 
     private User? GetUser(string username)
     {
-        return dbContext.Users.Include(u => u.refreshTokens).FirstOrDefault(u => u.Username == username);
+        return dbContext.Users.Include(u => u.RefreshTokens).Include(u=>u.UserRoles).ThenInclude(ur=>ur.Role).FirstOrDefault(u => u.Username == username);
     }
 
     public LoginResult ValidateUserCredentials(string username, string password, string otp, out string? refreshToken)
@@ -81,17 +60,16 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
 
     public string CreateJwt(string username)
     {
-        var user = _todoContext.Users.FirstOrDefault(x => x.Username == username);
-        if (user == null)
-        {
-            throw new Exception("Attempt to create jwt for non-existent user.");
-        }
+        var user = GetUser(username) ?? throw new UserNotFoundException();
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
+        var roleClaims = user.UserRoles
+        .Select(ur => new Claim(ClaimTypes.Role, ur.Role.Name));
+        claims = [.. claims, .. roleClaims];
 
         var token = new JwtSecurityToken(
             issuer: EnvironmentConfiguration.JwtIssuer,
@@ -108,7 +86,7 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
     {
         try
         {
-            user.refreshTokens.Add(new RefreshToken { RefreshTokenHash = refreshTokenHash, ExpiresAt = DateTime.Now.AddDays(85).ToUniversalTime(), User = user, Revoked=false });
+            user.RefreshTokens.Add(new RefreshToken { RefreshTokenHash = refreshTokenHash, ExpiresAt = DateTime.Now.AddDays(85).ToUniversalTime(), User = user, Revoked=false });
             _todoContext.SaveChanges();
             return true;
         }
@@ -125,13 +103,12 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
         var jwtToken = handler.ReadJwtToken(jwt);
 
         // get the user from the jwt
-        var user = _todoContext.Users.Include(u => u.refreshTokens).FirstOrDefault(u => u.Id.ToString() == jwtToken.Subject.ToString());
-        var matchedToken = user?.refreshTokens.Where(encryptedToken => BCrypt.Net.BCrypt.Verify(refreshToken, encryptedToken.RefreshTokenHash) && !encryptedToken.Revoked).FirstOrDefault();
+        var user = _todoContext.Users.Include(u => u.RefreshTokens).FirstOrDefault(u => u.Id.ToString() == jwtToken.Subject.ToString());
+        var matchedToken = user?.RefreshTokens.Where(encryptedToken => BCrypt.Net.BCrypt.Verify(refreshToken, encryptedToken.RefreshTokenHash) && !encryptedToken.Revoked).FirstOrDefault();
 
         if (user == null || matchedToken == null || matchedToken?.ExpiresAt <= DateTime.UtcNow)
         {
-            // something is not lekka, 
-            // someone is using an expired/revoked refresh token or the user does not have any refresh tokens at all
+            // someone is using an expired/revoked refresh token or the user does not have any refresh tokens at all, definitely do not refresh the token!
             return null;
         }
 
@@ -144,13 +121,12 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
         var handler = new JwtSecurityTokenHandler();
         var jwtToken = handler.ReadJwtToken(jwt);
 
-        var user = _todoContext.Users.Include(u => u.refreshTokens).FirstOrDefault(u => u.Id.ToString() == jwtToken.Subject.ToString());
+        var user = _todoContext.Users.Include(u => u.RefreshTokens).FirstOrDefault(u => u.Id.ToString() == jwtToken.Subject.ToString());
 
         // this is the refresh token that the user is currently logged in with
-        var matchedToken = user?.refreshTokens.Where(encryptedToken => BCrypt.Net.BCrypt.Verify(refreshToken, encryptedToken.RefreshTokenHash) && !encryptedToken.Revoked).FirstOrDefault();
+        var matchedToken = user?.RefreshTokens.Where(encryptedToken => BCrypt.Net.BCrypt.Verify(refreshToken, encryptedToken.RefreshTokenHash) && !encryptedToken.Revoked).FirstOrDefault();
         if (matchedToken == null || user == null)
         {
-            // the user cannot be logged out because they do not have a valid refresh token in the first place or the user does not exist
             return false;
         }
 
@@ -169,7 +145,7 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
             return RegistrationResult.UsernameAlreadyTaken;
         }
 
-        if (!IsPasswordStrongEnough(password))
+        if (!RequestValidator.IsPasswordStrongEnough(password))
         {
             otpUri = null;
             return RegistrationResult.InvalidPassword;
@@ -179,14 +155,20 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
             var totpSecretKey = Base32Encoding.ToString(KeyGeneration.GenerateRandomKey(20));
             var encryptedSecret = _provider.CreateProtector("TotpSecrets").Protect(totpSecretKey);
+
             User user = new() { FirstName = firstName, LastName = lastName, Password = passwordHash, TwoFactorKey = encryptedSecret, Username = username };
             _todoContext.Users.Add(user);
             _todoContext.SaveChanges();
+
+            Role role = _todoContext.Roles.FirstOrDefault(r => r.Name == "USER") ?? throw new RoleNotFoundException();
+            UserRole defaultRole = new() { RoleId = role.Id, UserId = user.Id };
+            user.UserRoles = [defaultRole];
+            _todoContext.SaveChanges();
+
             otpUri = new OtpUri(OtpType.Totp, totpSecretKey, "TODO-APP");
         }
         catch (DbUpdateException exception)
         {
-            // this should be logged with a logger
             Console.WriteLine(exception.StackTrace);
             otpUri = null;
             return RegistrationResult.DatabaseError;
@@ -199,12 +181,5 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
         }
         return RegistrationResult.Success;
     }
-
-    private static bool IsPasswordStrongEnough(string password)
-    {
-        return password.Length >= 8 &&
-               password.Any(char.IsUpper) &&
-               password.Any(char.IsLower) &&
-               password.Any(char.IsDigit);
-    }
+    
 }
