@@ -5,16 +5,32 @@ using TODO_API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = "LocalAuthIssuer";
+    options.DefaultChallengeScheme = "LocalAuthIssuer";
+    options.DefaultScheme = "LocalAuthIssuer";
+})
+.AddJwtBearer()
+.AddJwtBearer("LocalAuthIssuer");
+
 builder.Services.AddDbContextPool<TODO_API.Repositories.TodoContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), poolSize: 128);
 
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<UserService>();
 
+builder.Services.ConfigureAuth();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+app.UseCors();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.AddEndpoints();
 
