@@ -9,7 +9,7 @@ terraform {
   required_version = ">= 1.2.0"
 
   backend "s3" {
-    bucket         = "terraform-state-bucket-security-levelup-grp-6"
+    bucket         = "terraform-state-bucket-security-levelup-grp-6-1"
     key            = "env/dev/terraform.tfstate"
     region         = "af-south-1"
     encrypt        = true
