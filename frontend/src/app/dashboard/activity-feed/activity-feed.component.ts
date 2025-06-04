@@ -1,0 +1,49 @@
+import { Component, Input } from '@angular/core';
+import { Activity } from '../../shared/models/dashboard.models';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-activity-feed',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <section class="bg-white rounded-lg shadow p-4">
+      <header>
+        <h2 class="text-xl font-semibold mb-4">Recent Activity</h2>
+      </header>
+      <main class="space-y-4">
+        <div *ngFor="let activity of activities" class="flex items-start space-x-3">
+          <!-- User Avatar -->
+          <div class="flex-shrink-0">
+            <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+              <span class="text-sm font-medium text-gray-600">
+                {{ activity.user.firstName[0] }}{{ activity.user.lastName[0] }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Activity Content -->
+          <div class="flex-1 min-w-0">
+            <p class="text-sm text-gray-900">
+              <span class="font-medium">{{ activity.user.firstName }} {{ activity.user.lastName }}</span>
+              <span class="text-gray-600"> {{ activity.action }}</span>
+              <span class="font-medium">{{ activity.target }}</span>
+            </p>
+            <p class="text-xs text-gray-500">
+              {{ activity.timestamp | date:'MMM d, h:mm a' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!activities?.length" class="text-center py-4">
+          <p class="text-gray-500 text-sm">No recent activity</p>
+        </div>
+      </main>
+    </section>
+  `,
+  styles: []
+})
+export class ActivityFeedComponent {
+  @Input() activities!: Activity[];
+} 

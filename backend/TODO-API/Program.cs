@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using TODO_API.Common;
 using TODO_API.Configuration;
 using TODO_API.Services;
+using TODO_API.Endpoints;
 
 EnvironmentConfiguration.JwtKey = Environment.GetEnvironmentVariable("JWT_KEY")
     ?? throw new InvalidOperationException("JWT_KEY environment variable is not set.");
@@ -83,6 +84,7 @@ builder.Services.AddAuthorization();
 var app = builder.Build();
 
 app.AddEndpoints();
+app.MapDashboardEndpoints();
 app.UseAuthentication();
 app.UseAuthorization();
 app.Run();
