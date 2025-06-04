@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "terraform-state-bucket-security-levelup-grp-6"  
+  bucket = "terraform-state-bucket-security-levelup-grp-6-1"  
   tags = {
     Name        = "Terraform State Bucket"
     Environment = "dev"
