@@ -1,7 +1,12 @@
-﻿namespace TODO_API.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.InteropServices;
 
+namespace TODO_API.Models;
+
+[Table("refresh_tokens")]
 public class RefreshToken
 {
+    [Column("id")]
     public int Id { get; set; }
 
     [ForeignKey("user_id")]

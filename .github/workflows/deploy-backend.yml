@@ -12,6 +12,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        
+      - name: Setup .NET 9 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x' 
 
       - name: Get EC2 public IP from the repo variable
         id: tf_output
@@ -37,7 +42,7 @@ jobs:
         working-directory: backend/TODO-API
         run: |
             dotnet publish -c Release -r linux-x64 --self-contained true /p:PublishSingleFile=true
-            scp -o StrictHostKeyChecking=no -i ../../ec2_key.pem ./bin/Release/net8.0/linux-x64/publish/* ubuntu@$EC2_IP:~/build 
+            scp -o StrictHostKeyChecking=no -i ../../ec2_key.pem ./bin/Release/net9.0/linux-x64/publish/* ubuntu@$EC2_IP:~/build 
 
       - name: SSH into EC2 and run commands
         run: |

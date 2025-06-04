@@ -3,5 +3,5 @@
 public class CreateTeamRequest
 {
     public string Name { get; set; }
-    public string TeamLeadUserId { get; set; }
+    public int TeamLeadUserId { get; set; }
 }

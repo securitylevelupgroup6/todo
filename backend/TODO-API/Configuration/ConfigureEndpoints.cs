@@ -8,5 +8,8 @@ public static class ConfigureEndpoints
     {
         endpoints.AddUserEndpoints()
             .AddTeamEndpoints();
+        endpoints.AddAuthEndpoints();
+        endpoints.AddRoleEndpoints();
+        endpoints.AddUserEndpoints();
     }
 }

@@ -18,7 +18,7 @@ public class TeamService(TeamRepository teamRepository)
                 TeamId = team.Id
             };
 
-            var teamLeadMember = await teamRepository.AddUserToTeam(createTeamRequest);
+            var teamLeadMember = await teamRepository.AddUserToTeam(addMemberRequest);
 
             return team;
         }
