@@ -5,64 +5,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-teams',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <main class="container mx-auto px-4 py-8">
-      <header class="mb-8">
-        <h1 class="text-3xl font-bold tracking-tight">Teams</h1>
-        <p class="mt-2 text-muted-foreground">Manage your teams and their members</p>
-      </header>
-
-      <section class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <!-- Team Card -->
-        <article class="rounded-lg border bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
-          <header class="mb-4">
-            <h2 class="text-xl font-semibold tracking-tight">Development Team</h2>
-            <p class="text-sm text-muted-foreground">12 members</p>
-          </header>
-
-          <section class="space-y-4">
-            <div class="flex -space-x-2">
-              <figure class="inline-block h-8 w-8 rounded-full ring-2 ring-background">
-                <img class="h-full w-full rounded-full" src="https://github.com/shadcn.png" alt="User" />
-              </figure>
-              <figure class="inline-block h-8 w-8 rounded-full ring-2 ring-background">
-                <img class="h-full w-full rounded-full" src="https://github.com/shadcn.png" alt="User" />
-              </figure>
-              <figure class="inline-block h-8 w-8 rounded-full ring-2 ring-background">
-                <img class="h-full w-full rounded-full" src="https://github.com/shadcn.png" alt="User" />
-              </figure>
-              <figure class="inline-block h-8 w-8 rounded-full ring-2 ring-background">
-                <div class="flex h-full w-full items-center justify-center rounded-full bg-muted text-xs font-medium">
-                  +9
-                </div>
-              </figure>
-            </div>
-
-            <footer class="flex items-center justify-between">
-              <button class="text-sm font-medium text-primary hover:underline">View Details</button>
-              <button class="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-                Manage
-              </button>
-            </footer>
-          </section>
-        </article>
-
-        <!-- Add Team Card -->
-        <article class="flex min-h-[200px] items-center justify-center rounded-lg border border-dashed p-6">
-          <button class="flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground">
-            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            <span class="text-sm font-medium">Add New Team</span>
-          </button>
-        </article>
-      </section>
-    </main>
-  `,
-  styles: [`
-    :host {
-      display: block;
-    }
-  `]
+  templateUrl: './teams.component.html',
+  styleUrls: ['./teams.component.scss']
 })
 export class TeamsComponent {} 

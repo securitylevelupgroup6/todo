@@ -7,17 +7,8 @@ import Chart from 'chart.js/auto';
   selector: 'app-performance-chart',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <section class="bg-white rounded-lg shadow p-4">
-      <header>
-        <h2 class="text-xl font-semibold mb-4">Team Performance</h2>
-      </header>
-      <main class="h-64">
-        <canvas #chartCanvas></canvas>
-      </main>
-    </section>
-  `,
-  styles: []
+  templateUrl: './performance-chart.component.html',
+  styleUrls: ['./performance-chart.component.scss']
 })
 export class PerformanceChartComponent implements AfterViewInit {
   @Input() teamPerformance!: TeamPerformance[];

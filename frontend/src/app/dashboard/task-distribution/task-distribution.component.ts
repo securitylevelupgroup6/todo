@@ -6,27 +6,8 @@ import Chart from 'chart.js/auto';
   selector: 'app-task-distribution',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <section class="grid grid-cols-1 gap-6 md:grid-cols-2">
-      <article class="bg-white rounded-lg shadow p-4">
-        <header>
-          <h2 class="text-xl font-semibold mb-4">Tasks by Status</h2>
-        </header>
-        <main class="h-64">
-          <canvas #statusChartCanvas></canvas>
-        </main>
-      </article>
-      <article class="bg-white rounded-lg shadow p-4">
-        <header>
-          <h2 class="text-xl font-semibold mb-4">Tasks by Priority</h2>
-        </header>
-        <main class="h-64">
-          <canvas #priorityChartCanvas></canvas>
-        </main>
-      </article>
-    </section>
-  `,
-  styles: []
+  templateUrl: './task-distribution.component.html',
+  styleUrls: ['./task-distribution.component.scss']
 })
 export class TaskDistributionComponent implements AfterViewInit {
   @Input() tasksByStatus!: Record<string, number>;
