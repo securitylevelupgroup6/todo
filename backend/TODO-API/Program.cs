@@ -1,26 +1,31 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.RateLimiting;
 using TODO_API.Configuration;
 using TODO_API.Repositories;
-using TODO_API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors();
 
-builder.Services.AddAuthentication(options =>
+builder.Services.AddDbContextPool<TODO_API.Repositories.TodoContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), poolSize: 128);
+
+builder.Services.AddRateLimiter(rateLimiterOptions =>
 {
-    options.DefaultAuthenticateScheme = "LocalAuthIssuer";
-    options.DefaultChallengeScheme = "LocalAuthIssuer";
-    options.DefaultScheme = "LocalAuthIssuer";
-})
-.AddJwtBearer()
-.AddJwtBearer("LocalAuthIssuer");
+    rateLimiterOptions.AddFixedWindowLimiter("RegisterEndpointLimiter", options =>
+    {
+        options.PermitLimit = 5;
+        options.Window = TimeSpan.FromSeconds(30);
+        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        options.QueueLimit = 0;
+    });
+});
 
 builder.Services.AddDbContextPool<TODO_API.Repositories.TodoContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), poolSize: 128);
 
-builder.Services.AddScoped<UserRepository>();
-builder.Services.AddScoped<UserService>();
+builder.Services.AddServices();
 
 builder.Services.ConfigureAuth();
 builder.Services.AddEndpointsApiExplorer();
