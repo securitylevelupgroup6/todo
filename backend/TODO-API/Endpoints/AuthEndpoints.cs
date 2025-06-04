@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OtpNet;
-using System.Text.Json;
 using TODO_API.Common;
 using TODO_API.Models;
 using TODO_API.Services;
@@ -9,7 +8,7 @@ namespace TODO_API.Endpoints;
 
 public static class AuthEndpoints
 {
-    public static void AddAuthEndpoints(this IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder AddAuthEndpoints(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost("/auth/register", RegisterUserHandler)
         .WithName("Register User")
@@ -30,6 +29,8 @@ public static class AuthEndpoints
         endpoints.MapGet("auth/protected", ProtectedHandler);
 
         endpoints.MapGet("auth/authorized", AuthorizedHandler);
+
+        return endpoints;
     }
 
 

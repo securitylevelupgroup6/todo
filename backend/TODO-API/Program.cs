@@ -1,14 +1,13 @@
-using System.Security.Claims;
-using System.Text;
-using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.RateLimiting;
 using TODO_API.Common;
 using TODO_API.Configuration;
-using TODO_API.Services;
 
 EnvironmentConfiguration.JwtKey = Environment.GetEnvironmentVariable("JWT_KEY")
     ?? throw new InvalidOperationException("JWT_KEY environment variable is not set.");
@@ -24,7 +23,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddDbContextPool<TODO_API.Repositories.TodoContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), poolSize: 128);
+    options.UseNpgsql(builder.Configuration.GetConnectionString("TodoDatabase")), poolSize: 128);
 
 builder.Services.AddRateLimiter(rateLimiterOptions =>
 {
@@ -53,7 +52,7 @@ builder.Services.AddRateLimiter(rateLimiterOptions =>
         options.PermitLimit = 5;
         options.Window = TimeSpan.FromSeconds(30);
         options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        options.QueueLimit = 0; 
+        options.QueueLimit = 0;
     });
 });
 
@@ -65,10 +64,6 @@ builder.Services.AddDataProtection()
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<RoleService>();
-
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -99,7 +94,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 return Task.CompletedTask;
             }
         };
-        
+
     });
 
 builder.Services.AddAuthorization((options) =>

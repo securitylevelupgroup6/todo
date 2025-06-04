@@ -11,6 +11,7 @@ public static class RegisterServices
         services.AddScoped<UserService>();
         services.AddScoped<TeamRepository>();
         services.AddScoped<TeamService>();
+        services.AddScoped<RoleService>();
 
         return services;
     }
