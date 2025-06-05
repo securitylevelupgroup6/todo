@@ -1,54 +1,159 @@
 <main class="container mx-auto px-4 py-8">
+  <!-- Header Section -->
   <header class="mb-8">
-    <h1 class="text-3xl font-bold tracking-tight">Tasks</h1>
-    <p class="mt-2 text-muted-foreground">Manage and track your team's tasks</p>
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight">Tasks</h1>
+        <p class="mt-2 text-muted-foreground">Manage and track your team's tasks</p>
+      </div>
+      <button
+        (click)="openCreateModal()"
+        class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+      >
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Create Task
+      </button>
+    </div>
   </header>
 
+  <!-- Filters Section -->
+  <section class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center">
+    <div class="relative flex-1">
+      <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+      <input
+        type="search"
+        [(ngModel)]="searchTerm"
+        placeholder="Search tasks..."
+        class="w-full rounded-lg border border-input bg-background py-2 pl-10 pr-4 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      />
+    </div>
+    <select
+      [(ngModel)]="statusFilter"
+      class="rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <option *ngFor="let status of statuses" [value]="status">
+        {{ formatStatus(status) }}
+      </option>
+    </select>
+    <select
+      [(ngModel)]="priorityFilter"
+      class="rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <option *ngFor="let priority of priorities" [value]="priority">
+        {{ formatPriority(priority) }}
+      </option>
+    </select>
+  </section>
+
+  <!-- Tasks Grid -->
   <section class="grid gap-6 lg:grid-cols-3">
     <!-- Task List -->
     <article class="lg:col-span-2 space-y-4">
-      <!-- Task Item -->
-      <div class="rounded-lg border bg-card p-4 shadow-sm">
-        <div class="flex items-start justify-between">
-          <div class="space-y-1">
-            <h3 class="font-medium leading-none">Implement user authentication</h3>
-            <p class="text-sm text-muted-foreground">Development Team</p>
+      <!-- Task Cards -->
+      <div
+        *ngFor="let task of filteredTasks"
+        class="group relative rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md"
+      >
+        <!-- Task Header -->
+        <header class="mb-4">
+          <div class="flex items-start justify-between">
+            <div>
+              <h2 class="text-xl font-semibold tracking-tight">{{ task.title }}</h2>
+              <p class="mt-1 text-sm text-muted-foreground">{{ task.description }}</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span
+                [class]="'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ' + getStatusColor(task.status)"
+              >
+                {{ formatStatus(task.status) }}
+              </span>
+              <span
+                [class]="'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ' + getPriorityColor(task.priority)"
+              >
+                {{ formatPriority(task.priority) }}
+              </span>
+            </div>
           </div>
+        </header>
+
+        <!-- Task Details -->
+        <section class="mb-4 grid grid-cols-2 gap-4">
+          <div class="rounded-lg bg-muted/50 p-3">
+            <p class="text-sm font-medium text-muted-foreground">Team</p>
+            <p class="mt-1 font-medium">{{ task.team.name }}</p>
+          </div>
+          <div class="rounded-lg bg-muted/50 p-3">
+            <p class="text-sm font-medium text-muted-foreground">Due Date</p>
+            <p class="mt-1 font-medium">{{ formatDate(task.dueDate) }}</p>
+          </div>
+        </section>
+
+        <!-- Task Footer -->
+        <footer class="flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-              In Progress
+            <figure
+              *ngIf="task.assignedTo"
+              class="inline-block h-8 w-8 rounded-full ring-2 ring-background"
+            >
+              <img [src]="task.assignedTo.avatar" [alt]="task.assignedTo.name" class="h-full w-full rounded-full object-cover" />
+            </figure>
+            <span class="text-sm text-muted-foreground">
+              {{ task.assignedTo ? task.assignedTo.name : 'Unassigned' }}
             </span>
-            <button class="rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-              </svg>
+          </div>
+          <div class="flex gap-2">
+            <button
+              (click)="openEditModal(task)"
+              class="rounded-lg bg-muted px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/80"
+            >
+              Edit
+            </button>
+            <button
+              (click)="deleteTask(task)"
+              class="rounded-lg bg-destructive px-3 py-1.5 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
+            >
+              Delete
             </button>
           </div>
-        </div>
-
-        <div class="mt-4 flex items-center gap-4">
-          <div class="flex items-center gap-2">
-            <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span class="text-sm text-muted-foreground">Due in 2 days</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <svg class="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            <span class="text-sm text-muted-foreground">3 assignees</span>
-          </div>
-        </div>
+        </footer>
       </div>
 
-      <!-- Add Task Button -->
-      <button class="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed p-4 text-muted-foreground hover:border-foreground hover:text-foreground">
-        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      <!-- Empty State -->
+      <div
+        *ngIf="filteredTasks.length === 0"
+        class="rounded-lg border border-dashed p-8 text-center"
+      >
+        <svg
+          class="mx-auto h-12 w-12 text-muted-foreground"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+          />
         </svg>
-        <span class="font-medium">Add New Task</span>
-      </button>
+        <h3 class="mt-4 text-lg font-semibold">No tasks found</h3>
+        <p class="mt-2 text-muted-foreground">
+          No tasks match your current filters. Try adjusting your search or create a new task.
+        </p>
+        <button
+          (click)="openCreateModal()"
+          class="mt-4 inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        >
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Create Task
+        </button>
+      </div>
     </article>
 
     <!-- Task Stats -->
@@ -58,22 +163,160 @@
         <div class="mt-4 space-y-4">
           <div class="flex items-center justify-between">
             <span class="text-sm text-muted-foreground">Total Tasks</span>
-            <span class="font-medium">24</span>
+            <span class="font-medium">{{ tasks.length }}</span>
           </div>
           <div class="flex items-center justify-between">
             <span class="text-sm text-muted-foreground">In Progress</span>
-            <span class="font-medium">8</span>
+            <span class="font-medium">{{ getTaskCount('in_progress') }}</span>
           </div>
           <div class="flex items-center justify-between">
             <span class="text-sm text-muted-foreground">Completed</span>
-            <span class="font-medium">12</span>
+            <span class="font-medium">{{ getTaskCount('completed') }}</span>
           </div>
           <div class="flex items-center justify-between">
             <span class="text-sm text-muted-foreground">Overdue</span>
-            <span class="font-medium">4</span>
+            <span class="font-medium">{{ getOverdueCount() }}</span>
           </div>
         </div>
       </div>
     </aside>
   </section>
+
+  <!-- Create/Edit Task Modal -->
+  <div
+    *ngIf="showCreateModal"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+  >
+    <div class="w-full max-w-2xl rounded-lg border bg-card p-6 shadow-lg">
+      <header class="mb-6 flex items-center justify-between">
+        <h2 class="text-2xl font-semibold tracking-tight">
+          {{ selectedTask ? 'Edit Task' : 'Create New Task' }}
+        </h2>
+        <button
+          (click)="closeModal()"
+          class="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        >
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </header>
+
+      <form (ngSubmit)="saveTask(taskForm)" #taskForm="ngForm" class="space-y-6">
+        <div class="space-y-2">
+          <label for="title" class="text-sm font-medium">Task Title</label>
+          <input
+            id="title"
+            name="title"
+            [(ngModel)]="formData.title"
+            class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            placeholder="Enter task title"
+            required
+          />
+        </div>
+
+        <div class="space-y-2">
+          <label for="description" class="text-sm font-medium">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            [(ngModel)]="formData.description"
+            rows="3"
+            class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            placeholder="Enter task description"
+            required
+          ></textarea>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="space-y-2">
+            <label for="status" class="text-sm font-medium">Status</label>
+            <select
+              id="status"
+              name="status"
+              [(ngModel)]="formData.status"
+              class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              required
+            >
+              <option *ngFor="let status of statuses.slice(1)" [value]="status">
+                {{ formatStatus(status) }}
+              </option>
+            </select>
+          </div>
+
+          <div class="space-y-2">
+            <label for="priority" class="text-sm font-medium">Priority</label>
+            <select
+              id="priority"
+              name="priority"
+              [(ngModel)]="formData.priority"
+              class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              required
+            >
+              <option *ngFor="let priority of priorities.slice(1)" [value]="priority">
+                {{ formatPriority(priority) }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="space-y-2">
+            <label for="dueDate" class="text-sm font-medium">Due Date</label>
+            <input
+              id="dueDate"
+              name="dueDate"
+              type="date"
+              [(ngModel)]="formData.dueDate"
+              class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              required
+            />
+          </div>
+
+          <div class="space-y-2">
+            <label for="team" class="text-sm font-medium">Team</label>
+            <select
+              id="team"
+              name="team"
+              [(ngModel)]="formData.team"
+              class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              required
+            >
+              <option value="" disabled>Select team</option>
+              <option *ngFor="let team of teams" [value]="team.id">{{ team.name }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <label for="assignedTo" class="text-sm font-medium">Assignee</label>
+          <select
+            id="assignedTo"
+            name="assignedTo"
+            [(ngModel)]="formData.assignedTo"
+            class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <option [ngValue]="null">Unassigned</option>
+            <option *ngFor="let user of users" [value]="user.id">{{ user.name }}</option>
+          </select>
+        </div>
+
+        <div class="flex justify-end gap-2">
+          <button
+            type="button"
+            (click)="closeModal()"
+            class="rounded-lg bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/80"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            {{ selectedTask ? 'Save Changes' : 'Create Task' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </main> 

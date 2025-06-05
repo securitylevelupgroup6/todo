@@ -1,86 +1,94 @@
-import { Component, Input, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
-import { TeamPerformance } from '../../shared/models/dashboard.models';
+import { Component, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import Chart from 'chart.js/auto';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-performance-chart',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './performance-chart.component.html',
-  styleUrls: ['./performance-chart.component.scss']
+  template: `
+    <div class="h-[400px]">
+      <canvas #performanceChart></canvas>
+    </div>
+  `,
+  styles: [`
+    :host {
+      display: block;
+    }
+  `]
 })
 export class PerformanceChartComponent implements AfterViewInit {
-  @Input() teamPerformance!: TeamPerformance[];
-  @ViewChild('chartCanvas') chartCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('performanceChart') chartRef!: ElementRef<HTMLCanvasElement>;
+  @Input() teamPerformance: { team: string; performance: number }[] = [];
+
   private chart: Chart | null = null;
 
   ngAfterViewInit() {
     this.createChart();
   }
 
-  ngOnChanges() {
-    if (this.chart) {
-      this.updateChart();
-    }
-  }
-
   private createChart() {
-    const ctx = this.chartCanvas.nativeElement.getContext('2d');
+    const ctx = this.chartRef.nativeElement.getContext('2d');
     if (!ctx) return;
 
+    const data = {
+      labels: this.teamPerformance.map(item => item.team),
+      datasets: [{
+        label: 'Team Performance',
+        data: this.teamPerformance.map(item => item.performance),
+        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+        borderColor: 'rgb(59, 130, 246)',
+        borderWidth: 2,
+        tension: 0.4,
+        fill: true
+      }]
+    };
+
     this.chart = new Chart(ctx, {
-      type: 'bar',
-      data: this.getChartData(),
+      type: 'line',
+      data,
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
           legend: {
             display: false
+          },
+          tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            padding: 12,
+            titleColor: '#fff',
+            titleFont: {
+              size: 14,
+              weight: 'bold'
+            },
+            bodyColor: '#fff',
+            bodyFont: {
+              size: 13
+            },
+            borderColor: 'rgba(255, 255, 255, 0.1)',
+            borderWidth: 1
           }
         },
         scales: {
           y: {
             beginAtZero: true,
-            max: 100,
-            title: {
-              display: true,
-              text: 'Completion Rate (%)'
+            grid: {
+              color: 'rgba(0, 0, 0, 0.1)'
+            },
+            ticks: {
+              callback: (value) => `${value}%`
             }
           },
           x: {
-            title: {
-              display: true,
-              text: 'Teams'
+            grid: {
+              display: false
             }
           }
         }
       }
     });
-  }
-
-  private updateChart() {
-    if (!this.chart) return;
-
-    const chartData = this.getChartData();
-    this.chart.data.labels = chartData.labels;
-    this.chart.data.datasets[0].data = chartData.datasets[0].data;
-    this.chart.update();
-  }
-
-  private getChartData() {
-    const labels = this.teamPerformance.map(team => team.teamName);
-    const data = this.teamPerformance.map(team => team.completionRate);
-
-    return {
-      labels,
-      datasets: [{
-        data,
-        backgroundColor: 'rgba(59, 130, 246, 0.5)',
-        borderColor: 'rgb(59, 130, 246)',
-        borderWidth: 1
-      }]
-    };
   }
 } 

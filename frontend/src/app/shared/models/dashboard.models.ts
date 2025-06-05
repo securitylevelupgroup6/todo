@@ -8,9 +8,8 @@ export interface DashboardMetrics {
 }
 
 export interface TeamPerformance {
-  teamId: number;
-  teamName: string;
-  completionRate: number;
+  team: string;
+  performance: number;
 }
 
 export interface Activity {
@@ -23,6 +22,7 @@ export interface Activity {
   action: string;
   target: string;
   timestamp: string;
+  description: string;
 }
 
 export type TodoStatusType = 'pending' | 'in_progress' | 'completed' | 'blocked';

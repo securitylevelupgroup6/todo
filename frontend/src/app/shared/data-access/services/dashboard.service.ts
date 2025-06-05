@@ -39,21 +39,24 @@ export class DashboardService {
       user: { id: 1, firstName: 'John', lastName: 'Doe' },
       action: 'created',
       target: 'Implement Login',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      description: 'John Doe created a new task: Implement Login'
     },
     {
       id: 2,
       user: { id: 2, firstName: 'Jane', lastName: 'Smith' },
       action: 'updated',
       target: 'Design Dashboard',
-      timestamp: new Date(Date.now() - 3600000).toISOString()
+      timestamp: new Date(Date.now() - 3600000).toISOString(),
+      description: 'Jane Smith updated the task: Design Dashboard'
     },
     {
       id: 3,
       user: { id: 3, firstName: 'Mike', lastName: 'Johnson' },
       action: 'completed',
       target: 'API Integration',
-      timestamp: new Date(Date.now() - 7200000).toISOString()
+      timestamp: new Date(Date.now() - 7200000).toISOString(),
+      description: 'Mike Johnson completed the task: API Integration'
     }
   ];
 
@@ -108,9 +111,8 @@ export class DashboardService {
       });
 
       return {
-        teamId: team.id,
-        teamName: team.name,
-        completionRate: teamTodos.length ? (completedTodos.length / teamTodos.length) * 100 : 0
+        team: team.name,
+        performance: teamTodos.length ? (completedTodos.length / teamTodos.length) * 100 : 0
       };
     });
   }

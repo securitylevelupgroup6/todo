@@ -1,50 +1,88 @@
-import { Component, Input, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import Chart from 'chart.js/auto';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-task-distribution',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './task-distribution.component.html',
-  styleUrls: ['./task-distribution.component.scss']
+  template: `
+    <div class="grid gap-6 md:grid-cols-2">
+      <!-- Tasks by Status -->
+      <div>
+        <h3 class="mb-4 text-sm font-medium text-muted-foreground">Tasks by Status</h3>
+        <div class="aspect-square">
+          <canvas #statusChart></canvas>
+        </div>
+      </div>
+
+      <!-- Tasks by Priority -->
+      <div>
+        <h3 class="mb-4 text-sm font-medium text-muted-foreground">Tasks by Priority</h3>
+        <div class="aspect-square">
+          <canvas #priorityChart></canvas>
+        </div>
+      </div>
+    </div>
+  `,
+  styles: [`
+    :host {
+      display: block;
+    }
+  `]
 })
 export class TaskDistributionComponent implements AfterViewInit {
-  @Input() tasksByStatus!: Record<string, number>;
-  @ViewChild('statusChartCanvas') statusChartCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('priorityChartCanvas') priorityChartCanvas!: ElementRef<HTMLCanvasElement>;
-  
+  @ViewChild('statusChart') statusChartRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('priorityChart') priorityChartRef!: ElementRef<HTMLCanvasElement>;
+  @Input() tasksByStatus: Record<string, number> = {};
+
   private statusChart: Chart | null = null;
   private priorityChart: Chart | null = null;
 
   ngAfterViewInit() {
-    this.createCharts();
-  }
-
-  ngOnChanges() {
-    if (this.statusChart && this.priorityChart) {
-      this.updateCharts();
-    }
-  }
-
-  private createCharts() {
     this.createStatusChart();
     this.createPriorityChart();
   }
 
   private createStatusChart() {
-    const ctx = this.statusChartCanvas.nativeElement.getContext('2d');
+    const ctx = this.statusChartRef.nativeElement.getContext('2d');
     if (!ctx) return;
+
+    const data = {
+      labels: Object.keys(this.tasksByStatus),
+      datasets: [{
+        data: Object.values(this.tasksByStatus),
+        backgroundColor: [
+          'rgba(59, 130, 246, 0.5)',  // Blue
+          'rgba(16, 185, 129, 0.5)',  // Green
+          'rgba(245, 158, 11, 0.5)',  // Yellow
+          'rgba(239, 68, 68, 0.5)',   // Red
+        ],
+        borderColor: [
+          'rgb(59, 130, 246)',
+          'rgb(16, 185, 129)',
+          'rgb(245, 158, 11)',
+          'rgb(239, 68, 68)',
+        ],
+        borderWidth: 1
+      }]
+    };
 
     this.statusChart = new Chart(ctx, {
       type: 'pie',
-      data: this.getStatusChartData(),
+      data,
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            position: 'bottom'
+            position: 'bottom',
+            labels: {
+              padding: 20,
+              usePointStyle: true
+            }
           }
         }
       }
@@ -52,79 +90,45 @@ export class TaskDistributionComponent implements AfterViewInit {
   }
 
   private createPriorityChart() {
-    const ctx = this.priorityChartCanvas.nativeElement.getContext('2d');
+    const ctx = this.priorityChartRef.nativeElement.getContext('2d');
     if (!ctx) return;
 
+    const data = {
+      labels: ['Low', 'Medium', 'High', 'Urgent'],
+      datasets: [{
+        data: [30, 40, 20, 10], // Example data, replace with actual data
+        backgroundColor: [
+          'rgba(59, 130, 246, 0.5)',  // Blue
+          'rgba(16, 185, 129, 0.5)',  // Green
+          'rgba(245, 158, 11, 0.5)',  // Yellow
+          'rgba(239, 68, 68, 0.5)',   // Red
+        ],
+        borderColor: [
+          'rgb(59, 130, 246)',
+          'rgb(16, 185, 129)',
+          'rgb(245, 158, 11)',
+          'rgb(239, 68, 68)',
+        ],
+        borderWidth: 1
+      }]
+    };
+
     this.priorityChart = new Chart(ctx, {
-      type: 'pie',
-      data: this.getPriorityChartData(),
+      type: 'doughnut',
+      data,
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            position: 'bottom'
+            position: 'bottom',
+            labels: {
+              padding: 20,
+              usePointStyle: true
+            }
           }
         }
       }
     });
-  }
-
-  private updateCharts() {
-    if (this.statusChart) {
-      const statusData = this.getStatusChartData();
-      this.statusChart.data.labels = statusData.labels;
-      this.statusChart.data.datasets[0].data = statusData.datasets[0].data;
-      this.statusChart.update();
-    }
-
-    if (this.priorityChart) {
-      const priorityData = this.getPriorityChartData();
-      this.priorityChart.data.labels = priorityData.labels;
-      this.priorityChart.data.datasets[0].data = priorityData.datasets[0].data;
-      this.priorityChart.update();
-    }
-  }
-
-  private getStatusChartData() {
-    const labels = Object.keys(this.tasksByStatus);
-    const data = Object.values(this.tasksByStatus);
-    const backgroundColors = [
-      'rgba(59, 130, 246, 0.5)',  // Blue
-      'rgba(16, 185, 129, 0.5)',  // Green
-      'rgba(245, 158, 11, 0.5)',  // Yellow
-      'rgba(239, 68, 68, 0.5)'    // Red
-    ];
-
-    return {
-      labels,
-      datasets: [{
-        data,
-        backgroundColor: backgroundColors,
-        borderColor: backgroundColors.map(color => color.replace('0.5', '1')),
-        borderWidth: 1
-      }]
-    };
-  }
-
-  private getPriorityChartData() {
-    const labels = Object.keys(this.tasksByStatus);
-    const data = Object.values(this.tasksByStatus);
-    const backgroundColors = [
-      'rgba(239, 68, 68, 0.5)',   // Red
-      'rgba(245, 158, 11, 0.5)',  // Yellow
-      'rgba(59, 130, 246, 0.5)',  // Blue
-      'rgba(16, 185, 129, 0.5)'   // Green
-    ];
-
-    return {
-      labels,
-      datasets: [{
-        data,
-        backgroundColor: backgroundColors,
-        borderColor: backgroundColors.map(color => color.replace('0.5', '1')),
-        borderWidth: 1
-      }]
-    };
   }
 } 
