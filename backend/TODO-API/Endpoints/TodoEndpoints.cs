@@ -19,7 +19,7 @@ public static class TodoEndpoints
         .WithTags("Todo");
 
         endpoints.MapPut("/todo/{todoId}", UpdateTodoHandler)
-        .Accepts<CreateTeamRequest>("application/json")
+        .Accepts<UpdateTodoRequest>("application/json")
         .Produces(StatusCodes.Status201Created, typeof(Todo))
         .Produces(StatusCodes.Status400BadRequest)
         .RequireAuthorization("User")
