@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, of, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { User, UserRole } from '../../models/user.model';
 import { environment } from '../../../environments/environment';
+import { FormGroup } from '@angular/forms';
 
 interface AuthResponse {
   user: User;
@@ -16,7 +17,7 @@ interface AuthResponse {
 export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
-  private apiBaseUrl: string = 'https://todo.pastpaperportal.co.za/auth/login';
+  private apiBaseUrl: string = environment.apiUrl;
 
   constructor(
     private http: HttpClient,
@@ -28,54 +29,12 @@ export class AuthService {
     }
   }
 
-  login(email: string, password: string): Observable<AuthResponse> {
-    // For demo purposes, simulate successful login
-    const mockUser: User = {
-      id: '1',
-      email: email,
-      firstName: 'Demo',
-      lastName: 'User',
-      role: UserRole.USER,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    const mockResponse: AuthResponse = {
-      user: mockUser,
-      token: 'mock-token'
-    };
-
-    return of(mockResponse).pipe(
-      tap(response => {
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('user', JSON.stringify(response.user));
-        this.currentUserSubject.next(response.user);
-      })
-    );
+  login(userInfo: { username: string; password: string }): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/auth/login`, JSON.stringify(userInfo));
   }
 
-  register(userData: Partial<User>): Observable<AuthResponse> {
-    // For demo purposes, simulate successful registration
-    const mockUser: User = {
-      id: '1',
-      email: userData.email || '',
-      firstName: userData.firstName || '',
-      lastName: userData.lastName || '',
-      role: UserRole.USER,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    const mockResponse: AuthResponse = {
-      user: mockUser,
-      token: 'mock-token'
-    };
-
-    return of(mockResponse).pipe(
-      tap(response => {
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('user', JSON.stringify(response.user));
-        this.currentUserSubject.next(response.user);
-      })
-    );
+  register(userData: FormGroup): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/auth/register`, JSON.stringify(userData.value));
   }
 
   logout(): void {
@@ -91,9 +50,5 @@ export class AuthService {
 
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
-  }
-
-  getLoginInfo(): Observable<any> {
-    return this.http.get<Observable<any>>(this.apiBaseUrl);
   }
 } 

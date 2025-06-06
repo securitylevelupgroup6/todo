@@ -1,0 +1,60 @@
+<main class="h-screen flex items-center justify-center">
+  <mat-card class="card flex-col justify-center w-1/3">
+    <button mat-button class="flex w-1/3 items-center mt-1 ml-1" (click)="onBack()">
+      <mat-icon>arrow_back</mat-icon>Sign in
+    </button>
+    <mat-card-header class="card-header flex-col text-center">
+      <h1 class="text-2xl font-bold">Create an account</h1>
+      <p class="text-muted-foreground mt-2">Sign up to get started</p>
+    </mat-card-header>
+    <mat-card-content class="card-content">
+      <form class="form-container" [formGroup]="registrationForm">
+        <mat-form-field>
+          <mat-label>First name</mat-label>
+          <input matInput formControlName="FirstName" placeholder="Enter first name"/>
+          <mat-error *ngIf="registrationForm.get('FirstName')?.touched && registrationForm.get('FirstName')?.hasError('required')">
+             *This field is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Last name</mat-label>
+          <input matInput formControlName="LastName" placeholder="Enter last name"/>
+          <mat-error *ngIf="registrationForm.get('LastName')?.touched && registrationForm.get('LastName')?.hasError('required')">
+             *This field is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Username</mat-label>
+          <input matInput formControlName="Username" placeholder="Enter username"/>
+          <mat-error *ngIf="registrationForm.get('Username')?.touched && registrationForm.get('Username')?.hasError('required')">
+             *This field is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Password</mat-label>
+          <input matInput formControlName="Password" placeholder="Create a password" (input)="onInput($event)"/>
+          <mat-error *ngIf="registrationForm.get('Password')?.touched && registrationForm.get('Password')?.hasError('required')">
+             *This field is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Password</mat-label>
+          <input matInput formControlName="VerifyPassword" placeholder="Verify password"/>
+          <mat-error *ngIf="registrationForm.get('VerifyPassword')?.touched && registrationForm.get('VerifyPassword')?.hasError('required')">
+            *This field is required
+          </mat-error>
+        </mat-form-field>
+
+      </form>
+    </mat-card-content>  
+    <mat-card-actions class="flex justify-center">
+      <button mat-flat-button class="w-1/2" (click)="onSubmit()">
+        Sign up
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</main>
