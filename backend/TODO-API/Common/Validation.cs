@@ -12,8 +12,16 @@ public static class RequestValidator
         if (Validator.TryValidateObject(model, validationContext, validationResults, true))
         {
             return null;
-        }else{
-            return validationResults;
         }
+
+        return validationResults;
+    }
+
+    public static bool IsPasswordStrongEnough(string password)
+    {
+        return password.Length >= 8 &&
+               password.Any(char.IsUpper) &&
+               password.Any(char.IsLower) &&
+               password.Any(char.IsDigit);
     }
 }

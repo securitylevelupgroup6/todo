@@ -6,6 +6,10 @@ public static class ConfigureEndpoints
 {
     public static void AddEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.AddAuthEndpoints();
+        endpoints.AddUserEndpoints()
+                .AddTeamEndpoints()
+                .AddAuthEndpoints()
+                .AddRoleEndpoints()
+                .AddUserEndpoints();
     }
 }

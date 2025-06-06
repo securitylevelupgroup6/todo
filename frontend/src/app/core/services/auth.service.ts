@@ -16,6 +16,7 @@ interface AuthResponse {
 export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
+  private apiBaseUrl: string = 'https://todo.pastpaperportal.co.za/auth/login';
 
   constructor(
     private http: HttpClient,
@@ -90,5 +91,9 @@ export class AuthService {
 
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
+  }
+
+  getLoginInfo(): Observable<any> {
+    return this.http.get<Observable<any>>(this.apiBaseUrl);
   }
 } 

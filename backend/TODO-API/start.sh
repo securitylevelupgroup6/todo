@@ -24,11 +24,17 @@ SECRET=$(aws secretsmanager get-secret-value \
   --query SecretString \
   --output text)
 
+
 DB_USER=$(echo $SECRET | jq -r .db_username)
 DB_PASS=$(echo $SECRET | jq -r .db_password)
-
 DB_HOST=$(aws secretsmanager get-secret-value \
   --secret-id rds-host \
+  --query SecretString \
+  --output text)
+
+
+JWT_KEY=SECRET=$(aws secretsmanager get-secret-value \
+  --secret-id JWT_KEY \
   --query SecretString \
   --output text)
 
@@ -66,6 +72,10 @@ Restart=always
 Environment=ASPNETCORE_ENVIRONMENT=Production
 Environment=DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 Environment=ASPNETCORE_URLS=http://0.0.0.0:5000
+Environment=ConnectionStrings__TodoDatabase=Host=$DB_HOST;Port=5432;Database=tododb;Username=$DB_USER;Password=$DB_PASS;
+Environment=JWT_KEY=$JWT_KEY
+Environment=JWT_AUDIENCE=todo.pastpaperportal.co.za
+Environment=JWT_ISSUER=todo.pastpaperportal.co.za
 StandardOutput=journal
 StandardError=journal
 
