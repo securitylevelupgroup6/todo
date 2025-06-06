@@ -119,8 +119,15 @@ builder.Services.AddCors(options =>
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials(); 
+            .AllowCredentials();
         });
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy
+            .AllowAnyOrigin() // ⚠️ ONLY FOR DEBUGGING — REMOVE LATER
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
 });
 
 
@@ -132,7 +139,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowSpecificOrigins");
+app.UseCors("AllowAll");
 app.AddEndpoints();
 app.UseAuthentication();
 app.UseAuthorization();
