@@ -123,7 +123,7 @@ server {
         proxy_set_header X-Forwarded-Proto \$scheme;
         location / {
         proxy_pass http://localhost:5000;
-        proxy_set_header Origin $http_origin;
+        proxy_set_header Origin \$http_origin;
         proxy_buffering off;
     }
 }
