@@ -1,5 +1,5 @@
 <main class="h-screen flex items-center justify-center">
-  <mat-card class="card flex-col justify-center w-1/3">
+  <mat-card *ngIf="!otp" class="card flex-col justify-center w-1/3">
     <button mat-button class="flex w-0 items-center mt-1 ml-1" (click)="onBack()">
       <mat-icon>arrow_back</mat-icon>
     </button>
@@ -11,40 +11,40 @@
       <form class="form-container" [formGroup]="registrationForm">
         <mat-form-field>
           <mat-label>First name</mat-label>
-          <input matInput formControlName="FirstName" placeholder="Enter first name"/>
-          <mat-error *ngIf="registrationForm.get('FirstName')?.touched && registrationForm.get('FirstName')?.hasError('required')">
+          <input matInput formControlName="firstName" placeholder="Enter first name"/>
+          <mat-error *ngIf="registrationForm.get('firstName')?.touched && registrationForm.get('firstName')?.hasError('required')">
              *This field is required
           </mat-error>
         </mat-form-field>
 
         <mat-form-field>
           <mat-label>Last name</mat-label>
-          <input matInput formControlName="LastName" placeholder="Enter last name"/>
-          <mat-error *ngIf="registrationForm.get('LastName')?.touched && registrationForm.get('LastName')?.hasError('required')">
+          <input matInput formControlName="lastName" placeholder="Enter last name"/>
+          <mat-error *ngIf="registrationForm.get('lastName')?.touched && registrationForm.get('lastName')?.hasError('required')">
              *This field is required
           </mat-error>
         </mat-form-field>
 
         <mat-form-field>
           <mat-label>Username</mat-label>
-          <input matInput formControlName="Username" placeholder="Enter username"/>
-          <mat-error *ngIf="registrationForm.get('Username')?.touched && registrationForm.get('Username')?.hasError('required')">
+          <input matInput formControlName="userName" placeholder="Enter username"/>
+          <mat-error *ngIf="registrationForm.get('userName')?.touched && registrationForm.get('userName')?.hasError('required')">
              *This field is required
           </mat-error>
         </mat-form-field>
 
         <mat-form-field>
           <mat-label>Password</mat-label>
-          <input matInput formControlName="Password" placeholder="Create a password"/>
-          <mat-error *ngIf="registrationForm.get('Password')?.touched && registrationForm.get('Password')?.hasError('required')">
+          <input matInput formControlName="password" placeholder="Create a password"/>
+          <mat-error *ngIf="registrationForm.get('password')?.touched && registrationForm.get('password')?.hasError('required')">
              *This field is required
           </mat-error>
         </mat-form-field>
 
         <mat-form-field>
           <mat-label>Password</mat-label>
-          <input matInput formControlName="VerifyPassword" placeholder="Verify password"/>
-          <mat-error *ngIf="registrationForm.get('VerifyPassword')?.touched && registrationForm.get('VerifyPassword')?.hasError('required')">
+          <input matInput formControlName="verifyPassword" placeholder="Verify password"/>
+          <mat-error *ngIf="registrationForm.get('verifyPassword')?.touched && registrationForm.get('verifyPassword')?.hasError('required')">
             *This field is required
           </mat-error>
         </mat-form-field>
@@ -57,4 +57,5 @@
       </button>
     </mat-card-actions>
   </mat-card>
+  <app-multifactor-authentication [otp]="otp" *ngIf="otp" [registrationForm]="registrationForm"></app-multifactor-authentication>
 </main>

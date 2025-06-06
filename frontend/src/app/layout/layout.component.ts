@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { HeaderComponent } from './header/header.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { LoginComponent } from '../login/login.component';
+import { UserService } from '../shared/data-access/services/login.service';
 
 @Component({
   selector: 'app-layout',
@@ -17,11 +18,15 @@ export class LayoutComponent implements OnInit {
   user: any;
 
   constructor(
-    private router: Router,
+    private userService: UserService 
   ) {}
   ngOnInit(): void {
-    if(!this.user) {
-      this.router.navigate(['/auth/login']);
-    }
+    this.userService.user$.subscribe(user => {
+      if(user) {
+        this.user = user;
+      } else {
+        this.user = null;
+      }
+    })
   }
 } 

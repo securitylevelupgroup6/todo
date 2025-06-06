@@ -2,12 +2,13 @@ import { AfterContentInit, Component } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormBuilder, Form, Validators } from '@angular/forms';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthService, RegisterUser } from '../../core/services/auth.service';
 import {MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
+import { MultifactorAuthenticationComponent } from '../multifactor-authentication/multifactor-authentication.component';
 
 @Component({
   selector: 'app-register',
@@ -22,7 +23,8 @@ import {MatIconModule} from '@angular/material/icon';
     MatFormFieldModule,
     MatCardModule,
     ReactiveFormsModule,
-    MatIconModule
+    MatIconModule,
+    MultifactorAuthenticationComponent
   ],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
@@ -32,6 +34,7 @@ export class RegisterComponent implements AfterContentInit {
   email: string = '';
   password: string = '';
   registrationForm: FormGroup;
+  otp: string = '';
 
   constructor(
     private router: Router,
@@ -45,24 +48,23 @@ export class RegisterComponent implements AfterContentInit {
   }
 
   onSubmit() {
-    this.authService.register(this.registrationForm.getRawValue()).subscribe({
-      next: (data) => {
-        console.log(data);
-        // this.router.navigate(['/dashboard']);
-      },
-      error: (error) => {
-        console.error('Registration failed:', error);
-      }
+    const user: RegisterUser = { ...this.registrationForm.value };
+    this.authService.register(user).subscribe(data => {
+     if(data.results) {
+      this.otp = data.results.otpUri;
+     } else {
+      this.otp = '';
+     }
     });
   }
 
   getRegistrationForm(): FormGroup {
     return this.formBuilder.group({
-      Username: ['', Validators.required],
-      Password: ['', Validators.required],
-      VerifyPassword: ['', Validators.required],
-      FirstName: ['', Validators.required],
-      LastName: ['', Validators.required]
+      userName: ['', Validators.required],
+      password: ['', Validators.required],
+      verifyPassword: ['', Validators.required],
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required]
     })
   }
 

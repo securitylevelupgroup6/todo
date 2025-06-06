@@ -5,10 +5,18 @@ import { Router } from '@angular/router';
 import { User, UserRole } from '../../models/user.model';
 import { environment } from '../../../environments/environment';
 import { FormGroup } from '@angular/forms';
+import { IResponse, observe } from '../../shared/functions/helpers.function';
 
 interface AuthResponse {
   user: User;
   token: string;
+}
+
+export interface RegisterUser {
+  firstName: string;
+  lastName: string;
+  password: string;
+  username: string;
 }
 
 @Injectable({
@@ -29,12 +37,12 @@ export class AuthService {
     }
   }
 
-  login(userInfo: { username: string; password: string }): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/auth/login`, JSON.stringify(userInfo));
+  login(userInfo: { userName: string; password: string, otp: string }): Observable<IResponse<any>> {
+    return observe(this.http.post<any>(`${this.apiBaseUrl}/auth/login`, userInfo));
   }
 
-  register(userData: FormGroup): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/auth/register`, JSON.stringify(userData.value));
+  register(userData: RegisterUser): Observable<IResponse<{ otpUri: string }>> {
+    return observe(this.http.post<any>(`${this.apiBaseUrl}/auth/register`, userData));
   }
 
   logout(): void {
@@ -51,4 +59,6 @@ export class AuthService {
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
   }
+
+
 } 
