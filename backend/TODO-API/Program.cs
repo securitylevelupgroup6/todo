@@ -104,16 +104,15 @@ builder.Services.AddAuthorization((options) =>
     options.AddPolicy("RequireUserRole", policy => policy.RequireRole("USER"));
 });
 
-string AllowSpecificOrigins = "AllowReact";
+string AllowSpecificOrigins = "AllowAngularDevelopmentServer";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: AllowSpecificOrigins,
                       policy  =>
                       {
-                          policy.WithOrigins("http://localhost:3000");
+                          policy.WithOrigins("http://localhost:4200");
                       });
 });
-
 
 var app = builder.Build();
 app.UseCors(AllowSpecificOrigins);
@@ -123,7 +122,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 
 app.AddEndpoints();
 app.UseAuthentication();
