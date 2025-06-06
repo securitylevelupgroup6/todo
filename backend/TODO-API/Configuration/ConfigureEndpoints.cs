@@ -10,6 +10,7 @@ public static class ConfigureEndpoints
                 .AddTeamEndpoints()
                 .AddAuthEndpoints()
                 .AddRoleEndpoints()
-                .AddUserEndpoints();
+                .AddUserEndpoints()
+                .AddTodoEndpoints();
     }
 }

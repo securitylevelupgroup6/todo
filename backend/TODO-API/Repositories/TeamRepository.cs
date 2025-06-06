@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TODO_API.Models;
 using TODO_API.Models.Requests;
 
@@ -6,7 +7,7 @@ namespace TODO_API.Repositories;
 
 public class TeamRepository([FromServices] TodoContext context)
 {
-    public async Task<Team> CreateTeam(CreateTeamRequest createTeamRequest)
+    public async Task<Team> CreateTeamAsync(CreateTeamRequest createTeamRequest)
     {
         ArgumentNullException.ThrowIfNull(createTeamRequest);
 
@@ -36,17 +37,16 @@ public class TeamRepository([FromServices] TodoContext context)
         }
     }
 
-    public async Task<TeamMember> AddUserToTeam(AddUserToTeamRequest addUserToTeamRequest)
+    public async Task<TeamMember> AddTeamMemberAsync(AddTeamMemberRequest request, int teamId)
     {
-        ArgumentNullException.ThrowIfNull(addUserToTeamRequest.UserId);
         try
         {
-            var user = await context.Users.FindAsync(addUserToTeamRequest.UserId);
-            var team = await context.Teams.FindAsync(addUserToTeamRequest.TeamId);
+            var user = await context.Users.FindAsync(request.UserId);
+            var team = await context.Teams.FindAsync(teamId);
 
             if (user is null || team is null)
             {
-                throw new ArgumentException("User not found.", nameof(addUserToTeamRequest.UserId));
+                throw new ArgumentException("Invalid request.", nameof(request.UserId));
             }
             var teamMember = new TeamMember
             {
@@ -61,6 +61,37 @@ public class TeamRepository([FromServices] TodoContext context)
         catch (Exception ex)
         {
             throw new Exception("An error occurred while adding the user to the team.", ex);
+        }
+    }
+
+    internal async Task<IEnumerable<User>> GetTeamUsersAsync(int teamId)
+    {
+        try
+        {
+            var team = await context.Teams.FindAsync(teamId);
+
+            if (team is null)
+            {
+                throw new ArgumentException("Invalid request.", nameof(teamId));
+            }
+
+            var teamMembers = await context.TeamMembers
+                .Where(teamMember => teamMember.Team.Id == teamId)
+                .Include(teamMember => teamMember.User)
+                .ToListAsync();
+
+            var teamUsers = teamMembers.Select(teamMember => teamMember.User).ToList();
+
+            if (teamUsers.Count == 0)
+            {
+                return [];
+            }
+
+            return teamUsers;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("An error occurred while getting team users.", ex);
         }
     }
 }

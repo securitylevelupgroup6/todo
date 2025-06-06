@@ -1,18 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
+using TODO_API.Mappers;
 using TODO_API.Models;
 using TODO_API.Models.Requests;
+using TODO_API.Models.Responses;
 using TODO_API.Services;
 
 namespace TODO_API.Endpoints;
 
 public static class TeamEndpoints
 {
-    private static readonly JsonSerializerOptions CachedJsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
-
     public static IEndpointRouteBuilder AddTeamEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/team", CreateTeamHandler)
+        endpoints.MapPost("/teams", CreateTeamHandler)
         .Accepts<CreateTeamRequest>("application/json")
         .Produces(StatusCodes.Status201Created, typeof(Team))
         .Produces(StatusCodes.Status400BadRequest)
@@ -20,7 +19,38 @@ public static class TeamEndpoints
         .WithName("CreateTeam")
         .WithTags("Team");
 
+        endpoints.MapPost("/teams/{teamId}/members", AddTeamMemberHandler)
+        .Accepts<AddTeamMemberRequest>("application/json")
+        .Produces(StatusCodes.Status200OK, typeof(TeamMember))
+        .Produces(StatusCodes.Status400BadRequest)
+        .RequireAuthorization("RequireTeamLeadRole")
+        .WithName("AddTeamMember")
+        .WithTags("Team");
+
+        endpoints.MapGet("/teams/{teamId}/members", GetTeamMembersHandler)
+        .Produces(StatusCodes.Status200OK, typeof(IEnumerable<UserResponse>))
+        .Produces(StatusCodes.Status400BadRequest)
+        .RequireAuthorization("User")
+        .WithName("GetTeamUsers")
+        .WithTags("Team");
+
         return endpoints;
+    }
+
+    private static async Task<IResult> GetTeamMembersHandler([FromServices] TeamService teamService, [FromQuery] int teamId)
+    {
+        try
+        {
+            var teamUsers = await teamService.GetTeamUsersAsync(teamId);
+
+            var response = teamUsers.Select(user => user.MapToUserResponse());
+
+            return Results.Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return Results.BadRequest(new { error = ex.Message });
+        }
     }
 
     public async static Task<IResult> CreateTeamHandler([FromServices] TeamService teamService, [FromBody] CreateTeamRequest request)
@@ -32,6 +62,22 @@ public static class TeamEndpoints
             var team = await teamService.CreateTeamAsync(request);
 
             return Results.Created($"/team/{team.Id}", team);
+        }
+        catch (Exception ex)
+        {
+            return Results.BadRequest(new { error = ex.Message });
+        }
+    }
+
+    public async static Task<IResult> AddTeamMemberHandler([FromServices] TeamService teamService, [FromQuery] int teamId, [FromBody] AddTeamMemberRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        try
+        {
+            var teamMember = await teamService.AddTeamMemberAsync(request, teamId);
+
+            return Results.Ok(teamMember);
         }
         catch (Exception ex)
         {
