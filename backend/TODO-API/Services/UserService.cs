@@ -1,14 +1,14 @@
-﻿using TODO_API.Models;
-using TODO_API.Repositories;
-using Microsoft.AspNetCore.DataProtection;
-using OtpNet;
+﻿using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using OtpNet;
 using System.IdentityModel.Tokens.Jwt;
-using TODO_API.Common;
-using System.Text;
-using System.Security.Cryptography;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using TODO_API.Common;
+using TODO_API.Models;
+using TODO_API.Repositories;
 
 namespace TODO_API.Services;
 
@@ -21,7 +21,7 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
 
     private User? GetUser(string username)
     {
-        return dbContext.Users.Include(u => u.RefreshTokens).Include(u=>u.UserRoles).ThenInclude(ur=>ur.Role).FirstOrDefault(u => u.Username == username);
+        return dbContext.Users.Include(u => u.RefreshTokens).Include(u => u.UserRoles).ThenInclude(ur => ur.Role).FirstOrDefault(u => u.Username == username);
     }
 
     public LoginResult ValidateUserCredentials(string username, string password, string otp, out string? refreshToken)
@@ -38,7 +38,7 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
             refreshToken = null;
             return LoginResult.IncorrectPassword;
         }
-        
+
         var decryptedOtpSecret = _provider.CreateProtector("TotpSecrets").Unprotect(user.TwoFactorKey);
         var totp = new Totp(Base32Encoding.ToBytes(decryptedOtpSecret));
         if (!totp.VerifyTotp(otp, out long timestep))
@@ -85,7 +85,7 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
     {
         try
         {
-            user.RefreshTokens.Add(new RefreshToken { RefreshTokenHash = refreshTokenHash, ExpiresAt = DateTime.Now.AddDays(85).ToUniversalTime(), User = user, Revoked=false });
+            user.RefreshTokens.Add(new RefreshToken { RefreshTokenHash = refreshTokenHash, ExpiresAt = DateTime.Now.AddDays(85).ToUniversalTime(), User = user, Revoked = false });
             _todoContext.SaveChanges();
             return true;
         }
@@ -195,5 +195,5 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
         }
         return RegistrationResult.Success;
     }
-    
+
 }

@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TODO_API.Models;
 using TODO_API.Services;
@@ -7,11 +7,13 @@ namespace TODO_API.Endpoints;
 
 public static class UserEndpoints
 {
-    public static void AddUserEndpoints(this IEndpointRouteBuilder endpoints)
+    public static IEndpointRouteBuilder AddUserEndpoints(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost("/users/{username}/role", AddRoleHandler)
         .WithName("Assign Role")
         .WithTags("Assign Roles to User");
+
+        return endpoints;
     }
 
     // TODO: Things like role names need to be in a constants file
