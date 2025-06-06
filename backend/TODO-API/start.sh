@@ -72,7 +72,7 @@ Restart=always
 Environment=ASPNETCORE_ENVIRONMENT=Production
 Environment=DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 Environment=ASPNETCORE_URLS=http://0.0.0.0:5000
-Environment=ConnectionStrings__TodoDatabase=Host=$DB_HOST;Port=5432;Database=tododb;Username=$DB_USER;Password=$DB_PASS;
+Environment=ConnectionStrings__DefaultConnection=Host=$DB_HOST;Port=5432;Database=tododb;Username=$DB_USER;Password=$DB_PASS;
 Environment=JWT_KEY=$JWT_KEY
 Environment=JWT_AUDIENCE=todo.pastpaperportal.co.za
 Environment=JWT_ISSUER=todo.pastpaperportal.co.za
