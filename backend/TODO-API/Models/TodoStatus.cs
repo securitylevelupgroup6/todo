@@ -3,5 +3,5 @@
 public class TodoStatus
 {
     public int Id { get; set; }
-    public string tatusName { get; set; }
+    public string StatusName { get; set; }
 }
