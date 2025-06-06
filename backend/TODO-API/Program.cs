@@ -132,6 +132,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.AddEndpoints();
+app.UseCors("AllowSpecificOrigins");
 app.UseAuthentication();
 app.UseAuthorization();
 app.Run();
