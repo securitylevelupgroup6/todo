@@ -105,6 +105,23 @@ builder.Services.AddAuthorization((options) =>
 });
 
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigins",
+        policy =>
+        {
+            policy.WithOrigins(
+                "http://localhost:3000", // Example: React Dev Server
+                "http://localhost:4200", // Example: Angular Dev Server
+                "http://localhost:8080", // Example: Vue Dev Server
+                "http://localhost:5173", // Example: Vite Dev Server
+                "https://todofrontend.pastpaperportal.co.za" // Replace with your actual client domain
+            )
+            .AllowAnyHeader() 
+            .AllowAnyMethod(); 
+        });
+});
+
 
 var app = builder.Build();
 

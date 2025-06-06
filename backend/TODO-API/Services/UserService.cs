@@ -195,5 +195,4 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
         }
         return RegistrationResult.Success;
     }
-
 }
