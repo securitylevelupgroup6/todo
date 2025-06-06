@@ -104,34 +104,19 @@ builder.Services.AddAuthorization((options) =>
     options.AddPolicy("RequireUserRole", policy => policy.RequireRole("USER"));
 });
 
-
+string AllowSpecificOrigins = "AllowReact";
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigins",
-        policy =>
-        {
-            policy.WithOrigins(
-                "http://localhost:3000",
-                "http://localhost:4200",
-                "http://localhost:8080",
-                "http://localhost:5173",
-                "https://todofrontend.pastpaperportal.co.za"
-            )
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
-        });
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy
-            .AllowAnyOrigin() // ⚠️ ONLY FOR DEBUGGING — REMOVE LATER
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-    });
+    options.AddPolicy(name: AllowSpecificOrigins,
+                      policy  =>
+                      {
+                          policy.WithOrigins("http://localhost:3000");
+                      });
 });
 
 
 var app = builder.Build();
+app.UseCors(AllowSpecificOrigins);
 
 if (app.Environment.IsDevelopment())
 {
@@ -139,7 +124,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowAll");
+
 app.AddEndpoints();
 app.UseAuthentication();
 app.UseAuthorization();
