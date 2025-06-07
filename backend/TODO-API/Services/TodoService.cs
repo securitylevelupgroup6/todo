@@ -100,7 +100,4 @@ public class TodoService(TodoContext dbContext, TodoRepository todoRepository)
             throw new Exception("An error occurred while creating the todo.", ex);
         }
     }
-
-
-
 }

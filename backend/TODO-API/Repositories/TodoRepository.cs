@@ -46,7 +46,15 @@ public class TodoRepository([FromServices] TodoContext context)
 
             await context.SaveChangesAsync();
 
-            return todo;
+            return await context.Todos
+            .Include(t => t.Owner)
+            .Include(t => t.TodoState)
+                .ThenInclude(ts => ts.Assignee)
+                    .ThenInclude(a => a.User)
+            .Include(t => t.TodoState)
+                .ThenInclude(ts => ts.Team)
+                .ThenInclude(team => team.TeamLead)
+            .FirstOrDefaultAsync(t => t.Id == todo.Id) ?? throw new Exception("User was not created");
         }
         catch (Exception ex)
         {
