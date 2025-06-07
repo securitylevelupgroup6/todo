@@ -1,7 +1,6 @@
 ﻿namespace TODO_API.Models.Requests;
 
-public class AddUserToTeamRequest
+public class AddTeamMemberRequest
 {
-    public int TeamId { get; set; }
     public int UserId { get; set; }
 }

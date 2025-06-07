@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TODO_API.Models;
+using TODO_API.Models.Requests;
 using TODO_API.Services;
 
 namespace TODO_API.Endpoints;

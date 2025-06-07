@@ -10,21 +10,48 @@ public class TeamService(TeamRepository teamRepository)
     {
         try
         {
-            var team = await teamRepository.CreateTeam(createTeamRequest);
+            var team = await teamRepository.CreateTeamAsync(createTeamRequest);
 
-            var addMemberRequest = new AddUserToTeamRequest
+            var addMemberRequest = new AddTeamMemberRequest
             {
                 UserId = createTeamRequest.TeamLeadUserId,
-                TeamId = team.Id
             };
 
-            var teamLeadMember = await teamRepository.AddUserToTeam(addMemberRequest);
+            var teamLeadMember = await teamRepository.AddTeamMemberAsync(addMemberRequest, team.Id);
 
             return team;
         }
         catch (Exception ex)
         {
             throw new Exception("An error occurred while creating the team.", ex);
+        }
+    }
+
+    internal async Task<TeamMember> AddTeamMemberAsync(AddTeamMemberRequest request, int teamId)
+    {
+        try
+        {
+            var teamMember = await teamRepository.AddTeamMemberAsync(request, teamId);
+
+            return teamMember;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("An error occurred while adding user to the team.", ex);
+        }
+    }
+
+    internal async Task<IEnumerable<User>> GetTeamUsersAsync(int teamId)
+    {
+        try
+        {
+            var teamUsers = await teamRepository.GetTeamUsersAsync(teamId);
+
+            return teamUsers;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("An error occurred while getting team users.", ex);
         }
     }
 }
