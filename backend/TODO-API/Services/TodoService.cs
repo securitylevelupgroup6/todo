@@ -32,6 +32,7 @@ public class TodoService(TodoContext dbContext, TodoRepository todoRepository)
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex);
             throw new Exception("An error occurred while creating the todo.", ex);
         }
     }

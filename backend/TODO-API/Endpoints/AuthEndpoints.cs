@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OtpNet;
@@ -90,6 +91,7 @@ public static class AuthEndpoints
             if (user == null) {
                 return Results.InternalServerError();
             }
+            Console.WriteLine(JsonSerializer.Serialize(user));
             return Results.Ok(user);
         }
 
