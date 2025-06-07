@@ -1,5 +1,6 @@
 ﻿namespace TODO_API.Models;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 [Table("users")]
 public class User
@@ -10,6 +11,7 @@ public class User
     [Column("username")]
     public string Username { get; set; }
 
+    [JsonIgnore]
     [Column("password_hash")]
     public string Password { get; set; }
 
@@ -19,11 +21,14 @@ public class User
     [Column("last_name")]
     public string LastName { get; set; }
 
+    [JsonIgnore]
     [Column("two_factor_secret")]
     public string TwoFactorKey { get; set; }
 
+    [JsonIgnore]
     public List<RefreshToken> RefreshTokens { get; set; } = [];
 
+    [JsonIgnore]
     public ICollection<UserRole> UserRoles { get; set; } = [];
 
 }

@@ -21,12 +21,16 @@ public class TodoRepository([FromServices] TodoContext context)
                 throw new ArgumentException("User not found.", nameof(request.OwnerUserId));
             }
 
+            var createdStatus = context.TodoStatuses.FirstOrDefault(status => status.StatusName == "CREATED") ?? new TodoStatus{StatusName="CREATED"};
+
             //TODO: Need to initalize db with states
             var todoState = new TodoState
             {
                 Title = request.Title,
                 Description = request.Description,
-                Status = new TodoStatus { StatusName = "Todo" },
+                Status = createdStatus,
+                AssigneeId = ownerMember.Id,
+                TeamId = request.TeamId
             };
 
 
@@ -53,7 +57,7 @@ public class TodoRepository([FromServices] TodoContext context)
     internal async Task<TodoHistory> CreateTodoHistoryAsync(CreateTodoHistoryRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
-
+        ArgumentNullException.ThrowIfNull(request.OldState);
         try
         {
             var todoHistory = new TodoHistory
@@ -61,7 +65,7 @@ public class TodoRepository([FromServices] TodoContext context)
                 Todo = request.Todo,
                 Date = request.Date,
                 Reporter = request.Reporter,
-                OldState = request.OldState,
+                OldStateId = request.OldState.Id,
                 UpdatedState = request.UpdatedState
             };
 

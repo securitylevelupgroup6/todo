@@ -84,7 +84,6 @@ ALTER TABLE todos ADD FOREIGN KEY (team_owner_member_id) REFERENCES team_members
 
 ALTER TABLE todo_history ADD FOREIGN KEY (todo_id) REFERENCES todos (id);
 ALTER TABLE todo_history ADD FOREIGN KEY (old_state_id) REFERENCES todo_states (id);
-ALTER TABLE todo_history ADD FOREIGN KEY (updated_state_id) REFERENCES todo_states (id);
 ALTER TABLE todo_history ADD FOREIGN KEY (reporter_member_id) REFERENCES team_members (id);
 
 ALTER TABLE todo_states ADD FOREIGN KEY (status_id) REFERENCES todo_statuses (id);

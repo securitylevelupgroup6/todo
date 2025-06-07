@@ -14,7 +14,6 @@ public static class TodoEndpoints
         .Accepts<CreateTodoRequest>("application/json")
         .Produces(StatusCodes.Status201Created, typeof(Todo))
         .Produces(StatusCodes.Status400BadRequest)
-        .RequireAuthorization("User")
         .WithName("CreateTodo")
         .WithTags("Todo");
 
@@ -22,11 +21,23 @@ public static class TodoEndpoints
         .Accepts<UpdateTodoRequest>("application/json")
         .Produces(StatusCodes.Status201Created, typeof(Todo))
         .Produces(StatusCodes.Status400BadRequest)
-        .RequireAuthorization("User")
         .WithName("UpdateTodo")
         .WithTags("Todo");
 
+        endpoints.MapGet("/todo", GetUsersTodos)
+        .Produces(StatusCodes.Status200OK)
+        .WithName("GetTodos")
+        .WithTags("Todo");
+
         return endpoints;
+    }
+
+    public async static Task<IResult> GetUsersTodos(HttpContext http, TodoService todoService) {
+        var jwt = http.Request.Cookies["access_token"];
+        if (jwt == null) {
+            return Results.BadRequest("No jwt");
+        }
+        return Results.Ok(await todoService.GetUserTodosAsync(jwt));
     }
 
     public async static Task<IResult> CreateTodoHandler([FromServices] TodoService todoService, [FromBody] CreateTodoRequest request)
