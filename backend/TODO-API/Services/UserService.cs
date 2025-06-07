@@ -19,7 +19,7 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
 
     private readonly TodoContext _todoContext = dbContext;
 
-    private User? GetUser(string username)
+    public User? GetUser(string username)
     {
         return dbContext.Users.Include(u => u.RefreshTokens).Include(u => u.UserRoles).ThenInclude(ur => ur.Role).FirstOrDefault(u => u.Username == username);
     }

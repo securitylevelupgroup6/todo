@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using TODO_API.Models;
@@ -33,6 +34,23 @@ public class TodoService(TodoContext dbContext, TodoRepository todoRepository)
         {
             throw new Exception("An error occurred while creating the todo.", ex);
         }
+    }
+
+    public bool validateUserForCreation(string jwt, int OwnerId)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(jwt);
+        // get the user from the jwt
+        var user = dbContext.Users.Include(u => u.RefreshTokens).FirstOrDefault(u => u.Id.ToString() == jwtToken.Subject.ToString()) ?? throw new UserNotFoundException();
+        var roles = jwtToken.Claims
+        .Where(c => c.Type == ClaimTypes.Role)
+        .Select(c => c.Value)
+        .ToList();
+        Console.WriteLine(JsonSerializer.Serialize(roles));
+        if (roles.Any(role => role == "TEAM_LEAD")) return true;
+
+        // return whether or not the users id matched the proposed owner id
+        return user.Id == OwnerId;
     }
 
     public async Task<List<Todo>> GetUserTodosAsync(string jwt)
@@ -100,7 +118,4 @@ public class TodoService(TodoContext dbContext, TodoRepository todoRepository)
             throw new Exception("An error occurred while creating the todo.", ex);
         }
     }
-
-
-
 }

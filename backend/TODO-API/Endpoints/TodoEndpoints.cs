@@ -34,15 +34,19 @@ public static class TodoEndpoints
 
     public async static Task<IResult> GetUsersTodos(HttpContext http, TodoService todoService) {
         var jwt = http.Request.Cookies["access_token"];
-        if (jwt == null) {
-            return Results.BadRequest("No jwt");
-        }
         return Results.Ok(await todoService.GetUserTodosAsync(jwt));
     }
 
-    public async static Task<IResult> CreateTodoHandler([FromServices] TodoService todoService, [FromBody] CreateTodoRequest request)
+    public async static Task<IResult> CreateTodoHandler(HttpContext http, [FromServices] TodoService todoService, [FromBody] CreateTodoRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
+        var jwt = http.Request.Cookies["access_token"];
+        Console.WriteLine(!todoService.validateUserForCreation(jwt, request.OwnerUserId));
+        if (!todoService.validateUserForCreation(jwt, request.OwnerUserId))
+        {
+            // User has insufficient roles to assign to the provided owner
+            return Results.Forbid();
+        }
 
         try
         {

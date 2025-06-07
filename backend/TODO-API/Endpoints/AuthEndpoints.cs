@@ -86,7 +86,11 @@ public static class AuthEndpoints
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTimeOffset.UtcNow.AddDays(85)
             });
-            return Results.Ok();
+            var user = userService.GetUser(loginUserRequest.Username);
+            if (user == null) {
+                return Results.InternalServerError();
+            }
+            return Results.Ok(user);
         }
 
         return loginResult switch
