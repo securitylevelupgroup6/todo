@@ -26,24 +26,7 @@ public static class AuthEndpoints
         .WithName("Logout")
         .WithTags("Logout");
 
-        endpoints.MapGet("auth/protected", ProtectedHandler);
-
-        endpoints.MapGet("auth/authorized", AuthorizedHandler);
-
         return endpoints;
-    }
-
-
-    [Authorize]
-    public static IResult ProtectedHandler()
-    {
-        return Results.Ok("this is a authenticated endpoint");
-    }
-
-    [Authorize(Roles = "USER")]
-    public static IResult AuthorizedHandler()
-    {
-        return Results.Ok("This is an authorized endpoint");
     }
 
     public static IResult RefreshHandler(HttpContext http, UserService userService, HttpResponse response)
