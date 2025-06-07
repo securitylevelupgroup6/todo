@@ -41,14 +41,16 @@ export class LoginComponent {
   }
 
   onSubmit() {
-    this.authService.login(this.loginForm.getRawValue()).subscribe({
-      next: () => {
-        this.router.navigate(['/dashboard']);
-      },
-      error: (error) => {
-        console.error('Login failed:', error);
-      }
-    });
+    if(this.loginForm.valid) {
+      this.authService.login(this.loginForm.getRawValue()).subscribe({
+        next: () => {
+          this.router.navigate(['/dashboard']);
+        },
+        error: (error) => {
+          console.error('Login failed:', error);
+        }
+      });
+    }
   }
 
   getLoginForm(): FormGroup {

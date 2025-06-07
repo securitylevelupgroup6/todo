@@ -1,4 +1,4 @@
-import { AfterContentInit, Component } from '@angular/core';
+import { AfterContentInit, AfterViewInit, Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormBuilder, Form, Validators } from '@angular/forms';
@@ -9,6 +9,14 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
 import { MultifactorAuthenticationComponent } from '../multifactor-authentication/multifactor-authentication.component';
+
+interface PasswordValidation {
+  hasUpperCase: boolean;
+  hasLowerCase: boolean;
+  hasDigit: boolean;
+  hasSpecialChar: boolean;
+  isLongEnough: boolean;
+}
 
 @Component({
   selector: 'app-register',
@@ -29,12 +37,15 @@ import { MultifactorAuthenticationComponent } from '../multifactor-authenticatio
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
-export class RegisterComponent implements AfterContentInit {
+export class RegisterComponent implements AfterViewInit {
   name: string = '';
   email: string = '';
   password: string = '';
   registrationForm: FormGroup;
   otp: string = '';
+  showPasswordValidation: boolean = false;
+  passwordValidation!: PasswordValidation;
+  currentPassword: string = '';
 
   constructor(
     private router: Router,
@@ -43,8 +54,11 @@ export class RegisterComponent implements AfterContentInit {
   ) {
     this.registrationForm = this.getRegistrationForm();
   }
-  ngAfterContentInit(): void {
-    
+  
+  ngAfterViewInit(): void {
+    // this.registrationForm.get('password')?.valueChanges.subscribe(value => {
+    //   console.log(value);
+    // })
   }
 
   onSubmit() {
@@ -60,11 +74,39 @@ export class RegisterComponent implements AfterContentInit {
 
   getRegistrationForm(): FormGroup {
     return this.formBuilder.group({
-      userName: ['', Validators.required],
-      password: ['', Validators.required],
-      verifyPassword: ['', Validators.required],
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required]
+      userName: [
+        '', [
+          Validators.required,
+          Validators.maxLength(50)
+        ]
+      ],
+      password: [
+        '', [
+          Validators.required,
+          Validators.minLength(12),
+          Validators.maxLength(256)
+        ]
+      ],
+      verifyPassword: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(12),
+          Validators.maxLength(256)
+        ]
+      ],
+      firstName: [
+        '', [
+          Validators.required,
+          Validators.maxLength(256),
+        ]
+      ],
+      lastName: [
+        '',[
+          Validators.required,
+          Validators.maxLength(256),
+        ]
+      ]
     })
   }
 
@@ -73,6 +115,31 @@ export class RegisterComponent implements AfterContentInit {
   }
 
   onInput(event: any): void {
-    console.log(event);
+    if(event.data) {
+      this.passwordValidation = this.getPasswordValidation(
+      this.registrationForm.get('password')?.value
+      );
+      console.log(this.passwordValidation);
+    }
+  }
+
+  verifyPassword(): boolean | undefined {
+    return (this.registrationForm.get('password')?.valid 
+      && this.registrationForm.get('verifyPassword')?.valid
+    ) && (this.registrationForm.get('password')?.value === this.registrationForm.get('verifyPassword')?.value)
+  }
+
+  onFocus(): void {
+    this.showPasswordValidation = true;
+  }
+
+  getPasswordValidation(password: string): PasswordValidation {
+    return {
+      hasUpperCase: RegExp(/[A-Z]/).test(password),
+      hasLowerCase: RegExp(/[a-z]/).test(password),
+      hasDigit: RegExp(/[0-9]/).test(password),
+      hasSpecialChar: RegExp(/[!@#$%^&*(),.?":{}|<>]/).test(password),
+      isLongEnough: password.length >= 12
+    }
   }
 }
