@@ -57,7 +57,7 @@ CREATE TABLE todo_history (
   old_state_id INT NOT NULL, 
   updated_state_id INT NOT NULL, 
   reporter_member_id INT NOT NULL, 
-  change_date TIMESTAMPTZ NOT NULL,
+  change_date TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE todo_states (
