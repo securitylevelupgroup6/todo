@@ -30,7 +30,7 @@ interface User {
     MatFormFieldModule,
     MatCardModule,
     ReactiveFormsModule,
-    QRCodeComponent
+    QRCodeComponent,
   ],
   templateUrl: './multifactor-authentication.component.html',
   styleUrl: './multifactor-authentication.component.scss'
@@ -41,8 +41,11 @@ export class MultifactorAuthenticationComponent {
   otp!: string;
   @Input()
   registrationForm!: FormGroup;
+  @Input()
+  loginRequest: boolean = false;
   otpForm: FormGroup;
   required: string = ErrorMessages.REQUIRED_FIELD;
+
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
@@ -54,10 +57,6 @@ export class MultifactorAuthenticationComponent {
     })
   }
 
-  ngOnInit(): void {
-
-  }
-
   onSubmit(): void {
     const user: User = {
       userName: this.registrationForm.get('userName')?.value,
@@ -67,10 +66,11 @@ export class MultifactorAuthenticationComponent {
     if(user.userName && user.password && user.otp) {
       this.authService.login(user).subscribe(data => {
         if(data.results) {
-          console.log(data.results);
           this.userService.updateUser(user);
+          this.loginRequest = false;
+          this.router.navigate([""]);
         } else {
-
+          // do nothing
         }
       })
     }

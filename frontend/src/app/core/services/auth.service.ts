@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, tap } from 'rxjs';
+import { BehaviorSubject, Observable, } from 'rxjs';
 import { Router } from '@angular/router';
-import { User, UserRole } from '../../models/user.model';
+import { User } from '../../models/user.model';
 import { environment } from '../../../environments/environment';
-import { FormGroup } from '@angular/forms';
 import { IResponse, observe } from '../../shared/functions/helpers.function';
 
 interface AuthResponse {
@@ -26,6 +25,7 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
   private apiBaseUrl: string = environment.apiUrl;
+  isLoggedIn: boolean = false;
 
   constructor(
     private http: HttpClient,
@@ -52,13 +52,7 @@ export class AuthService {
     this.router.navigate(['/auth/login']);
   }
 
-  isAuthenticated(): boolean {
-    return !!localStorage.getItem('token');
-  }
-
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
   }
-
-
 } 

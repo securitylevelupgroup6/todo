@@ -1,4 +1,4 @@
-import { AfterContentInit, AfterViewInit, Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormBuilder, Form, Validators } from '@angular/forms';
@@ -10,6 +10,7 @@ import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
 import { MultifactorAuthenticationComponent } from '../multifactor-authentication/multifactor-authentication.component';
 import { passwordValidator } from '../../shared/functions/helpers.function';
+import { FormStateService } from '../../shared/data-access/services/state.service';
 
 interface PasswordValidation {
   hasUpperCase: boolean;
@@ -33,7 +34,7 @@ interface PasswordValidation {
     MatCardModule,
     ReactiveFormsModule,
     MatIconModule,
-    MultifactorAuthenticationComponent
+    MultifactorAuthenticationComponent,
   ],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
@@ -47,11 +48,13 @@ export class RegisterComponent implements AfterViewInit {
   showPasswordValidation: boolean = false;
   passwordValidation: PasswordValidation;
   currentPassword: string = '';
+  isLoading: boolean = false;
 
   constructor(
     private router: Router,
     private authService: AuthService,
     private formBuilder: FormBuilder,
+    private formStateService: FormStateService,
   ) {
     this.registrationForm = this.getRegistrationForm();
     this.passwordValidation = {
@@ -76,6 +79,7 @@ export class RegisterComponent implements AfterViewInit {
       this.authService.register(user).subscribe(data => {
         if(data.results) {
           this.otp = data.results.otpUri;
+          this.formStateService.set(this.registrationForm);
         } else {
           this.otp = '';
         }
@@ -84,15 +88,16 @@ export class RegisterComponent implements AfterViewInit {
   }
 
   getRegistrationForm(): FormGroup {
+    const savedForm: FormGroup = this.formStateService.get() || this.formBuilder.group({});
     return this.formBuilder.group({
       userName: [
-        '', [
+        savedForm.value.userName, [
           Validators.required,
           Validators.maxLength(255)
         ]
       ],
       password: [
-        '', [
+        savedForm.value.password, [
           Validators.required,
           Validators.minLength(12),
           Validators.maxLength(255),
@@ -100,7 +105,7 @@ export class RegisterComponent implements AfterViewInit {
         ]
       ],
       confirmPassword: [
-        '',
+        savedForm.value.confirmPassword,
         [
           Validators.required,
           Validators.minLength(12),
@@ -108,13 +113,13 @@ export class RegisterComponent implements AfterViewInit {
         ]
       ],
       firstName: [
-        '', [
+        savedForm.value.firstName, [
           Validators.required,
           Validators.maxLength(255),
         ]
       ],
       lastName: [
-        '',[
+        savedForm.value.lastName,[
           Validators.required,
           Validators.maxLength(255),
         ]
@@ -132,7 +137,6 @@ export class RegisterComponent implements AfterViewInit {
       this.passwordValidation = this.getPasswordValidation(
       this.registrationForm.get('password')?.value
       );
-      console.log(this.passwordValidation);
     }
   }
 
@@ -167,7 +171,6 @@ export class RegisterComponent implements AfterViewInit {
   confirmPassword(): void {
     this.registrationForm.get('confirmPassword')?.valueChanges.subscribe(value => {
       const setPassword: string = this.registrationForm.get('password')?.value;
-      console.log(value);
       if(value !== setPassword) {
         this.registrationForm.get('confirmPassword')?.setErrors({ passwordMismatch: true });
         this.registrationForm.updateValueAndValidity();
@@ -177,5 +180,4 @@ export class RegisterComponent implements AfterViewInit {
       }
     })
   }
-  
 }

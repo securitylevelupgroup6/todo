@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule, FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -8,48 +8,46 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MultifactorAuthenticationComponent } from "../multifactor-authentication/multifactor-authentication.component";
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     NgIf,
-    RouterModule, 
+    RouterModule,
     FormsModule,
     MatButtonModule,
     MatInputModule,
     MatFormFieldModule,
     MatCardModule,
     ReactiveFormsModule,
-    MatIconModule
-  ],
+    MatIconModule,
+    MultifactorAuthenticationComponent
+],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss', '../register/register.component.scss']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   email: string = '';
   password: string = '';
   loginForm: FormGroup;
+  isLoading: boolean = false;
+  loginRequest: boolean = false;
 
   constructor(
     private router: Router,
-    private authService: AuthService,
     private formBuilder: FormBuilder,
   ) {
     this.loginForm = this.getLoginForm();
   }
 
+  ngOnInit(): void { }
+
   onSubmit() {
     if(this.loginForm.valid) {
-      this.authService.login(this.loginForm.getRawValue()).subscribe({
-        next: () => {
-          this.router.navigate(['/dashboard']);
-        },
-        error: (error) => {
-          console.error('Login failed:', error);
-        }
-      });
+      this.loginRequest = true;
     }
   }
 
