@@ -55,8 +55,14 @@ export class LoginComponent {
 
   getLoginForm(): FormGroup {
     return this.formBuilder.group({
-      userName: ['', Validators.required],
-      password: ['', Validators.required],
+      userName: ['', [
+        Validators.required,
+        Validators.maxLength(255)
+      ]],
+      password: ['', [
+        Validators.required,
+        Validators.maxLength(255)
+      ]],
     })
   }
 

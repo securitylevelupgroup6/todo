@@ -1,5 +1,6 @@
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 export interface IResponse<T> {
   results?: T;
@@ -29,4 +30,20 @@ export function observe<T>(
       }) as Observable<IResponse<T>>;
     }),
   );
+}
+
+export const passwordValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+  const value = control.value || '';
+
+  const passwordValidation = {
+    hasDigit: RegExp(/[0-9]/).test(value),
+    hasLowerCase: RegExp(/[a-z]/).test(value),
+    hasUpperCase: RegExp(/[A-Z]/).test(value),
+    hasSpecialChar: RegExp(/[!@#$%^&*(),.?":{}|<>]/).test(value),
+    isLongEnough: value.length >= 12
+  };
+
+  const isValid = Object.values(passwordValidation).every(Boolean);
+
+  return isValid ? null : { passwordStrength: passwordValidation };
 }

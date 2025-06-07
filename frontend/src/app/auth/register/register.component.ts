@@ -9,6 +9,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
 import { MultifactorAuthenticationComponent } from '../multifactor-authentication/multifactor-authentication.component';
+import { passwordValidator } from '../../shared/functions/helpers.function';
 
 interface PasswordValidation {
   hasUpperCase: boolean;
@@ -44,7 +45,7 @@ export class RegisterComponent implements AfterViewInit {
   registrationForm: FormGroup;
   otp: string = '';
   showPasswordValidation: boolean = false;
-  passwordValidation!: PasswordValidation;
+  passwordValidation: PasswordValidation;
   currentPassword: string = '';
 
   constructor(
@@ -53,23 +54,33 @@ export class RegisterComponent implements AfterViewInit {
     private formBuilder: FormBuilder,
   ) {
     this.registrationForm = this.getRegistrationForm();
+    this.passwordValidation = {
+      isLongEnough: false,
+      hasUpperCase: false,
+      hasDigit: false,
+      hasSpecialChar: false,
+      hasLowerCase: false,
+    }
   }
   
   ngAfterViewInit(): void {
-    // this.registrationForm.get('password')?.valueChanges.subscribe(value => {
-    //   console.log(value);
-    // })
+    this.registrationForm.get('password')?.valueChanges.subscribe(value => {
+      this.passwordValidation = this.getPasswordValidation(value);
+    });
+    this.confirmPassword();
   }
 
   onSubmit() {
     const user: RegisterUser = { ...this.registrationForm.value };
-    this.authService.register(user).subscribe(data => {
-     if(data.results) {
-      this.otp = data.results.otpUri;
-     } else {
-      this.otp = '';
-     }
-    });
+    if(this.registrationForm.valid) {
+      this.authService.register(user).subscribe(data => {
+        if(data.results) {
+          this.otp = data.results.otpUri;
+        } else {
+          this.otp = '';
+        }
+      });
+    }
   }
 
   getRegistrationForm(): FormGroup {
@@ -77,37 +88,39 @@ export class RegisterComponent implements AfterViewInit {
       userName: [
         '', [
           Validators.required,
-          Validators.maxLength(50)
+          Validators.maxLength(255)
         ]
       ],
       password: [
         '', [
           Validators.required,
           Validators.minLength(12),
-          Validators.maxLength(256)
+          Validators.maxLength(255),
+          passwordValidator
         ]
       ],
-      verifyPassword: [
+      confirmPassword: [
         '',
         [
           Validators.required,
           Validators.minLength(12),
-          Validators.maxLength(256)
+          Validators.maxLength(255)
         ]
       ],
       firstName: [
         '', [
           Validators.required,
-          Validators.maxLength(256),
+          Validators.maxLength(255),
         ]
       ],
       lastName: [
         '',[
           Validators.required,
-          Validators.maxLength(256),
+          Validators.maxLength(255),
         ]
       ]
-    })
+    },
+    )
   }
 
   onBack(): void {
@@ -142,4 +155,27 @@ export class RegisterComponent implements AfterViewInit {
       isLongEnough: password.length >= 12
     }
   }
+
+  validPassword(): boolean {
+    return this.passwordValidation.hasDigit
+      && this.passwordValidation.hasLowerCase
+      && this.passwordValidation.hasSpecialChar
+      && this.passwordValidation.hasUpperCase
+      && this.passwordValidation.isLongEnough
+  }
+
+  confirmPassword(): void {
+    this.registrationForm.get('confirmPassword')?.valueChanges.subscribe(value => {
+      const setPassword: string = this.registrationForm.get('password')?.value;
+      console.log(value);
+      if(value !== setPassword) {
+        this.registrationForm.get('confirmPassword')?.setErrors({ passwordMismatch: true });
+        this.registrationForm.updateValueAndValidity();
+      } else {
+        this.registrationForm.get('confirmPassword')?.setErrors(null);
+        this.registrationForm.updateValueAndValidity();
+      }
+    })
+  }
+  
 }

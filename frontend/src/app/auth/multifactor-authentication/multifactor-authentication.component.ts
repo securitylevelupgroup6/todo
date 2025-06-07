@@ -9,6 +9,7 @@ import { Router, RouterModule } from '@angular/router';
 import { QRCodeComponent } from 'angularx-qrcode';
 import { AuthService } from '../../core/services/auth.service';
 import { ErrorMessages } from '../../shared/enums/enums';
+import { UserService } from '../../shared/data-access/services/login.service';
 
 interface User {
   userName: string;
@@ -45,7 +46,8 @@ export class MultifactorAuthenticationComponent {
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private userService: UserService,
   ) {
     this.otpForm = this.formBuilder.group({
       otp: ['', Validators.required]
@@ -57,20 +59,20 @@ export class MultifactorAuthenticationComponent {
   }
 
   onSubmit(): void {
-    console.log(this.registrationForm);
-
     const user: User = {
       userName: this.registrationForm.get('userName')?.value,
       password: this.registrationForm.get('password')?.value,
-      otp: this.registrationForm.get('otp')?.value,
+      otp: this.otpForm.get('otp')?.value,
     }
-    this.authService.login(user).subscribe(data => {
-      if(data.results) {
-        console.log(data.results);
-        // this.router.navigate(['/dashboard']);
-      } else {
+    if(user.userName && user.password && user.otp) {
+      this.authService.login(user).subscribe(data => {
+        if(data.results) {
+          console.log(data.results);
+          this.userService.updateUser(user);
+        } else {
 
-      }
-    })
+        }
+      })
+    }
   }
 }

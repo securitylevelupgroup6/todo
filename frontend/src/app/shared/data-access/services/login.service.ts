@@ -12,7 +12,7 @@ export class UserService {
  
   constructor() { }
 
-   updateFilter(user: User) {
+   updateUser(user: User) {
     this.userSubject.next(user);
   }
 

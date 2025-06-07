@@ -6,3 +6,19 @@
 .password {
     min-height: 100%;
 }
+
+.valid {
+    color: green;
+    display: flex;
+    align-items: center;
+    font-size: small;
+    margin: 0;
+}
+
+.invalid {
+    color: #c80000;
+    display: flex;
+    align-items: center;
+    font-size: small;
+    margin: 0;
+}

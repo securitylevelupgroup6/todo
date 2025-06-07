@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from './header/header.component';
@@ -13,7 +13,7 @@ import { UserService } from '../shared/data-access/services/login.service';
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss']
 })
-export class LayoutComponent implements OnInit {
+export class LayoutComponent implements OnInit, OnChanges {
   sidebarOpen = false;
   user: any;
 
@@ -28,5 +28,11 @@ export class LayoutComponent implements OnInit {
         this.user = null;
       }
     })
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if(changes.hasOwnProperty('user')) {
+      this.user = changes['user'].currentValue;
+    }
   }
 } 

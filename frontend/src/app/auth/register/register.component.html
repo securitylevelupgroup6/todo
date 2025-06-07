@@ -39,44 +39,55 @@
 
         <mat-form-field class="mt-2" subscriptSizing="dynamic">
           <mat-label>Password</mat-label>
-          <input matInput formControlName="password" placeholder="Create a password"/>
+          <input matInput formControlName="password" placeholder="Create a password" type="password" (focus)="onFocus()"/>
           <mat-error *ngIf="registrationForm.get('password')?.touched 
             && registrationForm.get('password')?.hasError('required')">
              *This field is required
           </mat-error>
-          <mat-error class="flex items-center justify-center">
-            <mat-icon>check_small</mat-icon>
-            <mat-icon>close_small</mat-icon>
-            At least 8 characters
-          </mat-error>
-          <mat-error class="flex items-center justify-center">
-            <mat-icon>check_small</mat-icon>
-            <mat-icon>close_small</mat-icon>
-            At least one uppercase letter
-          </mat-error>
-          <mat-error class="flex items-center justify-center">
-            <mat-icon>check_small</mat-icon>
-            <mat-icon>close_small</mat-icon>
-            At least one lowercase letter
-          </mat-error>
-          <mat-error class="flex items-center justify-center">
-            <mat-icon>check_small</mat-icon>
-            <mat-icon>close_small</mat-icon>
-            At least one digit
-          </mat-error>
-          <mat-error class="flex items-center justify-center">
-            <mat-icon>check_small</mat-icon>
-            <mat-icon>close_small</mat-icon>
-            At least one special character
-          </mat-error>
         </mat-form-field>
+        <ul class="pl-4 pr-4" *ngIf="showPasswordValidation">
+          <li [ngClass]="{ 
+            'valid': passwordValidation.isLongEnough,
+            'invalid': !passwordValidation.isLongEnough 
+            }">
+            At least 8 characters
+          </li>
+          <li [ngClass]="{ 
+            'valid': passwordValidation.hasUpperCase,
+            'invalid': !passwordValidation.hasUpperCase 
+            }">
+            At least one uppercase letter
+          </li>
+          <li [ngClass]="{ 
+            'valid': passwordValidation.hasLowerCase,
+            'invalid': !passwordValidation.hasLowerCase 
+            }">
+            At least one lowercase letter
+          </li>
+          <li [ngClass]="{ 
+            'valid': passwordValidation.hasDigit,
+            'invalid': !passwordValidation.hasDigit 
+            }">
+            At least one digit
+          </li>
+          <li [ngClass]="{ 
+            'valid': passwordValidation.hasSpecialChar,
+            'invalid': !passwordValidation.hasSpecialChar 
+            }">
+            At least one special character
+          </li>
+        </ul>
 
         <mat-form-field class="mt-2" subscriptSizing="dynamic">
           <mat-label>Password</mat-label>
-          <input matInput formControlName="verifyPassword" placeholder="Verify password"/>
-          <mat-error *ngIf="registrationForm.get('verifyPassword')?.touched 
-            && registrationForm.get('verifyPassword')?.hasError('required')">
+          <input matInput formControlName="confirmPassword" placeholder="Confirm password" type="password"/>
+          <mat-error *ngIf="registrationForm.get('confirmPassword')?.touched 
+            && registrationForm.get('confirmPassword')?.hasError('required')">
             *This field is required
+          </mat-error>
+          <mat-error *ngIf="registrationForm.get('confirmPassword')?.touched 
+            && registrationForm.get('confirmPassword')?.hasError('passwordMismatch')">
+            *Passwords don't match
           </mat-error>
         </mat-form-field>
       </form>

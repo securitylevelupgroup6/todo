@@ -1,8 +1,10 @@
 export interface User {
   userName: string;
-  firstName: string;
-  lastName: string;
-  role: UserRole;
+  password: string;
+  otp: string;
+  firstName?: string;
+  lastName?: string;
+  role?: UserRole;
   avatar?: string;
   createdAt?: Date;
   updatedAt?: Date;
