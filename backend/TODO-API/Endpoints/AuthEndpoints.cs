@@ -78,8 +78,13 @@ public static class AuthEndpoints
 
     public static IResult LoginUserHandler([FromBody] LoginRequest loginUserRequest, HttpContext http, UserService userService)
     {
+        var errorResults = RequestValidator.Validate(loginUserRequest);
+        if (errorResults != null)
+        {
+            return Results.BadRequest(new { Errors = errorResults });
+        }
+
         var loginResult = userService.ValidateUserCredentials(loginUserRequest.Username, loginUserRequest.Password, loginUserRequest.Otp, out string? refreshToken);
-        Console.WriteLine(loginResult.ToString());
         if (loginResult == LoginResult.Success && refreshToken != null)
         {
             var jwt = userService.CreateJwt(loginUserRequest.Username);
@@ -111,6 +116,7 @@ public static class AuthEndpoints
 
     public static IResult LogoutUserHandler(HttpContext http, UserService userService)
     {
+        
         var jwt = http.Request.Cookies["access_token"];
         var refreshToken = http.Request.Cookies["refresh_token"];
         if (jwt == null || refreshToken == null)
