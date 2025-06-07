@@ -15,7 +15,6 @@ public static class TeamEndpoints
         .Accepts<CreateTeamRequest>("application/json")
         .Produces(StatusCodes.Status201Created, typeof(Team))
         .Produces(StatusCodes.Status400BadRequest)
-        .RequireAuthorization("RequireTeamLeadRole")
         .WithName("CreateTeam")
         .WithTags("Team");
 
@@ -23,21 +22,19 @@ public static class TeamEndpoints
         .Accepts<AddTeamMemberRequest>("application/json")
         .Produces(StatusCodes.Status200OK, typeof(TeamMember))
         .Produces(StatusCodes.Status400BadRequest)
-        .RequireAuthorization("RequireTeamLeadRole")
         .WithName("AddTeamMember")
         .WithTags("Team");
 
         endpoints.MapGet("/teams/{teamId}/members", GetTeamMembersHandler)
         .Produces(StatusCodes.Status200OK, typeof(IEnumerable<UserResponse>))
         .Produces(StatusCodes.Status400BadRequest)
-        .RequireAuthorization("User")
         .WithName("GetTeamUsers")
         .WithTags("Team");
 
         return endpoints;
     }
 
-    private static async Task<IResult> GetTeamMembersHandler([FromServices] TeamService teamService, [FromQuery] int teamId)
+    private static async Task<IResult> GetTeamMembersHandler([FromServices] TeamService teamService, int teamId)
     {
         try
         {
@@ -65,11 +62,12 @@ public static class TeamEndpoints
         }
         catch (Exception ex)
         {
+            
             return Results.BadRequest(new { error = ex.Message });
         }
     }
 
-    public async static Task<IResult> AddTeamMemberHandler([FromServices] TeamService teamService, [FromQuery] int teamId, [FromBody] AddTeamMemberRequest request)
+    public async static Task<IResult> AddTeamMemberHandler([FromServices] TeamService teamService, int teamId, [FromBody] AddTeamMemberRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -81,6 +79,7 @@ public static class TeamEndpoints
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return Results.BadRequest(new { error = ex.Message });
         }
     }

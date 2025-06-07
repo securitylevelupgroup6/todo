@@ -58,7 +58,6 @@ CREATE TABLE todo_history (
   updated_state_id INT NOT NULL, 
   reporter_member_id INT NOT NULL, 
   change_date TIMESTAMPTZ NOT NULL,
-  team_id INT NOT NULL
 );
 
 CREATE TABLE todo_states (
@@ -66,6 +65,7 @@ CREATE TABLE todo_states (
   title VARCHAR(255) NOT NULL,
   description TEXT NOT NULL, 
   status_id INT NOT NULL, 
+  team_id INT NOT NULL,
   assignee_member_id INT NULL 
 );
 
@@ -86,7 +86,7 @@ ALTER TABLE todo_history ADD FOREIGN KEY (todo_id) REFERENCES todos (id);
 ALTER TABLE todo_history ADD FOREIGN KEY (old_state_id) REFERENCES todo_states (id);
 ALTER TABLE todo_history ADD FOREIGN KEY (updated_state_id) REFERENCES todo_states (id);
 ALTER TABLE todo_history ADD FOREIGN KEY (reporter_member_id) REFERENCES team_members (id);
-ALTER TABLE todo_history ADD FOREIGN KEY (team_id) REFERENCES teams (id);
 
 ALTER TABLE todo_states ADD FOREIGN KEY (status_id) REFERENCES todo_statuses (id);
 ALTER TABLE todo_states ADD FOREIGN KEY (assignee_member_id) REFERENCES team_members (id);
+ALTER TABLE todo_states ADD FOREIGN KEY (team_id) REFERENCES teams (id);

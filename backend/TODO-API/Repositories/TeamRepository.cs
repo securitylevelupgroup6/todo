@@ -33,6 +33,7 @@ public class TeamRepository([FromServices] TodoContext context)
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex);
             throw new Exception("An error occurred while creating the team.", ex);
         }
     }
@@ -60,6 +61,7 @@ public class TeamRepository([FromServices] TodoContext context)
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex);
             throw new Exception("An error occurred while adding the user to the team.", ex);
         }
     }

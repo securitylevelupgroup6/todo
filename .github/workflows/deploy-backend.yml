@@ -38,6 +38,12 @@ jobs:
         run: |
           scp -r -o StrictHostKeyChecking=no -i ec2_key.pem migrations/* ubuntu@$EC2_IP:~/migrations
 
+      - name: SSH into EC2 and clean up
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@$EC2_IP << 'EOF'
+          sudo rm -rf build
+          EOF
+
       - name: build the api and move copy to the ec2
         working-directory: backend/TODO-API
         run: |
