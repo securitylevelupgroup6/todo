@@ -24,11 +24,17 @@ SECRET=$(aws secretsmanager get-secret-value \
   --query SecretString \
   --output text)
 
+
 DB_USER=$(echo $SECRET | jq -r .db_username)
 DB_PASS=$(echo $SECRET | jq -r .db_password)
-
 DB_HOST=$(aws secretsmanager get-secret-value \
   --secret-id rds-host \
+  --query SecretString \
+  --output text)
+
+
+JWT_KEY=SECRET=$(aws secretsmanager get-secret-value \
+  --secret-id JWT_KEY \
   --query SecretString \
   --output text)
 
@@ -66,6 +72,10 @@ Restart=always
 Environment=ASPNETCORE_ENVIRONMENT=Production
 Environment=DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 Environment=ASPNETCORE_URLS=http://0.0.0.0:5000
+Environment=ConnectionStrings__DefaultConnection=Host=$DB_HOST;Port=5432;Database=tododb;Username=$DB_USER;Password=$DB_PASS;
+Environment=JWT_KEY=$JWT_KEY
+Environment=JWT_AUDIENCE=todo.pastpaperportal.co.za
+Environment=JWT_ISSUER=todo.pastpaperportal.co.za
 StandardOutput=journal
 StandardError=journal
 
@@ -101,6 +111,7 @@ sudo apt install -y nginx certbot python3-certbot-nginx
 echo "Creating temporary HTTP-only nginx config for $DOMAIN..."
 sudo tee $NGINX_CONF > /dev/null <<EOF
 server {
+
     listen 80;
     server_name $DOMAIN;
 
@@ -110,6 +121,11 @@ server {
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
+        location / {
+        proxy_pass http://localhost:5000;
+        proxy_set_header Origin \$http_origin;
+        proxy_buffering off;
+        }
     }
 }
 EOF

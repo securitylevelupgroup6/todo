@@ -9,9 +9,9 @@ terraform {
   required_version = ">= 1.2.0"
 
   backend "s3" {
-    bucket         = "terraform-state-bucket-security-levelup-grp-6"
+    bucket         = "terraform-state-bucket-security-levelup-grp-6-1"
     key            = "env/dev/terraform.tfstate"
-    region         = "us-west-2"
+    region         = "af-south-1"
     encrypt        = true
   }
 }
@@ -29,7 +29,7 @@ locals {
 }
 
 provider "aws" {
-  region  = "us-west-2"
+  region  = "af-south-1"
 }
 
 data "aws_ami" "ubuntu" {
@@ -56,20 +56,20 @@ resource "aws_vpc" "main" {
 resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.0.0/24"
-  availability_zone = "us-west-2a"
+  availability_zone = "af-south-1a"
   map_public_ip_on_launch = true
 }
 
 resource "aws_subnet" "private_1" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.1.0/24"
-  availability_zone = "us-west-2a"
+  availability_zone = "af-south-1a"
 }
 
 resource "aws_subnet" "private_2" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.2.0/24"
-  availability_zone = "us-west-2b"
+  availability_zone = "af-south-1b"
 }
 
 resource "aws_db_subnet_group" "private-group" {
@@ -205,13 +205,13 @@ resource "aws_iam_instance_profile" "ec2_instance_profile" {
 
 resource "aws_instance" "app_server" {
   ami  = data.aws_ami.ubuntu.id
-  instance_type = "t2.micro"
+  instance_type = "t3.micro"
   subnet_id = aws_subnet.public.id
   iam_instance_profile = aws_iam_instance_profile.ec2_instance_profile.name
   tags = {
     Name = "todo-backend"
   }
-  key_name = "EC2 key"
+  key_name = "EC2 Key"
   vpc_security_group_ids = [aws_security_group.ec2-security-group.id]
 }
 

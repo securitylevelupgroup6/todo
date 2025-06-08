@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.InteropServices;
 
 namespace TODO_API.Models;
@@ -17,4 +17,7 @@ public class RefreshToken
 
     [Column("expires_at")]
     public DateTime ExpiresAt { get; set; }
+
+    [Column("revoked")]
+    public bool Revoked { get; set; }
 }

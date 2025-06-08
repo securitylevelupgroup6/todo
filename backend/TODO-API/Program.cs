@@ -1,14 +1,13 @@
-using System.Text;
-using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.RateLimiting;
 using TODO_API.Common;
 using TODO_API.Configuration;
-using TODO_API.Services;
-using TODO_API.Endpoints;
 
 EnvironmentConfiguration.JwtKey = Environment.GetEnvironmentVariable("JWT_KEY")
     ?? throw new InvalidOperationException("JWT_KEY environment variable is not set.");
@@ -33,7 +32,27 @@ builder.Services.AddRateLimiter(rateLimiterOptions =>
         options.PermitLimit = 5;
         options.Window = TimeSpan.FromSeconds(30);
         options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        options.QueueLimit = 0; 
+        options.QueueLimit = 0;
+    });
+});
+
+builder.Services.AddDbContextPool<TODO_API.Repositories.TodoContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), poolSize: 128);
+
+builder.Services.AddServices();
+
+builder.Services.ConfigureAuth();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddRateLimiter(rateLimiterOptions =>
+{
+    rateLimiterOptions.AddFixedWindowLimiter("RegisterEndpointLimiter", options =>
+    {
+        options.PermitLimit = 5;
+        options.Window = TimeSpan.FromSeconds(30);
+        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        options.QueueLimit = 0;
     });
 });
 
@@ -45,9 +64,6 @@ builder.Services.AddDataProtection()
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-builder.Services.AddScoped<UserService>();
-
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -62,7 +78,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = EnvironmentConfiguration.JwtIssuer,
             ValidAudience = EnvironmentConfiguration.JwtAudience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(EnvironmentConfiguration.JwtKey)),
-            ClockSkew = TimeSpan.Zero
+            ClockSkew = TimeSpan.Zero,
+            RoleClaimType = ClaimTypes.Role
         };
 
         options.Events = new JwtBearerEvents
@@ -77,11 +94,34 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 return Task.CompletedTask;
             }
         };
+
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization((options) =>
+{
+    options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("ADMIN"));
+    options.AddPolicy("RequireTeamRole", policy => policy.RequireRole("TEAM_LEAD"));
+    options.AddPolicy("RequireUserRole", policy => policy.RequireRole("USER"));
+});
+
+string AllowSpecificOrigins = "AllowAngularDevelopmentServer";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: AllowSpecificOrigins,
+                      policy  =>
+                      {
+                          policy.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader();
+                      });
+});
 
 var app = builder.Build();
+app.UseCors(AllowSpecificOrigins);
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.AddEndpoints();
 app.MapDashboardEndpoints();
