@@ -1,4 +1,5 @@
-﻿using TODO_API.Models;
+﻿using System.Text.Json;
+using TODO_API.Models;
 using TODO_API.Models.Responses;
 
 namespace TODO_API.Mappers;
@@ -27,6 +28,7 @@ public static class ResponseMappers
         {
             throw new ArgumentNullException(nameof(todo), "No todo provided for mapping.");
         }
+        Console.WriteLine(JsonSerializer.Serialize(todo));
 
         return new TodoResponse
         {

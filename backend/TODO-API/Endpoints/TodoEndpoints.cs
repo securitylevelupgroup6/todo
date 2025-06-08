@@ -48,22 +48,22 @@ public static class TodoEndpoints
             return Results.Forbid();
         }
 
-        try
-        {
-            var todo = await todoService.CreateTodoAsync(request);
 
-            return Results.Created($"/team/{todo.Id}", todo);
-        }
-        catch (Exception ex)
-        {
-            return Results.BadRequest(new { error = ex.Message });
-        }
+            try
+            {
+                var todo = await todoService.CreateTodoAsync(request);
+
+                return Results.Created($"/team/{todo.Id}", todo);
+            }
+            catch (Exception ex)
+            {
+                return Results.BadRequest(new { error = ex.Message });
+            }
     }
 
-    public async static Task<IResult> UpdateTodoHandler([FromServices] TodoService todoService, [FromBody] UpdateTodoRequest request)
+    public async static Task<IResult> UpdateTodoHandler([FromServices] TodoService todoService, [FromBody] UpdateTodoRequest request, int todoId)
     {
         ArgumentNullException.ThrowIfNull(request);
-
         try
         {
             var todo = await todoService.UpdateTodoAsync(request);
@@ -74,6 +74,7 @@ public static class TodoEndpoints
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex);
             return Results.BadRequest(new { error = ex.Message });
         }
     }
