@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Razor.Hosting;
 using TODO_API.Common;
 using TODO_API.Mappers;
 using TODO_API.Models;

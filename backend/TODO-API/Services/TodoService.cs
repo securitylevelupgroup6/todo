@@ -1,7 +1,7 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
 using TODO_API.Models;
 using TODO_API.Models.Requests;
 using TODO_API.Repositories;
@@ -121,5 +121,16 @@ public class TodoService(TodoContext dbContext, TodoRepository todoRepository)
             Console.WriteLine(ex);
             throw new Exception("An error occurred while creating the todo.", ex);
         }
+    }
+
+    internal async Task<IEnumerable<Todo>> GetTeamTodosAsync(int teamId)
+    {
+        var todos = await dbContext.Todos
+            .Include(todo => todo.TodoState)
+                .ThenInclude(todoState => todoState.Team)
+            .Where(todo => todo != null && todo.TodoState != null && todo.TodoState.Team.Id == teamId)
+            .ToListAsync();
+
+        return todos;
     }
 }

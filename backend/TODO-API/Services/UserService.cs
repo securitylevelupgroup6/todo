@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OtpNet;
@@ -14,16 +13,11 @@ using TODO_API.Repositories;
 
 namespace TODO_API.Services;
 
-public class UserService(TodoContext dbContext, IDataProtectionProvider provider)
+public class UserService(TodoContext todoContext, IDataProtectionProvider provider, UserRepository userRepository)
 {
-    private readonly IDataProtectionProvider _provider = provider;
-
-
-    private readonly TodoContext _todoContext = dbContext;
-
     public User? GetUser(string username)
     {
-        return dbContext.Users.Include(u => u.RefreshTokens).Include(u => u.UserRoles).ThenInclude(ur => ur.Role).FirstOrDefault(u => u.Username == username);
+        return todoContext.Users.Include(u => u.RefreshTokens).Include(u => u.UserRoles).ThenInclude(ur => ur.Role).FirstOrDefault(u => u.Username == username);
     }
 
     public LoginResult ValidateUserCredentials(string username, string password, string otp, out string? refreshToken)
@@ -41,7 +35,7 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
             return LoginResult.IncorrectPassword;
         }
 
-        var decryptedOtpSecret = _provider.CreateProtector("TotpSecrets").Unprotect(user.TwoFactorKey);
+        var decryptedOtpSecret = provider.CreateProtector("TotpSecrets").Unprotect(user.TwoFactorKey);
         var totp = new Totp(Base32Encoding.ToBytes(decryptedOtpSecret));
         if (!totp.VerifyTotp(otp, out long timestep))
         {
@@ -88,7 +82,7 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
         try
         {
             user.RefreshTokens.Add(new RefreshToken { RefreshTokenHash = refreshTokenHash, ExpiresAt = DateTime.Now.AddDays(85).ToUniversalTime(), User = user, Revoked = false });
-            _todoContext.SaveChanges();
+            todoContext.SaveChanges();
             return true;
         }
         catch (Exception e)
@@ -104,7 +98,7 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
         var jwtToken = handler.ReadJwtToken(jwt);
 
         // get the user from the jwt
-        var user = _todoContext.Users.Include(u => u.RefreshTokens).FirstOrDefault(u => u.Id.ToString() == jwtToken.Subject.ToString());
+        var user = todoContext.Users.Include(u => u.RefreshTokens).FirstOrDefault(u => u.Id.ToString() == jwtToken.Subject.ToString());
         var matchedToken = user?.RefreshTokens.Where(encryptedToken => BCrypt.Net.BCrypt.Verify(refreshToken, encryptedToken.RefreshTokenHash) && !encryptedToken.Revoked).FirstOrDefault();
 
         if (user == null || matchedToken == null || matchedToken?.ExpiresAt <= DateTime.UtcNow)
@@ -119,7 +113,7 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
 
     public ResetPasswordResult ResetPassword(PasswordResetRequest request)
     {
-        var user = _todoContext.Users.FirstOrDefault(u => u.Id == request.UserId);
+        var user = todoContext.Users.FirstOrDefault(u => u.Id == request.UserId);
         if (user == null)
         {
             return ResetPasswordResult.UserDoesNotExist;
@@ -133,7 +127,7 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
         user.Password = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
         try
         {
-            _todoContext.SaveChanges();
+            todoContext.SaveChanges();
         }
         catch (DbUpdateException ex)
         {
@@ -158,7 +152,7 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
             {
                 // only add the role if it doesn't exist already
                 user.UserRoles.Add(new UserRole { RoleId = rid, UserId = user.Id });
-                _todoContext.SaveChanges();
+                todoContext.SaveChanges();
             }
         });
     }
@@ -168,7 +162,7 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
         var handler = new JwtSecurityTokenHandler();
         var jwtToken = handler.ReadJwtToken(jwt);
 
-        var user = _todoContext.Users.Include(u => u.RefreshTokens).FirstOrDefault(u => u.Id.ToString() == jwtToken.Subject.ToString());
+        var user = todoContext.Users.Include(u => u.RefreshTokens).FirstOrDefault(u => u.Id.ToString() == jwtToken.Subject.ToString());
 
         // this is the refresh token that the user is currently logged in with
         var matchedToken = user?.RefreshTokens.Where(encryptedToken => BCrypt.Net.BCrypt.Verify(refreshToken, encryptedToken.RefreshTokenHash) && !encryptedToken.Revoked).FirstOrDefault();
@@ -179,14 +173,14 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
 
         // revoke the token
         matchedToken.Revoked = true;
-        _todoContext.SaveChanges();
+        todoContext.SaveChanges();
         return true;
     }
 
     public RegistrationResult RegisterUser(string username, string password, string firstName, string lastName, out OtpUri? otpUri)
     {
         // Ensure the username is not already in use
-        if (_todoContext.Users.Any(u => u.Username == username))
+        if (todoContext.Users.Any(u => u.Username == username))
         {
             otpUri = null;
             return RegistrationResult.UsernameAlreadyTaken;
@@ -201,20 +195,20 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
         {
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
             var totpSecretKey = Base32Encoding.ToString(KeyGeneration.GenerateRandomKey(20));
-            var encryptedSecret = _provider.CreateProtector("TotpSecrets").Protect(totpSecretKey);
+            var encryptedSecret = provider.CreateProtector("TotpSecrets").Protect(totpSecretKey);
 
             User user = new() { FirstName = firstName, LastName = lastName, Password = passwordHash, TwoFactorKey = encryptedSecret, Username = username };
-            _todoContext.Users.Add(user);
-            _todoContext.SaveChanges();
+            todoContext.Users.Add(user);
+            todoContext.SaveChanges();
 
             // TODO: Uncomment this before demo!!!!!!!
-            // Role role = _todoContext.Roles.FirstOrDefault(r => r.Name == "USER") ?? throw new RoleNotFoundException();
+            // Role role = todoContext.Roles.FirstOrDefault(r => r.Name == "USER") ?? throw new RoleNotFoundException();
             // UserRole defaultRole = new() { RoleId = role.Id, UserId = user.Id };
             // user.UserRoles = [defaultRole];
 
-            Role userRole = _todoContext.Roles.FirstOrDefault(r => r.Name == Roles.USER) ?? throw new RoleNotFoundException();
-            Role adminRole = _todoContext.Roles.FirstOrDefault(r => r.Name == Roles.ADMIN) ?? throw new RoleNotFoundException();
-            Role tlRole = _todoContext.Roles.FirstOrDefault(r => r.Name == Roles.TEAMLEAD) ?? throw new RoleNotFoundException();
+            Role userRole = todoContext.Roles.FirstOrDefault(r => r.Name == Roles.USER) ?? throw new RoleNotFoundException();
+            Role adminRole = todoContext.Roles.FirstOrDefault(r => r.Name == Roles.ADMIN) ?? throw new RoleNotFoundException();
+            Role tlRole = todoContext.Roles.FirstOrDefault(r => r.Name == Roles.TEAMLEAD) ?? throw new RoleNotFoundException();
 
             UserRole URole = new() { RoleId = userRole.Id, UserId = user.Id };
             UserRole ARole = new() { RoleId = adminRole.Id, UserId = user.Id };
@@ -222,7 +216,7 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
 
             user.UserRoles = [URole, ARole, TLRole];
 
-            _todoContext.SaveChanges();
+            todoContext.SaveChanges();
 
             otpUri = new OtpUri(OtpType.Totp, totpSecretKey, "TODO-APP");
         }
@@ -245,7 +239,18 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
     {
         var handler = new JwtSecurityTokenHandler();
         var jwtToken = handler.ReadJwtToken(jwt);
-        var user = _todoContext.Users.Include(u => u.UserRoles).ThenInclude(ur=>ur.Role).FirstOrDefault(u => u.Id.ToString() == jwtToken.Subject.ToString()) ?? throw new UserNotFoundException();
+        var user = todoContext.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role).FirstOrDefault(u => u.Id.ToString() == jwtToken.Subject.ToString()) ?? throw new UserNotFoundException();
         return [.. user.UserRoles.Select(ur => ur.Role.Name)];
+    }
+
+    public async Task<IEnumerable<Team>> GetUserTeamsAsync(string jwt)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(jwt);
+        var user = await todoContext.Users.FirstOrDefaultAsync(u => u.Id.ToString() == jwtToken.Subject.ToString()) ?? throw new UserNotFoundException();
+
+        var teams = await userRepository.GetUserTeamsAsync(user);
+
+        return teams;
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using TODO_API.Common;
 using TODO_API.Models.Requests;
 using TODO_API.Services;
@@ -18,6 +17,11 @@ public static class UserEndpoints
         endpoints.MapGet("/users/roles", GetUserRoles)
         .WithName("Get User Roles")
         .WithTags("Get User's Roles");
+
+        endpoints.MapPost("/users/teams", GetUserTeamsHandler)
+        .WithName("Get Teams")
+        .WithTags("Get a user's teams");
+
         return endpoints;
     }
 
@@ -44,9 +48,35 @@ public static class UserEndpoints
     public static IResult GetUserRoles(HttpContext http, UserService userService)
     {
         var jwt = http.Request.Cookies["access_token"];
+
+        if (string.IsNullOrEmpty(jwt))
+            return Results.BadRequest("JWT token is required.");
+
         try
         {
             return Results.Ok(new { Roles = userService.GetRoles(jwt) });
+        }
+        catch (UserNotFoundException)
+        {
+            return Results.BadRequest("User in jwt could not be found");
+        }
+        catch (Exception)
+        {
+            return Results.InternalServerError();
+        }
+    }
+
+    private static async Task<IResult> GetUserTeamsHandler(HttpContext http, UserService userService)
+    {
+        var jwt = http.Request.Cookies["access_token"];
+
+        if (string.IsNullOrEmpty(jwt))
+            return Results.BadRequest("JWT token is required.");
+
+        try
+        {
+            var teams = await userService.GetUserTeamsAsync(jwt);
+            return Results.Ok(new { Teams = teams });
         }
         catch (UserNotFoundException)
         {
