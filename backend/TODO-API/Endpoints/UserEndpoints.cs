@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using TODO_API.Common;
 using TODO_API.Models.Requests;
 using TODO_API.Services;
 
@@ -13,6 +15,9 @@ public static class UserEndpoints
         .WithName("Assign Roles")
         .WithTags("Assign Roles to User");
 
+        endpoints.MapGet("/users/roles", GetUserRoles)
+        .WithName("Get User Roles")
+        .WithTags("Get User's Roles");
         return endpoints;
     }
 
@@ -33,5 +38,23 @@ public static class UserEndpoints
         }
 
         return Results.Created();
+    }
+
+    [Authorize(Roles = Roles.USER)]
+    public static IResult GetUserRoles(HttpContext http, UserService userService)
+    {
+        var jwt = http.Request.Cookies["access_token"];
+        try
+        {
+            return Results.Ok(new { Roles = userService.GetRoles(jwt) });
+        }
+        catch (UserNotFoundException)
+        {
+            return Results.BadRequest("User in jwt could not be found");
+        }
+        catch (Exception)
+        {
+            return Results.InternalServerError();
+        }
     }
 }

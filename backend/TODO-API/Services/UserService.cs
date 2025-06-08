@@ -218,10 +218,10 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
 
             UserRole URole = new() { RoleId = userRole.Id, UserId = user.Id };
             UserRole ARole = new() { RoleId = adminRole.Id, UserId = user.Id };
-            UserRole TLRole= new() { RoleId = tlRole.Id, UserId = user.Id };
+            UserRole TLRole = new() { RoleId = tlRole.Id, UserId = user.Id };
 
             user.UserRoles = [URole, ARole, TLRole];
-        
+
             _todoContext.SaveChanges();
 
             otpUri = new OtpUri(OtpType.Totp, totpSecretKey, "TODO-APP");
@@ -239,5 +239,13 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
             return RegistrationResult.UnknownError;
         }
         return RegistrationResult.Success;
+    }
+
+    public List<string> GetRoles(string jwt)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(jwt);
+        var user = _todoContext.Users.Include(u => u.UserRoles).ThenInclude(ur=>ur.Role).FirstOrDefault(u => u.Id.ToString() == jwtToken.Subject.ToString()) ?? throw new UserNotFoundException();
+        return [.. user.UserRoles.Select(ur => ur.Role.Name)];
     }
 }
