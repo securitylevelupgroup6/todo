@@ -21,6 +21,15 @@ EnvironmentConfiguration.JwtAudience = Environment.GetEnvironmentVariable("JWT_A
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200") // Frontend URL
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 builder.Services.AddDbContextPool<TODO_API.Repositories.TodoContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("TodoDatabase")), poolSize: 128);
@@ -124,7 +133,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.AddEndpoints();
-app.MapDashboardEndpoints();
+// app.MapDashboardEndpoints();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseCors("AllowLocalhost");
 app.Run();

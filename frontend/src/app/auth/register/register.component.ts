@@ -1,109 +1,183 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component } from '@angular/core';
+import { CommonModule, NgIf } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../core/services/auth.service';
-import { User } from '../../models/user.model';
+import { FormsModule, ReactiveFormsModule, FormGroup, FormBuilder, Form, Validators } from '@angular/forms';
+import { AuthService, RegisterUser } from '../../core/services/auth.service';
+import {MatButtonModule} from '@angular/material/button';
+import {MatInputModule} from '@angular/material/input';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatCardModule} from '@angular/material/card';
+import {MatIconModule} from '@angular/material/icon';
+import { MultifactorAuthenticationComponent } from '../multifactor-authentication/multifactor-authentication.component';
+import { passwordValidator } from '../../shared/functions/helpers.function';
+import { FormStateService } from '../../shared/data-access/services/state.service';
+
+interface PasswordValidation {
+  hasUpperCase: boolean;
+  hasLowerCase: boolean;
+  hasDigit: boolean;
+  hasSpecialChar: boolean;
+  isLongEnough: boolean;
+}
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
-  template: `
-    <main class="min-h-screen flex items-center justify-center bg-background">
-      <section class="w-full max-w-md p-8 space-y-8 bg-card rounded-lg shadow-lg">
-        <header class="text-center">
-          <h1 class="text-2xl font-bold">Create an account</h1>
-          <p class="text-muted-foreground mt-2">Sign up to get started</p>
-        </header>
-        <form class="mt-8 space-y-6" (ngSubmit)="onSubmit()">
-          <fieldset class="space-y-4">
-            <div>
-              <label for="name" class="block text-sm font-medium">Full name</label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                [(ngModel)]="name"
-                class="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                placeholder="Enter your full name"
-              />
-            </div>
-            <div>
-              <label for="email" class="block text-sm font-medium">Email address</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                [(ngModel)]="email"
-                class="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                placeholder="Enter your email"
-              />
-            </div>
-            <div>
-              <label for="password" class="block text-sm font-medium">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                [(ngModel)]="password"
-                class="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                placeholder="Create a password"
-              />
-            </div>
-          </fieldset>
-          <div>
-            <button
-              type="submit"
-              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-            >
-              Sign up
-            </button>
-          </div>
-        </form>
-        <footer class="text-center text-sm">
-          <p class="text-muted-foreground">
-            Already have an account?
-            <a routerLink="/auth/login" class="font-medium text-primary hover:text-primary/90">
-              Sign in
-            </a>
-          </p>
-        </footer>
-      </section>
-    </main>
-  `,
-  styles: []
+  imports: [
+    CommonModule, 
+    NgIf,
+    RouterModule, 
+    FormsModule,
+    MatButtonModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatCardModule,
+    ReactiveFormsModule,
+    MatIconModule,
+    MultifactorAuthenticationComponent,
+  ],
+  templateUrl: './register.component.html',
+  styleUrls: ['./register.component.scss']
 })
-export class RegisterComponent {
+export class RegisterComponent implements AfterViewInit {
   name: string = '';
   email: string = '';
   password: string = '';
+  registrationForm: FormGroup;
+  otp: string = '';
+  showPasswordValidation: boolean = false;
+  passwordValidation: PasswordValidation;
+  currentPassword: string = '';
+  isLoading: boolean = false;
 
   constructor(
     private router: Router,
-    private authService: AuthService
-  ) {}
+    private authService: AuthService,
+    private formBuilder: FormBuilder,
+    private formStateService: FormStateService,
+  ) {
+    this.registrationForm = this.getRegistrationForm();
+    this.passwordValidation = {
+      isLongEnough: false,
+      hasUpperCase: false,
+      hasDigit: false,
+      hasSpecialChar: false,
+      hasLowerCase: false,
+    }
+  }
+  
+  ngAfterViewInit(): void {
+    this.registrationForm.get('password')?.valueChanges.subscribe(value => {
+      this.passwordValidation = this.getPasswordValidation(value);
+    });
+    this.confirmPassword();
+  }
 
   onSubmit() {
-    const [firstName, ...lastNameParts] = this.name.split(' ');
-    const lastName = lastNameParts.join(' ');
+    const user: RegisterUser = { ...this.registrationForm.value };
+    if(this.registrationForm.valid) {
+      this.authService.register(user).subscribe(data => {
+        if(data.results) {
+          this.otp = data.results.otpUri;
+          this.formStateService.set(this.registrationForm);
+        } else {
+          this.otp = '';
+        }
+      });
+    }
+  }
 
-    const userData: Partial<User> = {
-      email: this.email,
-      firstName,
-      lastName
-    };
+  getRegistrationForm(): FormGroup {
+    const savedForm: FormGroup = this.formStateService.get() || this.formBuilder.group({});
+    return this.formBuilder.group({
+      userName: [
+        savedForm.value.userName, [
+          Validators.required,
+          Validators.maxLength(255)
+        ]
+      ],
+      password: [
+        savedForm.value.password, [
+          Validators.required,
+          Validators.minLength(12),
+          Validators.maxLength(255),
+          passwordValidator
+        ]
+      ],
+      confirmPassword: [
+        savedForm.value.confirmPassword,
+        [
+          Validators.required,
+          Validators.minLength(12),
+          Validators.maxLength(255)
+        ]
+      ],
+      firstName: [
+        savedForm.value.firstName, [
+          Validators.required,
+          Validators.maxLength(255),
+        ]
+      ],
+      lastName: [
+        savedForm.value.lastName,[
+          Validators.required,
+          Validators.maxLength(255),
+        ]
+      ]
+    },
+    )
+  }
 
-    this.authService.register(userData).subscribe({
-      next: () => {
-        this.router.navigate(['/dashboard']);
-      },
-      error: (error) => {
-        console.error('Registration failed:', error);
+  onBack(): void {
+    this.router.navigate(["/auth/login"]);
+  }
+
+  onInput(event: any): void {
+    if(event.data) {
+      this.passwordValidation = this.getPasswordValidation(
+      this.registrationForm.get('password')?.value
+      );
+    }
+  }
+
+  verifyPassword(): boolean | undefined {
+    return (this.registrationForm.get('password')?.valid 
+      && this.registrationForm.get('verifyPassword')?.valid
+    ) && (this.registrationForm.get('password')?.value === this.registrationForm.get('verifyPassword')?.value)
+  }
+
+  onFocus(): void {
+    this.showPasswordValidation = true;
+  }
+
+  getPasswordValidation(password: string): PasswordValidation {
+    return {
+      hasUpperCase: RegExp(/[A-Z]/).test(password),
+      hasLowerCase: RegExp(/[a-z]/).test(password),
+      hasDigit: RegExp(/[0-9]/).test(password),
+      hasSpecialChar: RegExp(/[!@#$%^&*(),.?":{}|<>]/).test(password),
+      isLongEnough: password.length >= 12
+    }
+  }
+
+  validPassword(): boolean {
+    return this.passwordValidation.hasDigit
+      && this.passwordValidation.hasLowerCase
+      && this.passwordValidation.hasSpecialChar
+      && this.passwordValidation.hasUpperCase
+      && this.passwordValidation.isLongEnough
+  }
+
+  confirmPassword(): void {
+    this.registrationForm.get('confirmPassword')?.valueChanges.subscribe(value => {
+      const setPassword: string = this.registrationForm.get('password')?.value;
+      if(value !== setPassword) {
+        this.registrationForm.get('confirmPassword')?.setErrors({ passwordMismatch: true });
+        this.registrationForm.updateValueAndValidity();
+      } else {
+        this.registrationForm.get('confirmPassword')?.setErrors(null);
+        this.registrationForm.updateValueAndValidity();
       }
-    });
+    })
   }
 }

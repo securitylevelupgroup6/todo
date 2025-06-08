@@ -1,0 +1,6 @@
+<section *ngIf="(loader.isLoading$ | async) === true" class="loader-container">
+  <mat-progress-spinner
+    mode="indeterminate"
+    diameter="50"
+  ></mat-progress-spinner>
+</section>

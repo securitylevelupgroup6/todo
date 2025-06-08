@@ -20,6 +20,7 @@
     "@angular/platform-browser-dynamic": "^19.2.0",
     "@angular/router": "^19.2.0",
     "@tailwindcss/postcss": "^4.1.8",
+    "angularx-qrcode": "^19.0.0",
     "chart.js": "^4.4.9",
     "postcss": "^8.5.4",
     "rxjs": "~7.8.0",
@@ -28,7 +29,7 @@
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^19.2.8",
+    "@angular-devkit/build-angular": "^19.2.14",
     "@angular/cli": "^19.2.8",
     "@angular/compiler-cli": "^19.2.0",
     "@types/jasmine": "~5.1.0",
