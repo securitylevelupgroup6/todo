@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TODO_API.Common;
 using TODO_API.Mappers;
@@ -32,7 +33,7 @@ public static class TodoEndpoints
         .WithName("GetTodos")
         .WithTags("Todo");
 
-        endpoints.MapGet("/todo/{teamId}", GetTeamTodosHandler)
+        endpoints.MapGet("/todo/team/{teamId}", GetTeamTodosHandler)
         .Produces(StatusCodes.Status200OK, typeof(IEnumerable<TodoResponse>))
         .Produces(StatusCodes.Status400BadRequest)
         .WithName("GetTeamTasks")
@@ -99,9 +100,7 @@ public static class TodoEndpoints
         try
         {
             var teamTodos = await todoService.GetTeamTodosAsync(teamId);
-
             var response = teamTodos.Select(todo => todo.MapToTodoResponse());
-
             return Results.Ok(response);
         }
         catch (Exception ex)

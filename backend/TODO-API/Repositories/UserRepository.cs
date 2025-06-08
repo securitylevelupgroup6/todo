@@ -38,6 +38,8 @@ public class UserRepository([FromServices] TodoContext context)
         try
         {
             var userTeams = await context.TeamMembers
+                .Include(t => t.Team)
+                .ThenInclude(t=>t.TeamLead)
                 .Where(teamMember => teamMember.UserId == user.Id)
                 .Select(teamMember => teamMember.Team)
                 .ToListAsync();

@@ -128,6 +128,13 @@ public class TodoService(TodoContext dbContext, TodoRepository todoRepository)
         var todos = await dbContext.Todos
             .Include(todo => todo.TodoState)
                 .ThenInclude(todoState => todoState.Team)
+            .Include(todo => todo.TodoState)
+                .ThenInclude(ts => ts.Status)
+            .Include(todo => todo.Owner)
+                .ThenInclude(owner => owner.User)
+            .Include(todo => todo.TodoState)
+                .ThenInclude(ts => ts.Assignee)
+                    .ThenInclude(assignee => assignee.User)
             .Where(todo => todo != null && todo.TodoState != null && todo.TodoState.Team.Id == teamId)
             .ToListAsync();
 

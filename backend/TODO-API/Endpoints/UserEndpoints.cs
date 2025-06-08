@@ -18,7 +18,7 @@ public static class UserEndpoints
         .WithName("Get User Roles")
         .WithTags("Get User's Roles");
 
-        endpoints.MapPost("/users/teams", GetUserTeamsHandler)
+        endpoints.MapGet("/users/teams", GetUserTeamsHandler)
         .WithName("Get Teams")
         .WithTags("Get a user's teams");
 
