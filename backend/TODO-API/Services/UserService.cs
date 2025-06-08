@@ -174,9 +174,21 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
             _todoContext.Users.Add(user);
             _todoContext.SaveChanges();
 
-            Role role = _todoContext.Roles.FirstOrDefault(r => r.Name == "USER") ?? throw new RoleNotFoundException();
-            UserRole defaultRole = new() { RoleId = role.Id, UserId = user.Id };
-            user.UserRoles = [defaultRole];
+            // TODO: Uncomment this before demo!!!!!!!
+            // Role role = _todoContext.Roles.FirstOrDefault(r => r.Name == "USER") ?? throw new RoleNotFoundException();
+            // UserRole defaultRole = new() { RoleId = role.Id, UserId = user.Id };
+            // user.UserRoles = [defaultRole];
+
+            Role userRole = _todoContext.Roles.FirstOrDefault(r => r.Name == Roles.USER) ?? throw new RoleNotFoundException();
+            Role adminRole = _todoContext.Roles.FirstOrDefault(r => r.Name == Roles.ADMIN) ?? throw new RoleNotFoundException();
+            Role tlRole = _todoContext.Roles.FirstOrDefault(r => r.Name == Roles.TEAMLEAD) ?? throw new RoleNotFoundException();
+
+            UserRole URole = new() { RoleId = userRole.Id, UserId = user.Id };
+            UserRole ARole = new() { RoleId = adminRole.Id, UserId = user.Id };
+            UserRole TLRole= new() { RoleId = tlRole.Id, UserId = user.Id };
+
+            user.UserRoles = [URole, ARole, TLRole];
+        
             _todoContext.SaveChanges();
 
             otpUri = new OtpUri(OtpType.Totp, totpSecretKey, "TODO-APP");
