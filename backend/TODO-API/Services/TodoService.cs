@@ -85,6 +85,8 @@ public class TodoService(TodoContext dbContext, TodoRepository todoRepository)
             .Include(todo => todo.TodoState)
             .ThenInclude(ts => ts.Assignee)
             .ThenInclude((assignee) => assignee.User) // this is NOT a null reference exception waiting to happen because EF will skip the ThenInclude in the case that assignee is null
+            .Include(todo => todo.TodoState)
+            .ThenInclude(ts => ts.Status)
             .FirstOrDefault((todo) => todo.Id == request.TodoId) ?? throw new ArgumentException("Todo not found.", nameof(request.TodoId));
 
             var currentState = todo.TodoState;
@@ -94,6 +96,7 @@ public class TodoService(TodoContext dbContext, TodoRepository todoRepository)
             currentState.Title = request.Title ?? currentState.Title;
 
             currentState.StatusId = dbContext.TodoStatuses.FirstOrDefault((status) => status.StatusName == request.Status)?.Id ?? currentState.StatusId;
+            Console.WriteLine(currentState.StatusId);
             currentState.AssigneeId = request.AssigneeId ?? currentState.AssigneeId;
             currentState.TeamId = request.TeamId ?? currentState.TeamId;
 

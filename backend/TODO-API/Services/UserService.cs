@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OtpNet;
@@ -8,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using TODO_API.Common;
 using TODO_API.Models;
+using TODO_API.Models.Requests;
 using TODO_API.Repositories;
 
 namespace TODO_API.Services;
@@ -115,6 +117,37 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
         return CreateJwt(user.Username);
     }
 
+    public ResetPasswordResult ResetPassword(PasswordResetRequest request)
+    {
+        var user = _todoContext.Users.FirstOrDefault(u => u.Id == request.UserId);
+        if (user == null)
+        {
+            return ResetPasswordResult.UserDoesNotExist;
+        }
+
+        if (!RequestValidator.IsPasswordStrongEnough(request.NewPassword))
+        {
+            return ResetPasswordResult.InvalidPassword;
+        }
+
+        user.Password = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+        try
+        {
+            _todoContext.SaveChanges();
+        }
+        catch (DbUpdateException ex)
+        {
+            Console.WriteLine(ex);
+            return ResetPasswordResult.DatabaseError;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return ResetPasswordResult.UnknownError;
+        }
+        return ResetPasswordResult.Success;
+    }
+
 
     public void AddRoles(string username, List<int> roleIds)
     {
@@ -174,9 +207,21 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
             _todoContext.Users.Add(user);
             _todoContext.SaveChanges();
 
-            Role role = _todoContext.Roles.FirstOrDefault(r => r.Name == "USER") ?? throw new RoleNotFoundException();
-            UserRole defaultRole = new() { RoleId = role.Id, UserId = user.Id };
-            user.UserRoles = [defaultRole];
+            // TODO: Uncomment this before demo!!!!!!!
+            // Role role = _todoContext.Roles.FirstOrDefault(r => r.Name == "USER") ?? throw new RoleNotFoundException();
+            // UserRole defaultRole = new() { RoleId = role.Id, UserId = user.Id };
+            // user.UserRoles = [defaultRole];
+
+            Role userRole = _todoContext.Roles.FirstOrDefault(r => r.Name == Roles.USER) ?? throw new RoleNotFoundException();
+            Role adminRole = _todoContext.Roles.FirstOrDefault(r => r.Name == Roles.ADMIN) ?? throw new RoleNotFoundException();
+            Role tlRole = _todoContext.Roles.FirstOrDefault(r => r.Name == Roles.TEAMLEAD) ?? throw new RoleNotFoundException();
+
+            UserRole URole = new() { RoleId = userRole.Id, UserId = user.Id };
+            UserRole ARole = new() { RoleId = adminRole.Id, UserId = user.Id };
+            UserRole TLRole = new() { RoleId = tlRole.Id, UserId = user.Id };
+
+            user.UserRoles = [URole, ARole, TLRole];
+
             _todoContext.SaveChanges();
 
             otpUri = new OtpUri(OtpType.Totp, totpSecretKey, "TODO-APP");
@@ -194,5 +239,13 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
             return RegistrationResult.UnknownError;
         }
         return RegistrationResult.Success;
+    }
+
+    public List<string> GetRoles(string jwt)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(jwt);
+        var user = _todoContext.Users.Include(u => u.UserRoles).ThenInclude(ur=>ur.Role).FirstOrDefault(u => u.Id.ToString() == jwtToken.Subject.ToString()) ?? throw new UserNotFoundException();
+        return [.. user.UserRoles.Select(ur => ur.Role.Name)];
     }
 }

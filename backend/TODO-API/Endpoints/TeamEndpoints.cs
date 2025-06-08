@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Razor.Hosting;
+using TODO_API.Common;
 using TODO_API.Mappers;
 using TODO_API.Models;
 using TODO_API.Models.Requests;
@@ -34,6 +37,7 @@ public static class TeamEndpoints
         return endpoints;
     }
 
+    [Authorize(Roles = $"{Roles.USER},{Roles.TEAMLEAD}")]
     private static async Task<IResult> GetTeamMembersHandler([FromServices] TeamService teamService, int teamId)
     {
         try
@@ -50,6 +54,7 @@ public static class TeamEndpoints
         }
     }
 
+    [Authorize(Roles = Roles.TEAMLEAD)]
     public async static Task<IResult> CreateTeamHandler([FromServices] TeamService teamService, [FromBody] CreateTeamRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -62,11 +67,12 @@ public static class TeamEndpoints
         }
         catch (Exception ex)
         {
-            
+
             return Results.BadRequest(new { error = ex.Message });
         }
     }
 
+    [Authorize(Roles = Roles.TEAMLEAD)]
     public async static Task<IResult> AddTeamMemberHandler([FromServices] TeamService teamService, int teamId, [FromBody] AddTeamMemberRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);

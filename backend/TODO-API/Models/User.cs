@@ -2,6 +2,8 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
+public record UserRecord(int Id, string UserName, string FirstName, string LastName, List<string> Roles);
+
 [Table("users")]
 public class User
 {

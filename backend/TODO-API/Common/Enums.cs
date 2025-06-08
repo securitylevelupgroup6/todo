@@ -19,3 +19,12 @@ public enum LoginResult
     DatabaseError,
     UnknownError
 }
+
+public enum ResetPasswordResult
+{
+    Success,
+    UserDoesNotExist,
+    InvalidPassword,
+    DatabaseError,
+    UnknownError
+}

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using OtpNet;
 using TODO_API.Common;
 using TODO_API.Models;
+using TODO_API.Models.Requests;
 using TODO_API.Services;
 namespace TODO_API.Endpoints;
 
@@ -26,6 +27,10 @@ public static class AuthEndpoints
         endpoints.MapGet("/auth/logout", LogoutUserHandler)
         .WithName("Logout")
         .WithTags("Logout");
+
+        endpoints.MapPut("/auth/password-reset", PasswordResetHandler)
+        .WithName("Password Reset")
+        .WithTags("PasswordReset");
 
         return endpoints;
     }
@@ -91,8 +96,8 @@ public static class AuthEndpoints
             if (user == null) {
                 return Results.InternalServerError();
             }
-            Console.WriteLine(JsonSerializer.Serialize(user));
-            return Results.Ok(user);
+            var userRecord = new UserRecord(user.Id, user.Username, user.FirstName, user.LastName, [.. user.UserRoles.Select(x => x.Role.Name)]);
+            return Results.Ok(userRecord);
         }
 
         return loginResult switch
@@ -123,6 +128,20 @@ public static class AuthEndpoints
         {
             return Results.Unauthorized();
         }
+    }
+
+    [Authorize(Roles = Roles.ADMIN)]
+    public static IResult PasswordResetHandler([FromBody] PasswordResetRequest request, UserService userService)
+    {
+        var result = userService.ResetPassword(request);
+        // TODO add logging for the database error and the unknown error case
+        return result switch
+        {
+            ResetPasswordResult.Success => Results.Ok(),
+            ResetPasswordResult.UserDoesNotExist => Results.BadRequest(new { Error = "The user provided does not exist." }),
+            ResetPasswordResult.InvalidPassword => Results.BadRequest(new { Error = "The password provided is not strong enough." }),
+            _ => Results.InternalServerError(),
+        };
     }
 
     public static IResult RegisterUserHandler([FromBody] RegisterUserRequest request, UserService userService)
