@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using TODO_API.Common;
+using TODO_API.Models;
 using TODO_API.Models.Requests;
 using TODO_API.Services;
 
@@ -15,8 +16,9 @@ public static class UserEndpoints
         .WithName("Assign Roles")
         .WithTags("Assign Roles to User");
 
-        endpoints.MapGet("/users/roles", GetUserRoles)
+         endpoints.MapGet("/users/roles", GetUserRoles)
         .WithName("Get User Roles")
+        .Produces(StatusCodes.Status201Created, typeof(List<string>))
         .WithTags("Get User's Roles");
         return endpoints;
     }

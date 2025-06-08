@@ -9,8 +9,8 @@ public static class RoleEndpoints
     {
         endpoints.MapGet("/roles", GetRolesHandler)
         .WithName("Get Roles")
-        .WithTags("Get All Roles");
-
+        .WithTags("Get All Roles")
+        .Produces(StatusCodes.Status200OK, typeof(List<Role>));
         return endpoints;
     }
 

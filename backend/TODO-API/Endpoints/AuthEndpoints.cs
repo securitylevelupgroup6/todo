@@ -18,7 +18,9 @@ public static class AuthEndpoints
 
         endpoints.MapPost("/auth/login", LoginUserHandler)
         .WithName("Login User")
-        .WithTags("Login");
+        .WithTags("Login")
+        .Produces(StatusCodes.Status200OK, typeof(UserRecord));
+        
 
         endpoints.MapGet("/auth/refresh", RefreshHandler)
         .WithName("Refresh Token")
