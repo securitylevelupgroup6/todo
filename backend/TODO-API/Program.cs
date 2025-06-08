@@ -124,6 +124,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.AddEndpoints();
+app.MapDashboardEndpoints();
 app.UseAuthentication();
 app.UseAuthorization();
 app.Run();

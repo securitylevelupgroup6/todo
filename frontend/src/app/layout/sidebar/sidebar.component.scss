@@ -1,0 +1,7 @@
+:host {
+  display: block;
+}
+
+::ng-deep .router-link-active {
+  @apply bg-primary/10 text-primary;
+} 

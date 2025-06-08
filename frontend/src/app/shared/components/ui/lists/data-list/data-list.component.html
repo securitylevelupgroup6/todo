@@ -1,0 +1,90 @@
+<div class="space-y-4">
+  <!-- List Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-2xl font-bold">{{ title }}</h2>
+      <p class="text-sm text-muted-foreground">{{ description }}</p>
+    </div>
+    <div class="flex items-center space-x-2">
+      <app-button
+        *ngIf="showRefresh"
+        variant="muted"
+        size="sm"
+        (onClick)="refresh()"
+      >
+        Refresh
+      </app-button>
+      <ng-content select="[listActions]"></ng-content>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <app-loading-state *ngIf="isLoading" [message]="loadingMessage"></app-loading-state>
+
+  <!-- Empty State -->
+  <app-empty-state
+    *ngIf="!isLoading && !items.length"
+    [title]="emptyStateTitle"
+    [description]="emptyStateMessage"
+    [action]="emptyStateAction"
+  ></app-empty-state>
+
+  <!-- List Content -->
+  <div *ngIf="!isLoading && items.length" class="space-y-4">
+    <!-- Select All -->
+    <div *ngIf="selectable" class="flex items-center space-x-2">
+      <input
+        type="checkbox"
+        class="h-4 w-4 rounded border-input"
+        [checked]="isAllSelected"
+        (change)="toggleSelectAll()"
+      />
+      <span class="text-sm text-muted-foreground">Select All</span>
+    </div>
+
+    <!-- List Items -->
+    <div class="space-y-2">
+      <div
+        *ngFor="let item of items"
+        class="flex items-center justify-between rounded-lg border bg-card p-4"
+        [class.bg-muted/50]="isSelected(item)"
+      >
+        <!-- Selection Checkbox -->
+        <div *ngIf="selectable" class="flex items-center space-x-4">
+          <input
+            type="checkbox"
+            class="h-4 w-4 rounded border-input"
+            [checked]="isSelected(item)"
+            (change)="toggleSelect(item)"
+          />
+        </div>
+
+        <!-- Item Content -->
+        <div class="flex-1">
+          <ng-container *ngIf="itemTemplate; else defaultItem">
+            <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }"></ng-container>
+          </ng-container>
+          <ng-template #defaultItem>
+            <div class="text-sm">{{ item | json }}</div>
+          </ng-template>
+        </div>
+
+        <!-- Item Actions -->
+        <div *ngIf="showActions" class="flex items-center space-x-2">
+          <ng-container *ngIf="itemActions; else defaultActions">
+            <ng-container *ngTemplateOutlet="itemActions; context: { $implicit: item }"></ng-container>
+          </ng-container>
+          <ng-template #defaultActions>
+            <app-button
+              variant="ghost"
+              size="sm"
+              (onClick)="toggleSelect(item)"
+            >
+              {{ isSelected(item) ? 'Deselect' : 'Select' }}
+            </app-button>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 
