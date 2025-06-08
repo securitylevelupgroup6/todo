@@ -8,8 +8,11 @@ using System.Text;
 using System.Threading.RateLimiting;
 using TODO_API.Common;
 using TODO_API.Configuration;
+<<<<<<< HEAD
 using TODO_API.Services;
 using TODO_API.Endpoints;
+=======
+>>>>>>> main
 
 EnvironmentConfiguration.JwtKey = Environment.GetEnvironmentVariable("JWT_KEY")
     ?? throw new InvalidOperationException("JWT_KEY environment variable is not set.");
