@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OtpNet;
@@ -8,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using TODO_API.Common;
 using TODO_API.Models;
+using TODO_API.Models.Requests;
 using TODO_API.Repositories;
 
 namespace TODO_API.Services;
@@ -113,6 +115,37 @@ public class UserService(TodoContext dbContext, IDataProtectionProvider provider
 
         // this is a valid refresh token so refresh the token
         return CreateJwt(user.Username);
+    }
+
+    public ResetPasswordResult ResetPassword(PasswordResetRequest request)
+    {
+        var user = _todoContext.Users.FirstOrDefault(u => u.Id == request.UserId);
+        if (user == null)
+        {
+            return ResetPasswordResult.UserDoesNotExist;
+        }
+
+        if (!RequestValidator.IsPasswordStrongEnough(request.NewPassword))
+        {
+            return ResetPasswordResult.InvalidPassword;
+        }
+
+        user.Password = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+        try
+        {
+            _todoContext.SaveChanges();
+        }
+        catch (DbUpdateException ex)
+        {
+            Console.WriteLine(ex);
+            return ResetPasswordResult.DatabaseError;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return ResetPasswordResult.UnknownError;
+        }
+        return ResetPasswordResult.Success;
     }
 
 

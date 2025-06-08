@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using TODO_API.Common;
 using TODO_API.Mappers;
 using TODO_API.Models;
 using TODO_API.Models.Requests;
@@ -32,11 +34,15 @@ public static class TodoEndpoints
         return endpoints;
     }
 
-    public async static Task<IResult> GetUsersTodos(HttpContext http, TodoService todoService) {
+    [Authorize(Roles = $"{Roles.USER},{Roles.TEAMLEAD}")]
+    public async static Task<IResult> GetUsersTodos(HttpContext http, TodoService todoService)
+    {
         var jwt = http.Request.Cookies["access_token"];
         return Results.Ok(await todoService.GetUserTodosAsync(jwt));
     }
 
+    
+    [Authorize(Roles = $"{Roles.USER},{Roles.TEAMLEAD}")]
     public async static Task<IResult> CreateTodoHandler(HttpContext http, [FromServices] TodoService todoService, [FromBody] CreateTodoRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -49,18 +55,19 @@ public static class TodoEndpoints
         }
 
 
-            try
-            {
-                var todo = await todoService.CreateTodoAsync(request);
+        try
+        {
+            var todo = await todoService.CreateTodoAsync(request);
 
-                return Results.Created($"/team/{todo.Id}", todo);
-            }
-            catch (Exception ex)
-            {
-                return Results.BadRequest(new { error = ex.Message });
-            }
+            return Results.Created($"/team/{todo.Id}", todo);
+        }
+        catch (Exception ex)
+        {
+            return Results.BadRequest(new { error = ex.Message });
+        }
     }
 
+    [Authorize(Roles = $"{Roles.USER},{Roles.TEAMLEAD}")]
     public async static Task<IResult> UpdateTodoHandler([FromServices] TodoService todoService, [FromBody] UpdateTodoRequest request, int todoId)
     {
         ArgumentNullException.ThrowIfNull(request);
