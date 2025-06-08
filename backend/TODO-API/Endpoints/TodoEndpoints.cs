@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TODO_API.Common;
 using TODO_API.Mappers;
 using TODO_API.Models;
 using TODO_API.Models.Requests;
+using TODO_API.Models.Responses;
 using TODO_API.Services;
 
 namespace TODO_API.Endpoints;
@@ -31,6 +33,12 @@ public static class TodoEndpoints
         .WithName("GetTodos")
         .WithTags("Todo");
 
+        endpoints.MapGet("/todo/team/{teamId}", GetTeamTodosHandler)
+        .Produces(StatusCodes.Status200OK, typeof(IEnumerable<TodoResponse>))
+        .Produces(StatusCodes.Status400BadRequest)
+        .WithName("GetTeamTasks")
+        .WithTags("Team");
+
         return endpoints;
     }
 
@@ -41,7 +49,7 @@ public static class TodoEndpoints
         return Results.Ok(await todoService.GetUserTodosAsync(jwt));
     }
 
-    
+
     [Authorize(Roles = $"{Roles.USER},{Roles.TEAMLEAD}")]
     public async static Task<IResult> CreateTodoHandler(HttpContext http, [FromServices] TodoService todoService, [FromBody] CreateTodoRequest request)
     {
@@ -82,6 +90,21 @@ public static class TodoEndpoints
         catch (Exception ex)
         {
             Console.WriteLine(ex);
+            return Results.BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [Authorize(Roles = Roles.USER)]
+    private static async Task<IResult> GetTeamTodosHandler([FromServices] TodoService todoService, [FromBody] UpdateTodoRequest request, int teamId)
+    {
+        try
+        {
+            var teamTodos = await todoService.GetTeamTodosAsync(teamId);
+            var response = teamTodos.Select(todo => todo.MapToTodoResponse());
+            return Results.Ok(response);
+        }
+        catch (Exception ex)
+        {
             return Results.BadRequest(new { error = ex.Message });
         }
     }

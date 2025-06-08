@@ -28,7 +28,6 @@ public static class ResponseMappers
         {
             throw new ArgumentNullException(nameof(todo), "No todo provided for mapping.");
         }
-        Console.WriteLine(JsonSerializer.Serialize(todo));
 
         return new TodoResponse
         {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TODO_API.Models;
 using TODO_API.Models.Requests;
 
@@ -29,6 +30,25 @@ public class UserRepository([FromServices] TodoContext context)
         catch (Exception ex)
         {
             throw new Exception("An error occurred while creating the user.", ex);
+        }
+    }
+
+    internal async Task<IEnumerable<Team>> GetUserTeamsAsync(User user)
+    {
+        try
+        {
+            var userTeams = await context.TeamMembers
+                .Include(t => t.Team)
+                .ThenInclude(t=>t.TeamLead)
+                .Where(teamMember => teamMember.UserId == user.Id)
+                .Select(teamMember => teamMember.Team)
+                .ToListAsync();
+
+            return userTeams;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("An error occurred while retrieving user teams.", ex);
         }
     }
 }
