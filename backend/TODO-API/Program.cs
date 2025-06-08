@@ -115,7 +115,18 @@ builder.Services.AddAuthorization((options) =>
     options.AddPolicy("RequireUserRole", policy => policy.RequireRole("USER"));
 });
 
+string AllowSpecificOrigins = "AllowAngularDevelopmentServer";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: AllowSpecificOrigins,
+                      policy  =>
+                      {
+                          policy.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader();
+                      });
+});
+
 var app = builder.Build();
+app.UseCors(AllowSpecificOrigins);
 
 if (app.Environment.IsDevelopment())
 {

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OtpNet;
@@ -26,24 +27,7 @@ public static class AuthEndpoints
         .WithName("Logout")
         .WithTags("Logout");
 
-        endpoints.MapGet("auth/protected", ProtectedHandler);
-
-        endpoints.MapGet("auth/authorized", AuthorizedHandler);
-
         return endpoints;
-    }
-
-
-    [Authorize]
-    public static IResult ProtectedHandler()
-    {
-        return Results.Ok("this is a authenticated endpoint");
-    }
-
-    [Authorize(Roles = "USER")]
-    public static IResult AuthorizedHandler()
-    {
-        return Results.Ok("This is an authorized endpoint");
     }
 
     public static IResult RefreshHandler(HttpContext http, UserService userService, HttpResponse response)
@@ -78,8 +62,13 @@ public static class AuthEndpoints
 
     public static IResult LoginUserHandler([FromBody] LoginRequest loginUserRequest, HttpContext http, UserService userService)
     {
+        var errorResults = RequestValidator.Validate(loginUserRequest);
+        if (errorResults != null)
+        {
+            return Results.BadRequest(new { Errors = errorResults });
+        }
+
         var loginResult = userService.ValidateUserCredentials(loginUserRequest.Username, loginUserRequest.Password, loginUserRequest.Otp, out string? refreshToken);
-        Console.WriteLine(loginResult.ToString());
         if (loginResult == LoginResult.Success && refreshToken != null)
         {
             var jwt = userService.CreateJwt(loginUserRequest.Username);
@@ -98,7 +87,12 @@ public static class AuthEndpoints
                 SameSite = SameSiteMode.Strict,
                 Expires = DateTimeOffset.UtcNow.AddDays(85)
             });
-            return Results.Ok();
+            var user = userService.GetUser(loginUserRequest.Username);
+            if (user == null) {
+                return Results.InternalServerError();
+            }
+            Console.WriteLine(JsonSerializer.Serialize(user));
+            return Results.Ok(user);
         }
 
         return loginResult switch
@@ -111,6 +105,7 @@ public static class AuthEndpoints
 
     public static IResult LogoutUserHandler(HttpContext http, UserService userService)
     {
+        
         var jwt = http.Request.Cookies["access_token"];
         var refreshToken = http.Request.Cookies["refresh_token"];
         if (jwt == null || refreshToken == null)

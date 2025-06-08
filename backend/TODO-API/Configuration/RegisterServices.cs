@@ -10,8 +10,10 @@ public static class RegisterServices
         services.AddScoped<UserRepository>();
         services.AddScoped<UserService>();
         services.AddScoped<TeamRepository>();
+        services.AddScoped<TodoRepository>();
         services.AddScoped<TeamService>();
         services.AddScoped<RoleService>();
+        services.AddScoped<TodoService>();
 
         return services;
     }
