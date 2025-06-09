@@ -42,7 +42,10 @@ public class TeamRepository([FromServices] TodoContext context)
     {
         try
         {
-            var user = await context.Users.FindAsync(request.UserId);
+            var user = request.UserId == null ? await context.Users.FindAsync(request.UserId) :
+                request.Username == null ? await context.Users.FirstOrDefaultAsync(user => user.Username == request.Username) :
+                throw new ArgumentNullException("No user specified in request");
+
             var team = await context.Teams.FindAsync(teamId);
 
             if (user is null || team is null)
