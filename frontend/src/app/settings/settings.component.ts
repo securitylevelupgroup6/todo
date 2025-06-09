@@ -62,9 +62,7 @@ export class SettingsComponent implements OnInit {
 
   tabs = [
     { id: 'profile', label: 'Profile', icon: 'user' },
-    { id: 'security', label: 'Security', icon: 'lock' },
-    { id: 'notifications', label: 'Notifications', icon: 'bell' },
-    { id: 'billing', label: 'Billing', icon: 'credit-card' }
+    { id: 'security', label: 'Security', icon: 'lock' }
   ];
 
   constructor() {}
