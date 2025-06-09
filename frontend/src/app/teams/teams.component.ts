@@ -269,7 +269,7 @@ export class TeamsComponent implements OnInit {
       this.error = '';
 
       if (this.selectedTeam) {
-        // Update existing team (using mock update since API doesn't provide update endpoint)
+        // Update existing team (using mock update for now)
         const index = this.teams.findIndex(t => t.id === this.selectedTeam?.id);
         if (index !== -1) {
           this.teams[index] = {

@@ -33,14 +33,14 @@ export interface BackendTodoStatus {
   statusName: BackendTodoStatusName;
 }
 
-// Backend Team Member (derived from usage)
+// Backend Team Member 
 export interface BackendTeamMember {
   id: number;
   user?: UserResponseDto;
   teamId?: number;
 }
 
-// Backend Team (derived)
+// Backend Team
 export interface BackendTeam {
   id: number;
   name?: string;

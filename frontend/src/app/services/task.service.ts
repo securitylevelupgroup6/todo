@@ -27,12 +27,9 @@ export class TaskService {
 
   /**
    * Get team tasks - calls GET /todo/team/{teamId}
-   * Note: Backend endpoint incorrectly expects a body (UpdateTodoRequest) even for GET
-   * We'll use POST method instead to send the required empty body
+   * Note: Backend endpoint expects a body (UpdateTodoRequest) for GET
    */
   getTeamTasks(teamId: number): Observable<TodoResponseDto[]> {
-    // Since the backend GET endpoint expects a body, we'll try the request first
-    // If it fails, we might need to use a different approach
     return this.http.request<TodoResponseDto[]>('GET', `${this.apiUrl}/todo/team/${teamId}`, {
       body: {}
     });
