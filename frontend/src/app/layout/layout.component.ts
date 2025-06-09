@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { HeaderComponent } from './header/header.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { UserService } from '../shared/data-access/services/login.service';
+import { UserRecord } from '../models/user.model';
 
 @Component({
   selector: 'app-layout',
@@ -19,7 +20,7 @@ import { UserService } from '../shared/data-access/services/login.service';
 })
 export class LayoutComponent implements OnInit {
   sidebarOpen = false;
-  user: any;
+  user: UserRecord | null = null;
   isLoading: boolean = false;
 
   constructor(
@@ -27,12 +28,8 @@ export class LayoutComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.userService.user$.subscribe(user => {
-      if(user) {
-        this.user = user;
-      } else {
-        this.user = null;
-      }
-    })
+    this.userService.currentUser$.subscribe((user: UserRecord | null) => {
+      this.user = user;
+    });
   }
-} 
+}

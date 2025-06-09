@@ -18,21 +18,26 @@ EnvironmentConfiguration.JwtIssuer = Environment.GetEnvironmentVariable("JWT_ISS
 EnvironmentConfiguration.JwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE")
     ?? throw new InvalidOperationException("JWT_AUDIENCE environment variable is not set");
 
-
 var builder = WebApplication.CreateBuilder(args);
 
+// Define your frontend origins
+var localFrontendOrigin = "http://localhost:4200";
+var productionFrontendOrigin = "https://todo.pastpaperportal.co.za";
+
+// Configure CORS with proper credential support
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowLocalhost", policy =>
+    options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:4200") // Frontend URL
+        policy.WithOrigins(localFrontendOrigin, productionFrontendOrigin)
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials(); // Essential for cookie-based authentication
     });
 });
 
 builder.Services.AddDbContextPool<TODO_API.Repositories.TodoContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("TodoDatabase")), poolSize: 128);
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), poolSize: 128);
 
 builder.Services.AddRateLimiter(rateLimiterOptions =>
 {
@@ -44,9 +49,6 @@ builder.Services.AddRateLimiter(rateLimiterOptions =>
         options.QueueLimit = 0;
     });
 });
-
-builder.Services.AddDbContextPool<TODO_API.Repositories.TodoContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), poolSize: 128);
 
 builder.Services.AddServices();
 
@@ -54,25 +56,9 @@ builder.Services.ConfigureAuth();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddRateLimiter(rateLimiterOptions =>
-{
-    rateLimiterOptions.AddFixedWindowLimiter("RegisterEndpointLimiter", options =>
-    {
-        options.PermitLimit = 5;
-        options.Window = TimeSpan.FromSeconds(30);
-        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        options.QueueLimit = 0;
-    });
-});
-
 builder.Services.AddDataProtection()
     .SetApplicationName("TodoApp")
     .PersistKeysToFileSystem(new DirectoryInfo(@"./keys"));
-
-
-
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -103,7 +89,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 return Task.CompletedTask;
             }
         };
-
     });
 
 builder.Services.AddAuthorization((options) =>
@@ -113,28 +98,26 @@ builder.Services.AddAuthorization((options) =>
     options.AddPolicy("RequireUserRole", policy => policy.RequireRole("USER"));
 });
 
-string AllowSpecificOrigins = "AllowAngularDevelopmentServer";
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: AllowSpecificOrigins,
-                      policy  =>
-                      {
-                          policy.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader();
-                      });
-});
-
 var app = builder.Build();
-app.UseCors(AllowSpecificOrigins);
 
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.AddEndpoints();
-// app.MapDashboardEndpoints();
+// Use routing before CORS and authentication
+app.UseRouting();
+
+// Apply CORS policy (single, comprehensive policy)
+app.UseCors();
+
+// Authentication and Authorization middleware
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors("AllowLocalhost");
+
+// Map endpoints
+app.AddEndpoints();
+
 app.Run();
