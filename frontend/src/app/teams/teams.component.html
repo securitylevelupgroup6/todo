@@ -31,18 +31,31 @@
         class="w-full rounded-lg border border-input bg-background py-2 pl-10 pr-4 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       />
     </div>
-    <select
-      [(ngModel)]="departmentFilter"
-      class="rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-    >
-      <option *ngFor="let dept of departments" [value]="dept">
-        {{ dept === 'all' ? 'All Departments' : dept }}
-      </option>
-    </select>
+  </section>
+
+  <!-- Loading State -->
+  <section *ngIf="loading" class="flex items-center justify-center py-12">
+    <div class="flex items-center gap-3">
+      <svg class="h-6 w-6 animate-spin text-primary" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span class="text-muted-foreground">Loading your teams...</span>
+    </div>
+  </section>
+
+  <!-- Error State -->
+  <section *ngIf="error && !loading" class="rounded-lg border border-destructive/20 bg-destructive/10 p-4 mb-6">
+    <div class="flex items-center gap-2">
+      <svg class="h-5 w-5 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <p class="text-sm text-destructive">{{ error }}</p>
+    </div>
   </section>
 
   <!-- Teams Grid -->
-  <section class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  <section *ngIf="!loading" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
     <!-- Team Cards -->
     <article
       *ngFor="let team of filteredTeams"
@@ -53,25 +66,16 @@
         <div class="flex items-start justify-between">
           <div>
             <h2 class="text-xl font-semibold tracking-tight">{{ team.name }}</h2>
-            <p class="mt-1 text-sm text-muted-foreground">{{ team.department }}</p>
+            <p class="mt-1 text-sm text-muted-foreground">Created {{ formatDate(team.createdAt) }}</p>
           </div>
-          <span
-            [class]="'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ' + getStatusColor(team.status)"
-          >
-            {{ team.status }}
-          </span>
         </div>
       </header>
 
       <!-- Team Stats -->
-      <section class="mb-4 grid grid-cols-2 gap-4">
+      <section class="mb-4">
         <div class="rounded-lg bg-muted/50 p-3">
           <p class="text-sm font-medium text-muted-foreground">Members</p>
-          <p class="mt-1 text-2xl font-semibold">{{ team.memberCount }}/{{ team.capacity }}</p>
-        </div>
-        <div class="rounded-lg bg-muted/50 p-3">
-          <p class="text-sm font-medium text-muted-foreground">Tasks</p>
-          <p class="mt-1 text-2xl font-semibold">{{ team.tasks }}</p>
+          <p class="mt-1 text-2xl font-semibold">{{ team.memberCount }}</p>
         </div>
       </section>
 
@@ -94,23 +98,8 @@
         </div>
       </section>
 
-      <!-- Progress Bar -->
-      <section class="mb-4">
-        <div class="flex items-center justify-between text-sm">
-          <span class="font-medium">Completion Rate</span>
-          <span class="text-muted-foreground">{{ team.completionRate }}%</span>
-        </div>
-        <div class="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
-          <div
-            class="h-full bg-primary transition-all duration-300"
-            [style.width.%]="team.completionRate"
-          ></div>
-        </div>
-      </section>
-
       <!-- Team Footer -->
-      <footer class="flex items-center justify-between">
-        <p class="text-sm text-muted-foreground">Created {{ formatDate(team.createdAt) }}</p>
+      <footer class="flex items-center justify-end">
         <div class="flex gap-2">
           <button
             (click)="openEditModal(team)"
@@ -119,6 +108,7 @@
             Edit
           </button>
           <button
+            (click)="openDetailsModal(team)"
             class="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
             View Details
@@ -194,35 +184,6 @@
           />
         </div>
 
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div class="space-y-2">
-            <label for="department" class="text-sm font-medium">Department</label>
-            <select
-              id="department"
-              name="department"
-              [(ngModel)]="formData.department"
-              class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              required
-            >
-              <option value="" disabled>Select department</option>
-              <option *ngFor="let dept of departments.slice(1)" [value]="dept">{{ dept }}</option>
-            </select>
-          </div>
-
-          <div class="space-y-2">
-            <label for="capacity" class="text-sm font-medium">Member Capacity</label>
-            <input
-              id="capacity"
-              name="capacity"
-              type="number"
-              [(ngModel)]="formData.capacity"
-              min="1"
-              max="20"
-              class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              required
-            />
-          </div>
-        </div>
 
         <div class="flex justify-end gap-2">
           <button
@@ -242,4 +203,84 @@
       </form>
     </div>
   </div>
-</main> 
+
+  <!-- Team Details Modal -->
+  <div
+    *ngIf="showDetailsModal && selectedTeam"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+  >
+    <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-lg border bg-card p-6 shadow-lg">
+      <header class="mb-6 flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-semibold tracking-tight">{{ selectedTeam.name }}</h2>
+          <p class="text-muted-foreground">Team Details</p>
+        </div>
+        <button
+          (click)="closeDetailsModal()"
+          class="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        >
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </header>
+
+      <!-- Team Overview -->
+      <section class="mb-6">
+        <div class="rounded-lg border bg-card p-4">
+          <h3 class="text-sm font-medium text-muted-foreground">Team Information</h3>
+          <div class="mt-3 space-y-2">
+            <div class="flex justify-between">
+              <span class="text-sm">Total Members:</span>
+              <span class="text-sm font-medium">{{ selectedTeam.memberCount }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-sm">Created:</span>
+              <span class="text-sm font-medium">{{ formatDate(selectedTeam.createdAt) }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Team Members List -->
+      <section class="mb-6">
+        <h3 class="mb-4 text-lg font-semibold">Team Members ({{ selectedTeam.members.length }})</h3>
+        <div class="space-y-3">
+          <div
+            *ngFor="let member of selectedTeam.members"
+            class="flex items-center gap-3 rounded-lg border p-3"
+          >
+            <img
+              [src]="member.avatar"
+              [alt]="member.name"
+              class="h-10 w-10 rounded-full object-cover"
+            />
+            <div class="flex-1">
+              <h4 class="font-medium">{{ member.name }}</h4>
+              <p class="text-sm text-muted-foreground">{{ member.role }}</p>
+            </div>
+            <span class="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+              {{ member.role }}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Team Actions -->
+      <footer class="flex justify-end gap-2 border-t pt-4">
+        <button
+          (click)="closeDetailsModal()"
+          class="rounded-lg bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/80"
+        >
+          Close
+        </button>
+        <button
+          (click)="openEditModal(selectedTeam); closeDetailsModal()"
+          class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        >
+          Edit Team
+        </button>
+      </footer>
+    </div>
+  </div>
+</main>

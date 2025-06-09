@@ -27,7 +27,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("http://localhost:4200") // Frontend URL
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
@@ -119,7 +120,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: AllowSpecificOrigins,
                       policy  =>
                       {
-                          policy.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader();
+                          policy.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader().AllowCredentials();
                       });
 });
 
@@ -133,7 +134,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.AddEndpoints();
-// app.MapDashboardEndpoints();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors("AllowLocalhost");

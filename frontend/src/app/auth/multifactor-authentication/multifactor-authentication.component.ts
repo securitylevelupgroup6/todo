@@ -10,12 +10,7 @@ import { QRCodeComponent } from 'angularx-qrcode';
 import { AuthService } from '../../core/services/auth.service';
 import { ErrorMessages } from '../../shared/enums/enums';
 import { UserService } from '../../shared/data-access/services/login.service';
-
-interface User {
-  userName: string;
-  password: string;
-  otp: string;
-}
+import { LoginCredentials } from '../../models/user.model';
 
 @Component({
   selector: 'app-multifactor-authentication',
@@ -38,13 +33,18 @@ interface User {
 export class MultifactorAuthenticationComponent {
 
   @Input()
-  otp!: string;
+  otp!: string; // For QR code display during registration
+
   @Input()
-  registrationForm!: FormGroup;
+  registrationForm!: FormGroup; // Login form from parent component
+
   @Input()
   loginRequest: boolean = false;
+
   otpForm: FormGroup;
   required: string = ErrorMessages.REQUIRED_FIELD;
+  errorMessage: string = '';
+  isSubmitting: boolean = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -54,25 +54,89 @@ export class MultifactorAuthenticationComponent {
   ) {
     this.otpForm = this.formBuilder.group({
       otp: ['', Validators.required]
-    })
+    });
   }
 
   onSubmit(): void {
-    const user: User = {
-      userName: this.registrationForm.get('userName')?.value,
-      password: this.registrationForm.get('password')?.value,
-      otp: this.otpForm.get('otp')?.value,
+    this.errorMessage = '';
+    this.isSubmitting = true;
+
+    // Construct credentials from the registration form (login form) and OTP form
+    const credentials: LoginCredentials = {
+      userName: this.registrationForm?.get('userName')?.value || '',
+      password: this.registrationForm?.get('password')?.value || '',
+      otp: this.otpForm.get('otp')?.value || ''
+    };
+
+    // Validate that all required fields are present
+    if (!credentials.userName || !credentials.password || !credentials.otp) {
+      this.handleValidationError();
+      this.isSubmitting = false;
+      return;
     }
-    if(user.userName && user.password && user.otp) {
-      this.authService.login(user).subscribe(data => {
-        if(data.results) {
-          this.userService.updateUser(user);
-          this.loginRequest = false;
-          this.router.navigate([""]);
-        } else {
-          // do nothing
-        }
-      })
+
+    // Call the auth service login method
+    this.authService.login(credentials).subscribe({
+      next: (userRecord) => {
+        // Success: AuthService handles persistence automatically
+        // Update the UserService with the received user data
+        this.userService.updateUser(userRecord);
+        
+        // Reset the MFA state and navigate
+        this.loginRequest = false;
+        this.isSubmitting = false;
+        this.router.navigate(['']);
+      },
+      error: (error) => {
+        // Handle login errors
+        this.isSubmitting = false;
+        this.handleLoginError(error);
+      }
+    });
+  }
+
+  private handleValidationError(): void {
+    // Mark forms as touched to display validation errors
+    this.otpForm.markAllAsTouched();
+    
+    if (this.registrationForm) {
+      this.registrationForm.markAllAsTouched();
     }
+
+    // Set error message
+    this.errorMessage = 'Please fill in all required fields.';
+    
+    // Set specific form errors for better UX
+    if (!this.otpForm.get('otp')?.value) {
+      this.otpForm.get('otp')?.setErrors({ 'required': true });
+    }
+  }
+
+  private handleLoginError(error: any): void {
+    console.error('MFA Login error:', error);
+    
+    // Handle different types of errors
+    if (error.status === 401) {
+      this.errorMessage = 'Invalid OTP or login credentials. Please try again.';
+      this.otpForm.get('otp')?.setErrors({ 'invalidOtp': true });
+    } else if (error.status === 400) {
+      this.errorMessage = 'Invalid request. Please check your input and try again.';
+    } else if (error.status === 500) {
+      this.errorMessage = 'Server error. Please try again later.';
+    } else if (error.error?.message) {
+      this.errorMessage = error.error.message;
+    } else {
+      this.errorMessage = 'An unexpected error occurred. Please try again.';
+    }
+
+    // Clear the OTP field for retry
+    this.otpForm.get('otp')?.setValue('');
+  }
+
+  // Helper method to reset the component state
+  resetComponent(): void {
+    this.otpForm.reset();
+    this.errorMessage = '';
+    this.isSubmitting = false;
   }
 }

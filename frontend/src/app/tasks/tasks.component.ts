@@ -2,35 +2,37 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { TaskService } from '../services/task.service';
+import { UserService } from '../shared/data-access/services/login.service';
+import { 
+  BackendTodo, 
+  TodoResponseDto, 
+  CreateTodoRequestDto, 
+  UpdateTodoRequestDto,
+  FrontendTodoStatus,
+  StatusMapping,
+  UserResponseDto
+} from '../models/task.model';
 
 interface Task {
-  id: string;
+  id: number;
   title: string;
   description: string;
-  status: 'todo' | 'in_progress' | 'review' | 'completed';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  dueDate: Date;
-  assignedTo: {
-    id: string;
-    name: string;
-    avatar: string;
-  } | null;
+  status: FrontendTodoStatus;
+  assignedTo: UserResponseDto | null;
   team: {
-    id: string;
+    id: number;
     name: string;
   };
-  createdAt: Date;
-  updatedAt: Date;
+  owner?: UserResponseDto;
 }
 
 interface TaskFormData {
   title: string;
   description: string;
-  status: string;
-  priority: string;
-  dueDate: Date;
-  assignedTo: string | null;
-  team: string;
+  status: FrontendTodoStatus;
+  assignedTo: string | null; // User ID as string for form binding
+  team: string; // Team ID as string for form binding
 }
 
 @Component({
@@ -44,32 +46,100 @@ export class TasksComponent implements OnInit {
   tasks: Task[] = [];
   searchTerm: string = '';
   statusFilter: string = 'all';
-  priorityFilter: string = 'all';
   showCreateModal: boolean = false;
   selectedTask: Task | null = null;
+  isLoading: boolean = false;
+  errorMessage: string = '';
 
-  statuses: string[] = ['all', 'todo', 'in_progress', 'review', 'completed'];
-  priorities: string[] = ['all', 'low', 'medium', 'high', 'urgent'];
+  // Frontend Todo Status enum for use in template
+  FrontendTodoStatus = FrontendTodoStatus;
+  
+  statuses: string[] = ['all', 'todo', 'in_progress', 'completed'];
+  
+  // Mock teams data - in a real app, this would come from a teams service
   teams = [
-    { id: '1', name: 'Frontend Development' },
-    { id: '2', name: 'UI/UX Design' },
-    { id: '3', name: 'Backend Development' }
+    { id: 1, name: 'Frontend Development' },
+    { id: 2, name: 'UI/UX Design' },
+    { id: 3, name: 'Backend Development' }
   ];
+  
+  // Mock users data - in a real app, this would come from a users service
   users = [
-    { id: '1', name: 'John Doe', avatar: 'https://github.com/shadcn.png' },
-    { id: '2', name: 'Jane Smith', avatar: 'https://github.com/shadcn.png' },
-    { id: '3', name: 'Mike Johnson', avatar: 'https://github.com/shadcn.png' }
+    { id: 1, username: 'jdoe', firstName: 'John', lastName: 'Doe', roles: ['USER'] },
+    { id: 2, username: 'jsmith', firstName: 'Jane', lastName: 'Smith', roles: ['USER'] },
+    { id: 3, username: 'mjohnson', firstName: 'Mike', lastName: 'Johnson', roles: ['TEAM_LEAD'] }
   ];
 
   formData: TaskFormData = {
     title: '',
     description: '',
-    status: 'todo',
-    priority: 'medium',
-    dueDate: new Date(),
+    status: FrontendTodoStatus.Todo,
     assignedTo: null,
     team: ''
   };
+
+  constructor(
+    private taskService: TaskService,
+    private userService: UserService
+  ) {}
+
+  ngOnInit() {
+    this.loadTasks();
+  }
+
+  loadTasks() {
+    this.isLoading = true;
+    this.errorMessage = '';
+    
+    this.taskService.getTasks().subscribe({
+      next: (backendTodos: BackendTodo[]) => {
+        this.tasks = backendTodos.map(todo => this.mapBackendTodoToTask(todo));
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading tasks:', error);
+        this.errorMessage = 'Failed to load tasks. Please try again.';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private mapBackendTodoToTask(backendTodo: BackendTodo): Task {
+    const assignedTo = backendTodo.todoState?.assignee?.user || null;
+    const teamId = backendTodo.todoState?.teamId || 0;
+    const team = this.teams.find(t => t.id === teamId) || { id: teamId, name: 'Unknown Team' };
+    const status = backendTodo.todoState?.status?.statusName 
+      ? StatusMapping.backendToFrontend(backendTodo.todoState.status.statusName)
+      : FrontendTodoStatus.Todo;
+
+    return {
+      id: backendTodo.id,
+      title: backendTodo.todoState?.title || '',
+      description: backendTodo.todoState?.description || '',
+      status: status,
+      assignedTo: assignedTo,
+      team: team,
+      owner: backendTodo.owner?.user
+    };
+  }
+
+  private mapTodoResponseToTask(todoResponse: TodoResponseDto, teamId?: number): Task {
+    const team = teamId 
+      ? this.teams.find(t => t.id === teamId) || { id: teamId, name: 'Unknown Team' }
+      : { id: 0, name: 'Unknown Team' };
+    
+    const status = StatusMapping.backendToFrontend(todoResponse.status);
+
+    return {
+      id: todoResponse.id,
+      title: todoResponse.title,
+      description: todoResponse.description,
+      status: status,
+      assignedTo: todoResponse.assignee,
+      team: team,
+      owner: todoResponse.owner
+    };
+  }
 
   // Helper methods for template expressions
   formatStatus(status: string): string {
@@ -77,47 +147,8 @@ export class TasksComponent implements OnInit {
     return status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   }
 
-  formatPriority(priority: string): string {
-    if (priority === 'all') return 'All Priorities';
-    return priority.charAt(0).toUpperCase() + priority.slice(1);
-  }
-
   getTaskCount(status: string): number {
     return this.tasks.filter(t => t.status === status).length;
-  }
-
-  getOverdueCount(): number {
-    return this.tasks.filter(t => this.getTimeRemaining(t.dueDate) === 'Overdue').length;
-  }
-
-  ngOnInit() {
-    // Mock data for demonstration
-    this.tasks = [
-      {
-        id: '1',
-        title: 'Implement user authentication',
-        description: 'Add JWT-based authentication to the application',
-        status: 'in_progress',
-        priority: 'high',
-        dueDate: new Date('2024-03-15'),
-        assignedTo: this.users[0],
-        team: this.teams[0],
-        createdAt: new Date('2024-02-01'),
-        updatedAt: new Date('2024-02-01')
-      },
-      {
-        id: '2',
-        title: 'Design new dashboard layout',
-        description: 'Create a modern and responsive dashboard design',
-        status: 'review',
-        priority: 'medium',
-        dueDate: new Date('2024-03-20'),
-        assignedTo: this.users[1],
-        team: this.teams[1],
-        createdAt: new Date('2024-02-05'),
-        updatedAt: new Date('2024-02-10')
-      }
-    ];
   }
 
   get filteredTasks(): Task[] {
@@ -125,8 +156,7 @@ export class TasksComponent implements OnInit {
       const matchesSearch = task.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
                           task.description.toLowerCase().includes(this.searchTerm.toLowerCase());
       const matchesStatus = this.statusFilter === 'all' || task.status === this.statusFilter;
-      const matchesPriority = this.priorityFilter === 'all' || task.priority === this.priorityFilter;
-      return matchesSearch && matchesStatus && matchesPriority;
+      return matchesSearch && matchesStatus;
     });
   }
 
@@ -136,25 +166,8 @@ export class TasksComponent implements OnInit {
         return 'bg-muted text-muted-foreground';
       case 'in_progress':
         return 'bg-primary/10 text-primary';
-      case 'review':
-        return 'bg-warning/10 text-warning';
       case 'completed':
         return 'bg-success/10 text-success';
-      default:
-        return 'bg-muted text-muted-foreground';
-    }
-  }
-
-  getPriorityColor(priority: string): string {
-    switch (priority) {
-      case 'low':
-        return 'bg-success/10 text-success';
-      case 'medium':
-        return 'bg-warning/10 text-warning';
-      case 'high':
-        return 'bg-destructive/10 text-destructive';
-      case 'urgent':
-        return 'bg-destructive text-destructive-foreground';
       default:
         return 'bg-muted text-muted-foreground';
     }
@@ -168,20 +181,8 @@ export class TasksComponent implements OnInit {
     }).format(date);
   }
 
-  getTimeRemaining(date: Date): string {
-    const now = new Date();
-    const diff = date.getTime() - now.getTime();
-    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-
-    if (days < 0) {
-      return 'Overdue';
-    } else if (days === 0) {
-      return 'Due today';
-    } else if (days === 1) {
-      return 'Due tomorrow';
-    } else {
-      return `Due in ${days} days`;
-    }
+  getUserDisplayName(user: UserResponseDto): string {
+    return `${user.firstName} ${user.lastName}`;
   }
 
   openCreateModal() {
@@ -189,9 +190,7 @@ export class TasksComponent implements OnInit {
     this.formData = {
       title: '',
       description: '',
-      status: 'todo',
-      priority: 'medium',
-      dueDate: new Date(),
+      status: FrontendTodoStatus.Todo,
       assignedTo: null,
       team: ''
     };
@@ -204,10 +203,8 @@ export class TasksComponent implements OnInit {
       title: task.title,
       description: task.description,
       status: task.status,
-      priority: task.priority,
-      dueDate: task.dueDate,
-      assignedTo: task.assignedTo?.id || null,
-      team: task.team.id
+      assignedTo: task.assignedTo?.id.toString() || null,
+      team: task.team.id.toString()
     };
     this.showCreateModal = true;
   }
@@ -215,12 +212,11 @@ export class TasksComponent implements OnInit {
   closeModal() {
     this.showCreateModal = false;
     this.selectedTask = null;
+    this.errorMessage = '';
     this.formData = {
       title: '',
       description: '',
-      status: 'todo',
-      priority: 'medium',
-      dueDate: new Date(),
+      status: FrontendTodoStatus.Todo,
       assignedTo: null,
       team: ''
     };
@@ -228,58 +224,80 @@ export class TasksComponent implements OnInit {
 
   saveTask(form: any) {
     if (form.valid) {
+      this.isLoading = true;
+      this.errorMessage = '';
+
       if (this.selectedTask) {
         // Update existing task
-        const index = this.tasks.findIndex(t => t.id === this.selectedTask?.id);
-        if (index !== -1) {
-          const assignedTo = this.formData.assignedTo ? 
-            this.users.find(u => u.id === this.formData.assignedTo) || null : null;
-          const team = this.teams.find(t => t.id === this.formData.team);
-          
-          if (team) {
-            this.tasks[index] = {
-              ...this.tasks[index],
-              title: this.formData.title,
-              description: this.formData.description,
-              status: this.formData.status as Task['status'],
-              priority: this.formData.priority as Task['priority'],
-              dueDate: this.formData.dueDate,
-              assignedTo,
-              team,
-              updatedAt: new Date()
-            };
-          }
-        }
+        this.updateTask();
       } else {
         // Create new task
-        const assignedTo = this.formData.assignedTo ? 
-          this.users.find(u => u.id === this.formData.assignedTo) || null : null;
-        const team = this.teams.find(t => t.id === this.formData.team);
-        
-        if (team) {
-          const newTask: Task = {
-            id: Math.random().toString(36).substr(2, 9),
-            title: this.formData.title,
-            description: this.formData.description,
-            status: this.formData.status as Task['status'],
-            priority: this.formData.priority as Task['priority'],
-            dueDate: this.formData.dueDate,
-            assignedTo,
-            team,
-            createdAt: new Date(),
-            updatedAt: new Date()
-          };
-          this.tasks.push(newTask);
-        }
+        this.createTask();
       }
-      this.closeModal();
     }
   }
 
+  private createTask() {
+    const createRequest: CreateTodoRequestDto = {
+      title: this.formData.title,
+      description: this.formData.description,
+      teamId: parseInt(this.formData.team),
+      ownerUserId: parseInt(this.formData.assignedTo!) // User ID of the assignee
+    };
+
+    this.taskService.createTask(createRequest).subscribe({
+      next: (backendTodo: BackendTodo) => {
+        const newTask = this.mapBackendTodoToTask(backendTodo);
+        this.tasks.push(newTask);
+        this.closeModal();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error creating task:', error);
+        this.errorMessage = 'Failed to create task. Please try again.';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private updateTask() {
+    if (!this.selectedTask) return;
+
+    const updateRequest: UpdateTodoRequestDto = {
+      todoId: this.selectedTask.id,
+      title: this.formData.title,
+      description: this.formData.description,
+      status: StatusMapping.frontendToBackend(this.formData.status),
+      assigneeId: this.formData.assignedTo ? parseInt(this.formData.assignedTo) : undefined,
+      teamId: parseInt(this.formData.team)
+    };
+
+    this.taskService.updateTask(updateRequest).subscribe({
+      next: (todoResponse: TodoResponseDto) => {
+        const updatedTask = this.mapTodoResponseToTask(todoResponse, parseInt(this.formData.team));
+        const index = this.tasks.findIndex(t => t.id === this.selectedTask!.id);
+        if (index !== -1) {
+          this.tasks[index] = updatedTask;
+        }
+        this.closeModal();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error updating task:', error);
+        this.errorMessage = 'Failed to update task. Please try again.';
+        this.isLoading = false;
+      }
+    });
+  }
+
   deleteTask(task: Task) {
-    const index = this.tasks.findIndex(t => t.id === task.id);
-    if (index !== -1) {
-      this.tasks.splice(index, 1);
+    if (confirm('Are you sure you want to delete this task?')) {
+      // Note: No delete endpoint available in backend, so we'll just remove from local array
+      // In a real app, you would call a delete API endpoint here
+      const index = this.tasks.findIndex(t => t.id === task.id);
+      if (index !== -1) {
+        this.tasks.splice(index, 1);
+      }
     }
   }
-} 
+}

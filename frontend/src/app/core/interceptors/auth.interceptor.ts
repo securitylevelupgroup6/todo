@@ -8,23 +8,22 @@ export const authInterceptor: HttpInterceptorFn = (
   next: HttpHandlerFn
 ) => {
   const router = inject(Router);
-  const token = localStorage.getItem('token');
 
-  if (token) {
-    request = request.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-  }
+  // Clone the request to add withCredentials for cookie-based auth
+  const authRequest = request.clone({
+    withCredentials: true
+  });
 
-  return next(request).pipe(
+  return next(authRequest).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
-        localStorage.removeItem('token');
+        // Clear any persisted user data and redirect to login
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('token'); // Legacy cleanup
+        localStorage.removeItem('user'); // Legacy cleanup
         router.navigate(['/auth/login']);
       }
       return throwError(() => error);
     })
   );
-}; 
+};
