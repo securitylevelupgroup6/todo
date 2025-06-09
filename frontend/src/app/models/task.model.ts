@@ -4,7 +4,7 @@ export interface UserResponseDto {
   username: string;
   firstName: string;
   lastName: string;
-  roles: string[];
+  roles: string[] | null; // Backend can return null for roles
 }
 
 // Frontend Todo Status Enum

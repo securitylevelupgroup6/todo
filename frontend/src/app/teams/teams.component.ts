@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { TeamService } from '../services/team.service';
 import { UserService } from '../services/user.service';
 import { AuthService } from '../core/services/auth.service';
+import { TaskService } from '../services/task.service';
 import { 
   TeamResponse, 
   UserResponse, 
@@ -17,13 +18,8 @@ import { catchError, of, forkJoin } from 'rxjs';
 interface Team {
   id: string;
   name: string;
-  department: string;
   memberCount: number;
-  capacity: number;
-  tasks: number;
-  status: 'active' | 'inactive' | 'archived';
   createdAt: Date;
-  completionRate: number;
   members: {
     id: string;
     name: string;
@@ -34,8 +30,6 @@ interface Team {
 
 interface TeamFormData {
   name: string;
-  department: string;
-  capacity: number;
   teamLeadUserId?: number;
 }
 
@@ -49,16 +43,12 @@ interface TeamFormData {
 export class TeamsComponent implements OnInit {
   teams: Team[] = [];
   apiTeams: TeamResponse[] = [];
-  availableUsers: UserResponse[] = [];
   searchTerm: string = '';
-  departmentFilter: string = 'all';
-  departments: string[] = ['all', 'Engineering', 'Design', 'Marketing', 'Product', 'Sales', 'Support'];
   showCreateModal: boolean = false;
+  showDetailsModal: boolean = false;
   selectedTeam: Team | null = null;
   formData: TeamFormData = {
-    name: '',
-    department: '',
-    capacity: 5
+    name: ''
   };
   loading: boolean = false;
   error: string = '';
@@ -66,12 +56,12 @@ export class TeamsComponent implements OnInit {
   constructor(
     private teamService: TeamService,
     private userService: UserService,
-    private authService: AuthService
+    private authService: AuthService,
+    private taskService: TaskService
   ) {}
 
   ngOnInit() {
     this.loadTeams();
-    this.loadUsers();
   }
 
   private loadTeams(): void {
@@ -110,19 +100,6 @@ export class TeamsComponent implements OnInit {
       });
   }
 
-  private loadUsers(): void {
-    // Load available users for team management
-    this.userService.getAllUsers()
-      .pipe(
-        catchError(error => {
-          console.error('Error loading users:', error);
-          return of([]);
-        })
-      )
-      .subscribe(users => {
-        this.availableUsers = users;
-      });
-  }
 
   private loadTeamMembers(): void {
     // Load members for each team
@@ -144,25 +121,22 @@ export class TeamsComponent implements OnInit {
             id: member.id.toString(),
             name: `${member.firstName} ${member.lastName}`,
             avatar: 'https://github.com/shadcn.png',
-            role: member.roles.includes('TEAMLEAD') ? 'Team Lead' : 'Member'
+            role: (member.roles || []).includes('TEAMLEAD') ? 'Team Lead' : 'Member'
           }));
           this.teams[teamIndex].memberCount = members.length;
         }
       });
+      
     });
   }
+
 
   private mapApiTeamToComponentTeam(apiTeam: TeamResponse): Team {
     return {
       id: apiTeam.id.toString(),
       name: apiTeam.name,
-      department: 'Engineering', // Default department since API doesn't provide this
       memberCount: 0, // Will be updated when members are loaded
-      capacity: 10, // Default capacity since API doesn't provide this
-      tasks: 0, // Default tasks since API doesn't provide this
-      status: 'active',
       createdAt: new Date(),
-      completionRate: 0,
       members: []
     };
   }
@@ -172,13 +146,8 @@ export class TeamsComponent implements OnInit {
       {
         id: '1',
         name: 'Frontend Development',
-        department: 'Engineering',
         memberCount: 8,
-        capacity: 10,
-        tasks: 15,
-        status: 'active',
         createdAt: new Date('2024-01-01'),
-        completionRate: 85,
         members: [
           { id: '1', name: 'John Doe', avatar: 'https://github.com/shadcn.png', role: 'Team Lead' },
           { id: '2', name: 'Jane Smith', avatar: 'https://github.com/shadcn.png', role: 'Developer' },
@@ -188,13 +157,8 @@ export class TeamsComponent implements OnInit {
       {
         id: '2',
         name: 'UI/UX Design',
-        department: 'Design',
         memberCount: 5,
-        capacity: 6,
-        tasks: 8,
-        status: 'active',
         createdAt: new Date('2024-01-15'),
-        completionRate: 92,
         members: [
           { id: '4', name: 'Sarah Wilson', avatar: 'https://github.com/shadcn.png', role: 'Design Lead' },
           { id: '5', name: 'Tom Brown', avatar: 'https://github.com/shadcn.png', role: 'Designer' }
@@ -205,10 +169,7 @@ export class TeamsComponent implements OnInit {
 
   get filteredTeams(): Team[] {
     return this.teams.filter(team => {
-      const matchesSearch = team.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-                          team.department.toLowerCase().includes(this.searchTerm.toLowerCase());
-      const matchesDepartment = this.departmentFilter === 'all' || team.department === this.departmentFilter;
-      return matchesSearch && matchesDepartment;
+      return team.name.toLowerCase().includes(this.searchTerm.toLowerCase());
     });
   }
 
@@ -236,9 +197,7 @@ export class TeamsComponent implements OnInit {
   openCreateModal() {
     this.selectedTeam = null;
     this.formData = {
-      name: '',
-      department: '',
-      capacity: 5
+      name: ''
     };
     this.showCreateModal = true;
   }
@@ -246,9 +205,7 @@ export class TeamsComponent implements OnInit {
   openEditModal(team: Team) {
     this.selectedTeam = team;
     this.formData = {
-      name: team.name,
-      department: team.department,
-      capacity: team.capacity
+      name: team.name
     };
     this.showCreateModal = true;
   }
@@ -257,11 +214,20 @@ export class TeamsComponent implements OnInit {
     this.showCreateModal = false;
     this.selectedTeam = null;
     this.formData = {
-      name: '',
-      department: '',
-      capacity: 5
+      name: ''
     };
   }
+
+  openDetailsModal(team: Team) {
+    this.selectedTeam = team;
+    this.showDetailsModal = true;
+  }
+
+  closeDetailsModal() {
+    this.showDetailsModal = false;
+    this.selectedTeam = null;
+  }
+
 
   saveTeam(form: NgForm) {
     if (form.valid) {
@@ -274,9 +240,7 @@ export class TeamsComponent implements OnInit {
         if (index !== -1) {
           this.teams[index] = {
             ...this.teams[index],
-            name: this.formData.name,
-            department: this.formData.department,
-            capacity: this.formData.capacity
+            name: this.formData.name
           };
         }
         this.loading = false;
@@ -310,13 +274,8 @@ export class TeamsComponent implements OnInit {
               const newTeam: Team = {
                 id: createdTeam.id.toString(),
                 name: createdTeam.name,
-                department: this.formData.department,
                 memberCount: 1, // Team lead is automatically a member
-                capacity: this.formData.capacity,
-                tasks: 0,
-                status: 'active',
                 createdAt: new Date(),
-                completionRate: 0,
                 members: []
               };
               
