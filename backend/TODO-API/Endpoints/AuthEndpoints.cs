@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OtpNet;
@@ -6,6 +5,7 @@ using TODO_API.Common;
 using TODO_API.Models;
 using TODO_API.Models.Requests;
 using TODO_API.Services;
+using TODO_API.Utilities;
 namespace TODO_API.Endpoints;
 
 public static class AuthEndpoints
@@ -93,7 +93,8 @@ public static class AuthEndpoints
                 Expires = DateTimeOffset.UtcNow.AddDays(85)
             });
             var user = userService.GetUser(loginUserRequest.Username);
-            if (user == null) {
+            if (user == null)
+            {
                 return Results.InternalServerError();
             }
             var userRecord = new UserRecord(user.Id, user.Username, user.FirstName, user.LastName, [.. user.UserRoles.Select(x => x.Role.Name)]);
@@ -110,7 +111,7 @@ public static class AuthEndpoints
 
     public static IResult LogoutUserHandler(HttpContext http, UserService userService)
     {
-        
+
         var jwt = http.Request.Cookies["access_token"];
         var refreshToken = http.Request.Cookies["refresh_token"];
         if (jwt == null || refreshToken == null)
@@ -151,6 +152,8 @@ public static class AuthEndpoints
         {
             return Results.BadRequest(new { Errors = errorResults });
         }
+
+        request.Sanitize();
 
         var result = userService.RegisterUser(request.Username, request.Password, request.FirstName, request.LastName, out OtpUri? otpUri);
         return result switch
