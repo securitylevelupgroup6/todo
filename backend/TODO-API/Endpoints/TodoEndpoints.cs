@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TODO_API.Common;
 using TODO_API.Mappers;
@@ -7,6 +6,7 @@ using TODO_API.Models;
 using TODO_API.Models.Requests;
 using TODO_API.Models.Responses;
 using TODO_API.Services;
+using TODO_API.Utilities;
 
 namespace TODO_API.Endpoints;
 
@@ -55,6 +55,7 @@ public static class TodoEndpoints
     {
         ArgumentNullException.ThrowIfNull(request);
         var jwt = http.Request.Cookies["access_token"];
+
         Console.WriteLine(!todoService.validateUserForCreation(jwt, request.OwnerUserId));
         if (!todoService.validateUserForCreation(jwt, request.OwnerUserId))
         {
@@ -65,6 +66,8 @@ public static class TodoEndpoints
 
         try
         {
+            request.Sanitize();
+
             var todo = await todoService.CreateTodoAsync(request);
 
             return Results.Created($"/team/{todo.Id}", todo);
@@ -81,6 +84,8 @@ public static class TodoEndpoints
         ArgumentNullException.ThrowIfNull(request);
         try
         {
+            request.Sanitize();
+
             var todo = await todoService.UpdateTodoAsync(request);
 
             var todoResponse = todo.MapToTodoResponse();
@@ -95,7 +100,7 @@ public static class TodoEndpoints
     }
 
     [Authorize(Roles = Roles.USER)]
-    private static async Task<IResult> GetTeamTodosHandler([FromServices] TodoService todoService, [FromBody] UpdateTodoRequest request, int teamId)
+    private static async Task<IResult> GetTeamTodosHandler([FromServices] TodoService todoService, int teamId)
     {
         try
         {

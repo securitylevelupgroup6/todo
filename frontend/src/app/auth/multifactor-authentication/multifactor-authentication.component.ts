@@ -11,7 +11,6 @@ import { AuthRequest, AuthService } from '../../core/services/auth.service';
 import { ErrorMessages } from '../../shared/enums/enums';
 import { UserService } from '../../shared/data-access/services/login.service';
 import { LoginCredentials } from '../../models/user.model';
-import { LoaderComponent } from "../../shared/components/ui/loader/loader.component";
 import { Header } from '../../models/auth.model';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -29,7 +28,6 @@ import { MatIconModule } from '@angular/material/icon';
     MatCardModule,
     ReactiveFormsModule,
     QRCodeComponent,
-    LoaderComponent,
     MatIconModule
 ],
   templateUrl: './multifactor-authentication.component.html',
@@ -43,6 +41,9 @@ export class MultifactorAuthenticationComponent implements OnInit {
   @Input()
   registrationForm!: FormGroup; // Login form from parent component
   authRequest: AuthRequest = { requestType: '' }
+
+  @Input()
+  isLoading: boolean = false;
 
   registrationHeader: Header = {
     heading: 'Enable Two-factor authentication',
@@ -68,7 +69,10 @@ export class MultifactorAuthenticationComponent implements OnInit {
     private userService: UserService,
   ) {
     this.otpForm = this.formBuilder.group({
-      otp: ['', Validators.required]
+      otp: ['', [
+        Validators.required,
+        Validators.minLength(6)
+      ]]
     });
   }
 
@@ -81,8 +85,6 @@ export class MultifactorAuthenticationComponent implements OnInit {
   onSubmit(): void {
     this.errorMessage = '';
     this.isSubmitting = true;
-
-    console.log(this.registrationForm.value);
 
     // Construct credentials from the registration form (login form) and OTP form
     const credentials: LoginCredentials = {
@@ -124,9 +126,6 @@ export class MultifactorAuthenticationComponent implements OnInit {
     if (this.registrationForm) {
       this.registrationForm.markAllAsTouched();
     }
-
-    // Set error message
-    this.errorMessage = 'Please fill in all required fields.';
     
     // Set specific form errors for better UX
     if (!this.otpForm.get('otp')?.value) {
@@ -178,5 +177,6 @@ export class MultifactorAuthenticationComponent implements OnInit {
 
   onBack(): void {
     this.authService.updateAuthRequest('');
+    this.otp = '';
   }
 }

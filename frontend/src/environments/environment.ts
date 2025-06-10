@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:5079'
+  apiUrl: 'https://todo.pastpaperportal.co.za'
 }; 

@@ -6,6 +6,7 @@ using TODO_API.Models;
 using TODO_API.Models.Requests;
 using TODO_API.Models.Responses;
 using TODO_API.Services;
+using TODO_API.Utilities;
 
 namespace TODO_API.Endpoints;
 
@@ -60,6 +61,8 @@ public static class TeamEndpoints
 
         try
         {
+            request.Sanitize();
+
             var team = await teamService.CreateTeamAsync(request);
 
             return Results.Created($"/team/{team.Id}", team);
@@ -78,6 +81,8 @@ public static class TeamEndpoints
 
         try
         {
+            request.Sanitize();
+
             var teamMember = await teamService.AddTeamMemberAsync(request, teamId);
 
             return Results.Ok(teamMember);

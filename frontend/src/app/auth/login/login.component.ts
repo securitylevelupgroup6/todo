@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MultifactorAuthenticationComponent } from "../multifactor-authentication/multifactor-authentication.component";
+import { LoaderComponent } from "../../shared/components/ui/loader/loader.component";
 
 @Component({
   selector: 'app-login',
@@ -24,7 +25,8 @@ import { MultifactorAuthenticationComponent } from "../multifactor-authenticatio
     MatCardModule,
     ReactiveFormsModule,
     MatIconModule,
-    MultifactorAuthenticationComponent
+    MultifactorAuthenticationComponent,
+    LoaderComponent
 ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss', '../register/register.component.scss']

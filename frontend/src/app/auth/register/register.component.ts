@@ -83,9 +83,10 @@ export class RegisterComponent implements AfterViewInit, OnInit {
   }
 
   onSubmit() {
-    this.isLoading = true;
-    const user: RegisterUser = { ...this.registrationForm.value };
-    if(this.registrationForm.valid) {
+    if(this.registrationForm.valid && !this.otp) {
+      const user: RegisterUser = { ...this.registrationForm.value };
+      this.isLoading = true;
+
       this.authService.register(user).subscribe(data => {
         if(data.results) {
           this.otp = data.results.otpUri;
@@ -96,8 +97,8 @@ export class RegisterComponent implements AfterViewInit, OnInit {
           this.isLoading = false;
         }
       });
+      this.authService.updateAuthRequest('register');
     }
-    this.authService.updateAuthRequest('register');
   }
 
   getRegistrationForm(): FormGroup {
