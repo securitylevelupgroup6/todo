@@ -121,7 +121,7 @@ public class TodoService(TodoContext dbContext, TodoRepository todoRepository)
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            throw new Exception("An error occurred while creating the todo.", ex);
+            throw new Exception("An error occurred while updating the todo.", ex);
         }
     }
 
@@ -190,5 +190,36 @@ public class TodoService(TodoContext dbContext, TodoRepository todoRepository)
 
         dbContext.Todos.Remove(todo);
         await dbContext.SaveChangesAsync();
+    }
+
+    internal async Task<IEnumerable<TodoHistory>> GetTodoHistoryAsync(int todoId)
+    {
+        var history = await dbContext.TodoHistory
+            .Include(todoHistory => todoHistory.Todo)
+            .Include(todoHistory => todoHistory.Reporter)
+                .ThenInclude(tm => tm.User)
+            .Include(todoHistory => todoHistory.OldState)
+                .ThenInclude(os => os.Status)
+            .Include(todoHistory => todoHistory.UpdatedState)
+                .ThenInclude(us => us.Status)
+            .Where(todoHistory => todoHistory.Todo.Id == todoId)
+            .ToListAsync();
+
+        return history;
+    }
+
+    internal async Task<Todo> GetTodoByIdAsync(int todoId)
+    {
+        return await dbContext.Todos
+            .Include(todo => todo.TodoState)
+                .ThenInclude(ts => ts.Assignee)
+                    .ThenInclude(assignee => assignee.User)
+            .Include(todo => todo.TodoState)
+                .ThenInclude(ts => ts.Team)
+            .Include(todo => todo.TodoState)
+                .ThenInclude(ts => ts.Status)
+            .Include(todo => todo.Owner)
+                .ThenInclude(owner => owner.User)
+            .FirstOrDefaultAsync(todo => todo.Id == todoId) ?? throw new ArgumentException("Todo not found.", nameof(todoId));
     }
 }

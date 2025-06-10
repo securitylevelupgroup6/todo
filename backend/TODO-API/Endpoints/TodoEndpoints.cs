@@ -28,6 +28,12 @@ public static class TodoEndpoints
         .WithName("UpdateTodo")
         .WithTags("Todo");
 
+        endpoints.MapGet("/todo/{todoId}/history", GetTodoHistoryHandler)
+        .Produces(StatusCodes.Status200OK, typeof(TodoHistoryResponse))
+        .Produces(StatusCodes.Status400BadRequest)
+        .WithName("GetTodoHistory")
+        .WithTags("Todo");
+
         endpoints.MapGet("/todo", GetUsersTodos)
         .Produces(StatusCodes.Status200OK)
         .WithName("GetTodos")
@@ -84,7 +90,7 @@ public static class TodoEndpoints
         }
     }
 
-    [Authorize(Roles = $"{Roles.USER},{Roles.TEAMLEAD}")]
+    [Authorize(Roles = Roles.USER)]
     public async static Task<IResult> UpdateTodoHandler(HttpContext http, [FromServices] TodoService todoService, [FromBody] UpdateTodoRequest request, int todoId)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -135,6 +141,24 @@ public static class TodoEndpoints
         catch (Exception ex)
         {
             Console.WriteLine(ex);
+            return Results.BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [Authorize(Roles = Roles.USER)]
+    private static async Task<IResult> GetTodoHistoryHandler([FromServices] TodoService todoService, int todoId)
+    {
+        try
+        {
+            var history = await todoService.GetTodoHistoryAsync(todoId);
+
+            var todo = await todoService.GetTodoByIdAsync(todoId);
+
+            var response = history.MapToTodoHistoryResponse(todo);
+            return Results.Ok(response);
+        }
+        catch (Exception ex)
+        {
             return Results.BadRequest(new { error = ex.Message });
         }
     }
