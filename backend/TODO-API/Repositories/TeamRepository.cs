@@ -42,9 +42,15 @@ public class TeamRepository([FromServices] TodoContext context)
     {
         try
         {
+<<<<<<< Updated upstream
             var user = (request.UserId != null ? await context.Users.FindAsync(request.UserId) :
                 request.Username != null ? await context.Users.FirstOrDefaultAsync(user => user.Username == request.Username) :
                 throw new InvalidDataException()) ?? throw new UserNotFoundException();
+=======
+            var user = request.UserId != null ? await context.Users.FindAsync(request.UserId.Value) :
+                request.Username == null ? await context.Users.FirstOrDefaultAsync(user => user.Username == request.Username) :
+                throw new ArgumentNullException("No user specified in request");
+>>>>>>> Stashed changes
 
             var team = await context.Teams.FindAsync(teamId) ?? throw new TeamNotFoundException();
 
