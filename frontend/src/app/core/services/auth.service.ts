@@ -18,6 +18,10 @@ export interface RegisterUser {
   username: string;
 }
 
+export interface AuthRequest {
+  requestType: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -26,6 +30,9 @@ export class AuthService {
   public currentUser$ = this.currentUserSubject.asObservable();
   private apiBaseUrl: string = environment.apiUrl;
   isLoggedIn: boolean = false;
+
+  private requestSubject = new BehaviorSubject<AuthRequest>({requestType: ''});
+  public currentAuthType = this.requestSubject.asObservable();
 
   constructor(
     private http: HttpClient,
@@ -51,13 +58,13 @@ export class AuthService {
 
   login(credentials: LoginCredentials): Observable<UserRecord> {
     // Map frontend credentials to backend API format
-    const loginRequest = {
-      Username: credentials.userName,
-      Password: credentials.password,
-      Otp: credentials.otp
-    };
+    // const loginRequest = {
+    //   Username: credentials.userName,
+    //   Password: credentials.password,
+    //   Otp: credentials.otp
+    // };
 
-    return this.http.post<UserRecord>(`${this.apiBaseUrl}/auth/login`, loginRequest, { 
+    return this.http.post<UserRecord>(`${this.apiBaseUrl}/auth/login`, { ...credentials }, { 
       withCredentials: true // This ensures cookies are sent and received
     }).pipe(
       tap(userRecord => {
@@ -105,5 +112,9 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return this.isLoggedIn && !!this.getPersistedUser();
+  }
+
+  updateAuthRequest(requestType: string) {
+    this.requestSubject.next({ requestType: requestType })
   }
 }

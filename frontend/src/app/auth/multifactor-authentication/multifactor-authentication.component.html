@@ -1,15 +1,16 @@
-<mat-card class="flex flex-col justify-center items-center">
+<mat-card *ngIf="authRequest.requestType" class="flex">
+    <button mat-button class="flex w-0 items-center mt-1 ml-1" (click)="onBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
     <mat-card-header class="flex flex-col justify-center items-center">
-        <h1 class="text-2xl font-bold"> Two-factor authentication </h1>
-        <p *ngIf="otp" class="text-muted-foreground mt-2"> Please scan QR code below using any authenticator application </p>
-        <p *ngIf="loginRequest" class="text-muted-foreground mt-2"> Please enter code below </p>
-        
+        <h1 class="text-2xl font-bold"> {{ authRequest.requestType === 'login' ? loginHeader.heading : registrationHeader.heading }} </h1>
+        <p class="text-muted-foreground mt-2"> {{ authRequest.requestType === 'login' ? loginHeader.subHeading : registrationHeader.subHeading }} </p>
         <!-- Error message display -->
-        <div *ngIf="errorMessage" class="error-message mt-2 text-red-600 text-center">
+        <p *ngIf="errorMessage" class="error-message mt-2 text-red-600 text-center">
             {{ errorMessage }}
-        </div>
+        </p>
     </mat-card-header>
-    <mat-card-content class="mt-2">
+    <mat-card-content class="flex flex-col justify-center items-center mt-2 content">
         <qrcode *ngIf="otp" [qrdata]="otp" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
         <form class="mt-2" [formGroup]="otpForm">
             <mat-form-field class="w-full flex justify-center">
@@ -23,8 +24,8 @@
     </mat-card-content>
     <mat-card-actions class="w-full flex justify-center mt-2">
         <button mat-flat-button class="w-1/3" (click)="onSubmit()" [disabled]="isSubmitting || otpForm.invalid">
-            <span *ngIf="!isSubmitting">Submit</span>
-            <span *ngIf="isSubmitting">Submitting...</span>
+            <span>{{ !isSubmitting ? 'Submit' : 'Submitting...'}}</span>
         </button>
     </mat-card-actions>
 </mat-card>
+<app-loader *ngIf="isSubmitting"></app-loader>

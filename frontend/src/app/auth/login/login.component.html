@@ -43,7 +43,7 @@
     </mat-card-actions>
   </mat-card>
   <app-multifactor-authentication 
-    *ngIf="loginRequest" [loginRequest]="loginRequest" 
+    *ngIf="loginRequest.requestType === 'register'">
     [registrationForm]="loginForm">
   </app-multifactor-authentication>
 </main>

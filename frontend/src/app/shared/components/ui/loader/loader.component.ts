@@ -6,10 +6,8 @@ import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-loader',
-  imports: [NgIf, MatProgressSpinnerModule, AsyncPipe],
+  imports: [ MatProgressSpinnerModule ],
   templateUrl: './loader.component.html',
   styleUrl: './loader.component.scss'
 })
-export class LoaderComponent {
-  constructor(public loader: LoaderService) {}
-}
+export class LoaderComponent {}
