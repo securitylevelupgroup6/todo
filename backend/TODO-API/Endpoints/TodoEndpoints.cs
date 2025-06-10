@@ -122,6 +122,7 @@ public static class TodoEndpoints
         }
     }
 
+    [Authorize(Roles = Roles.USER)]
     private static async Task<IResult> DeleteTodoHandler(HttpContext http, [FromServices] TodoService todoService, int todoId)
     {
         var jwt = http.Request.Cookies["access_token"];
