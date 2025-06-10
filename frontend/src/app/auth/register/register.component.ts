@@ -52,6 +52,7 @@ export class RegisterComponent implements AfterViewInit, OnInit {
   currentPassword: string = '';
   isLoading: boolean = false;
   registrationRequest: AuthRequest = { requestType: ''};
+  registrationError: any;
 
   constructor(
     private router: Router,
@@ -89,15 +90,20 @@ export class RegisterComponent implements AfterViewInit, OnInit {
 
       this.authService.register(user).subscribe(data => {
         if(data.results) {
-          this.otp = data.results.otpUri;
+          this.otp = data.results?.otpUri;
           this.formStateService.set(this.registrationForm);
           this.isLoading = false;
+          this.authService.updateAuthRequest('register');
         } else {
           this.otp = '';
           this.isLoading = false;
+          this.registrationError = data.errors ? data.errors?.error : { error: '' };
         }
       });
-      this.authService.updateAuthRequest('register');
+    }
+
+    if(this.registrationForm.valid && this.otp && !this.registrationRequest.requestType) {
+      this.authService.updateAuthRequest('register');      
     }
   }
 

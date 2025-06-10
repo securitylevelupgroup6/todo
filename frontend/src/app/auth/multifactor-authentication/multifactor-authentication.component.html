@@ -1,5 +1,5 @@
 <mat-card class="flex">
-    <button mat-button class="flex w-0 items-center mt-1 ml-1" (click)="onBack()">
+    <button *ngIf="authRequest.requestType === 'login'" mat-button class="flex w-0 items-center mt-1 ml-1" (click)="onBack()">
       <mat-icon>arrow_back</mat-icon>
     </button>
     <mat-card-header class="flex flex-col justify-center items-center">
@@ -12,7 +12,7 @@
     <mat-card-content class="flex flex-col justify-center items-center mt-2 content">
         <qrcode *ngIf="otp" [qrdata]="otp" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
         <form class="mt-2" [formGroup]="otpForm">
-            <mat-form-field class="w-full flex justify-center">
+            <mat-form-field class="w-[15.9375rem] flex justify-center">
                 <mat-label>One time pin</mat-label>
                 <input formControlName="otp" matInput/>
                 <mat-error *ngIf="otpForm.get('otp')?.touched && otpForm.get('otp')?.hasError('required')">
