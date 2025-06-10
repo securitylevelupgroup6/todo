@@ -39,6 +39,12 @@ public static class TodoEndpoints
         .WithName("GetTeamTasks")
         .WithTags("Team");
 
+        endpoints.MapDelete("/todo/{todoId}", DeleteTodoHandler)
+        .Produces(StatusCodes.Status204NoContent)
+        .Produces(StatusCodes.Status400BadRequest)
+        .WithName("DeleteTodo")
+        .WithTags("Todo");
+
         return endpoints;
     }
 
@@ -79,14 +85,16 @@ public static class TodoEndpoints
     }
 
     [Authorize(Roles = $"{Roles.USER},{Roles.TEAMLEAD}")]
-    public async static Task<IResult> UpdateTodoHandler([FromServices] TodoService todoService, [FromBody] UpdateTodoRequest request, int todoId)
+    public async static Task<IResult> UpdateTodoHandler(HttpContext http, [FromServices] TodoService todoService, [FromBody] UpdateTodoRequest request, int todoId)
     {
         ArgumentNullException.ThrowIfNull(request);
+        var jwt = http.Request.Cookies["access_token"];
+
         try
         {
             request.Sanitize();
 
-            var todo = await todoService.UpdateTodoAsync(request);
+            var todo = await todoService.UpdateTodoAsync(jwt, request);
 
             var todoResponse = todo.MapToTodoResponse();
 
@@ -110,6 +118,23 @@ public static class TodoEndpoints
         }
         catch (Exception ex)
         {
+            return Results.BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [Authorize(Roles = Roles.USER)]
+    private static async Task<IResult> DeleteTodoHandler(HttpContext http, [FromServices] TodoService todoService, int todoId)
+    {
+        var jwt = http.Request.Cookies["access_token"];
+
+        try
+        {
+            await todoService.DeleteTodoAsync(jwt, todoId);
+            return Results.Ok();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
             return Results.BadRequest(new { error = ex.Message });
         }
     }
