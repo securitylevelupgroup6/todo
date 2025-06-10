@@ -30,16 +30,8 @@ public class TeamService(TeamRepository teamRepository)
 
     internal async Task<TeamMember> AddTeamMemberAsync(AddTeamMemberRequest request, int teamId)
     {
-        try
-        {
-            var teamMember = await teamRepository.AddTeamMemberAsync(request, teamId);
-
-            return teamMember;
-        }
-        catch (Exception ex)
-        {
-            throw new Exception("An error occurred while adding user to the team.", ex);
-        }
+        var teamMember = await teamRepository.AddTeamMemberAsync(request, teamId);
+        return teamMember;
     }
 
     internal async Task<IEnumerable<User>> GetTeamUsersAsync(int teamId)
