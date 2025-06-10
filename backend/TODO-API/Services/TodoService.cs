@@ -75,7 +75,7 @@ public class TodoService(TodoContext dbContext, TodoRepository todoRepository)
          .Where( todo => todo != null && todo.TodoState != null && todo.TodoState.Assignee != null && todo.TodoState.Assignee.User.Id == user.Id)];
     }
 
-    internal async Task<Todo> UpdateTodoAsync(UpdateTodoRequest request)
+    internal async Task<Todo> UpdateTodoAsync(string jwt, UpdateTodoRequest request)
     {
         try
         {
@@ -88,6 +88,8 @@ public class TodoService(TodoContext dbContext, TodoRepository todoRepository)
             .Include(todo => todo.TodoState)
             .ThenInclude(ts => ts.Status)
             .FirstOrDefault((todo) => todo.Id == request.TodoId) ?? throw new ArgumentException("Todo not found.", nameof(request.TodoId));
+
+            if (!ValidateUserForTodoUpdates(jwt, todo.Id)) throw new UnauthorizedAccessException("User does not have permission to update this todo.");
 
             var currentState = todo.TodoState;
             var currentStateCopy = JsonSerializer.Deserialize<TodoState>(JsonSerializer.Serialize(currentState));
@@ -139,5 +141,54 @@ public class TodoService(TodoContext dbContext, TodoRepository todoRepository)
             .ToListAsync();
 
         return todos;
+    }
+
+    public bool ValidateUserForTodoUpdates(string jwt, int todoId)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(jwt);
+        // get the user from the jwt
+        var user = dbContext.Users.Include(u => u.RefreshTokens).FirstOrDefault(u => u.Id.ToString() == jwtToken.Subject.ToString()) ?? throw new UserNotFoundException();
+        var userTeams = dbContext.TeamMembers
+            .Include(teamMember => teamMember.Team)
+            .Where(teamMember => teamMember.User.Id == user.Id)
+            .Select(teamMember => teamMember.Team)
+            .ToList();
+        var todo = dbContext.Todos
+            .Include(todo => todo.TodoState)
+                .ThenInclude(ts => ts.Assignee)
+                    .ThenInclude(assignee => assignee.User)
+            .Include(todo => todo.TodoState)
+                .ThenInclude(ts => ts.Team)
+            .FirstOrDefault(todo => todo.Id == todoId) ?? throw new ArgumentException("Todo not found.", nameof(todoId));
+
+        var roles = jwtToken.Claims
+        .Where(c => c.Type == ClaimTypes.Role)
+        .Select(c => c.Value)
+        .ToList();
+
+        if (roles.Any(role => role == "TEAM_LEAD")) return true;
+
+        if (userTeams.Any(team => team.Id == todo.TodoState.Team.Id)) return true;
+
+        return false;
+
+
+    }
+
+    internal async Task DeleteTodoAsync(string jwt, int todoId)
+    {
+        var todo = dbContext.Todos
+            .Include(todo => todo.TodoState)
+                .ThenInclude(ts => ts.Assignee)
+                    .ThenInclude(assignee => assignee.User)
+            .Include(todo => todo.TodoState)
+                .ThenInclude(ts => ts.Team)
+            .FirstOrDefault(todo => todo.Id == todoId) ?? throw new ArgumentException("Todo not found.", nameof(todoId));
+
+        if (!ValidateUserForTodoUpdates(jwt, todoId)) throw new UnauthorizedAccessException("User does not have permission to delete this todo.");
+
+        dbContext.Todos.Remove(todo);
+        await dbContext.SaveChangesAsync();
     }
 }
