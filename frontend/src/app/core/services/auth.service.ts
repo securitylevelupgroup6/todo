@@ -57,12 +57,6 @@ export class AuthService {
   }
 
   login(credentials: LoginCredentials): Observable<UserRecord> {
-    // Map frontend credentials to backend API format
-    // const loginRequest = {
-    //   Username: credentials.userName,
-    //   Password: credentials.password,
-    //   Otp: credentials.otp
-    // };
 
     return this.http.post<UserRecord>(`${this.apiBaseUrl}/auth/login`, { ...credentials }, { 
       withCredentials: true // This ensures cookies are sent and received

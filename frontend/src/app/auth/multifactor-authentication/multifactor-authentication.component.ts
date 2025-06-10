@@ -59,8 +59,6 @@ export class MultifactorAuthenticationComponent implements OnInit {
   required: string = ErrorMessages.REQUIRED_FIELD;
   errorMessage: string = '';
   isSubmitting: boolean = false;
-  login2AuthHeading: string = ''
-  registration2AuthHeading: string = 'Enable Two-factor authentication'
 
   constructor(
     private formBuilder: FormBuilder,
@@ -71,7 +69,8 @@ export class MultifactorAuthenticationComponent implements OnInit {
     this.otpForm = this.formBuilder.group({
       otp: ['', [
         Validators.required,
-        Validators.minLength(6)
+        Validators.minLength(6),
+        Validators.maxLength(6),
       ]]
     });
   }
