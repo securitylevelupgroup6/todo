@@ -1,5 +1,5 @@
 <main class="h-screen flex items-center justify-center">
-  <mat-card *ngIf="!loginRequest" class="w-1/3">
+  <mat-card *ngIf="!loginRequest.requestType && !isLoading" class="w-1/3">
     <mat-card-header class="text-center flex flex-col">
       <h1 class="text-2xl font-bold">Welcome back</h1>
       <p class="text-muted-foreground mt-2">Sign in to your account</p>
@@ -14,6 +14,10 @@
             && loginForm.get('userName')?.hasError('required')">
              *This field is required
           </mat-error>
+          <mat-error *ngIf="loginForm.get('userName')?.touched 
+            && loginForm.get('userName')?.hasError('maxlength')">
+             *Username too long
+          </mat-error>
         </mat-form-field>
 
         <mat-form-field>
@@ -22,6 +26,10 @@
           <mat-error *ngIf="loginForm.get('password')?.touched 
             && loginForm.get('password')?.hasError('required')">
              *This field is required
+          </mat-error>
+          <mat-error *ngIf="loginForm.get('password')?.touched 
+            && loginForm.get('password')?.hasError('maxlength')">
+             *Password too long
           </mat-error>
         </mat-form-field>
 
@@ -43,7 +51,7 @@
     </mat-card-actions>
   </mat-card>
   <app-multifactor-authentication 
-    *ngIf="loginRequest" [loginRequest]="loginRequest" 
-    [registrationForm]="loginForm">
+    *ngIf="loginRequest.requestType === 'login' && !isLoading" [registrationForm]="loginForm">
   </app-multifactor-authentication>
+  <app-loader *ngIf="isLoading"></app-loader>
 </main>

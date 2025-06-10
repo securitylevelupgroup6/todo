@@ -1,5 +1,5 @@
 <main class="h-screen flex items-center justify-center">
-  <mat-card *ngIf="!otp" class="card flex flex-col justify-center w-1/3">
+  <mat-card *ngIf="!registrationRequest.requestType && !isLoading" class="card flex flex-col justify-center w-1/3">
     <button mat-button class="flex w-0 items-center mt-1 ml-1" (click)="onBack()">
       <mat-icon>arrow_back</mat-icon>
     </button>
@@ -7,6 +7,8 @@
       <h1 class="text-2xl font-bold">Create an account</h1>
       <p class="text-muted-foreground mt-2">Sign up to get started</p>
     </mat-card-header>
+
+    <p class="error flex justify-center" *ngIf="registrationError && registrationError.error"> {{ registrationError && registrationError.error || 'An unxepected error occured, please try again.' }} </p>
     <mat-card-content class="flex flex-col min-h-full">
       <form class="form-container" [formGroup]="registrationForm">
 
@@ -17,6 +19,10 @@
             && registrationForm.get('firstName')?.hasError('required')">
              *This field is required
           </mat-error>
+          <mat-error *ngIf="registrationForm.get('firstName')?.touched 
+            && registrationForm.get('firstName')?.hasError('maxlength')">
+             *First name too long
+          </mat-error>
         </mat-form-field>
 
         <mat-form-field class="mt-2" subscriptSizing="dynamic">
@@ -25,6 +31,10 @@
           <mat-error *ngIf="registrationForm.get('lastName')?.touched 
             && registrationForm.get('lastName')?.hasError('required')">
              *This field is required
+          </mat-error>
+          <mat-error *ngIf="registrationForm.get('lastName')?.touched 
+            && registrationForm.get('lastName')?.hasError('maxlength')">
+             *Last name too long
           </mat-error>
         </mat-form-field>
 
@@ -35,6 +45,10 @@
             && registrationForm.get('userName')?.hasError('required')">
              *This field is required
           </mat-error>
+          <mat-error *ngIf="registrationForm.get('userName')?.touched 
+            && registrationForm.get('userName')?.hasError('maxlength')">
+             *Username too long
+          </mat-error>
         </mat-form-field>
 
         <mat-form-field class="mt-2" subscriptSizing="dynamic">
@@ -43,6 +57,10 @@
           <mat-error *ngIf="registrationForm.get('password')?.touched 
             && registrationForm.get('password')?.hasError('required')">
              *This field is required
+          </mat-error>
+          <mat-error *ngIf="registrationForm.get('password')?.touched 
+            && registrationForm.get('password')?.hasError('maxlength')">
+             *Password too long
           </mat-error>
         </mat-form-field>
         <ul class="pl-4 pr-4" *ngIf="showPasswordValidation">
@@ -89,14 +107,23 @@
             && registrationForm.get('confirmPassword')?.hasError('passwordMismatch')">
             *Passwords don't match
           </mat-error>
+          <mat-error *ngIf="registrationForm.get('confirmPassword')?.touched 
+            && registrationForm.get('confirmPassword')?.hasError('maxlength')">
+             *Password too long
+          </mat-error>
         </mat-form-field>
       </form>
     </mat-card-content>  
     <mat-card-actions class="flex justify-center">
-      <button mat-flat-button class="w-1/2" (click)="onSubmit()">
+      <button mat-flat-button class="w-1/2" (click)="onSubmit()" (disabled)="isLoading ? true : false">
         Sign up
       </button>
     </mat-card-actions>
   </mat-card>
-  <app-multifactor-authentication [otp]="otp" *ngIf="otp" [registrationForm]="registrationForm"></app-multifactor-authentication>
+  <app-multifactor-authentication 
+    [otp]="otp" 
+    *ngIf="registrationRequest.requestType === 'register' && !isLoading"
+    [registrationForm]="registrationForm">
+  </app-multifactor-authentication>
+  <app-loader *ngIf="isLoading"></app-loader>
 </main>
