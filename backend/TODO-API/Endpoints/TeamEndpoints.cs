@@ -78,7 +78,6 @@ public static class TeamEndpoints
     public async static Task<IResult> AddTeamMemberHandler([FromServices] TeamService teamService, int teamId, [FromBody] AddTeamMemberRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
-
         try
         {
             request.Sanitize();
@@ -87,6 +86,15 @@ public static class TeamEndpoints
 
             return Results.Ok(teamMember);
         }
+        catch (UserNotFoundException)
+        {
+            return Results.BadRequest("The user specified does not exist.");
+        }
+        catch (TeamNotFoundException)
+        {
+            return Results.BadRequest("The Team specified does not exist");
+        }
+
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
