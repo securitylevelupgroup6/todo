@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TODO_API.Common;
 using TODO_API.Mappers;
-using TODO_API.Models;
 using TODO_API.Models.Requests;
 using TODO_API.Models.Responses;
 using TODO_API.Services;
@@ -15,41 +14,41 @@ public static class TodoEndpoints
     public static IEndpointRouteBuilder AddTodoEndpoints(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost("/todo", CreateTodoHandler)
-        .Accepts<CreateTodoRequest>("application/json")
-        .Produces(StatusCodes.Status201Created, typeof(Todo))
-        .Produces(StatusCodes.Status400BadRequest)
-        .WithName("CreateTodo")
-        .WithTags("Todo");
+            .Accepts<CreateTodoRequest>("application/json")
+            .Produces(StatusCodes.Status201Created, typeof(TodoResponse))
+            .Produces(StatusCodes.Status400BadRequest)
+            .WithName("CreateTodo")
+            .WithTags("Todo");
 
         endpoints.MapPut("/todo/{todoId}", UpdateTodoHandler)
-        .Accepts<UpdateTodoRequest>("application/json")
-        .Produces(StatusCodes.Status201Created, typeof(Todo))
-        .Produces(StatusCodes.Status400BadRequest)
-        .WithName("UpdateTodo")
-        .WithTags("Todo");
+            .Accepts<UpdateTodoRequest>("application/json")
+            .Produces(StatusCodes.Status200OK, typeof(TodoResponse))
+            .Produces(StatusCodes.Status400BadRequest)
+            .WithName("UpdateTodo")
+            .WithTags("Todo");
 
         endpoints.MapGet("/todo/{todoId}/history", GetTodoHistoryHandler)
-        .Produces(StatusCodes.Status200OK, typeof(TodoHistoryResponse))
-        .Produces(StatusCodes.Status400BadRequest)
-        .WithName("GetTodoHistory")
-        .WithTags("Todo");
+            .Produces(StatusCodes.Status200OK, typeof(TodoHistoryResponse))
+            .Produces(StatusCodes.Status400BadRequest)
+            .WithName("GetTodoHistory")
+            .WithTags("Todo");
 
         endpoints.MapGet("/todo", GetUsersTodos)
-        .Produces(StatusCodes.Status200OK)
-        .WithName("GetTodos")
-        .WithTags("Todo");
+            .Produces(StatusCodes.Status200OK)
+            .WithName("GetTodos")
+            .WithTags("Todo");
 
         endpoints.MapGet("/todo/team/{teamId}", GetTeamTodosHandler)
-        .Produces(StatusCodes.Status200OK, typeof(IEnumerable<TodoResponse>))
-        .Produces(StatusCodes.Status400BadRequest)
-        .WithName("GetTeamTasks")
-        .WithTags("Team");
+            .Produces(StatusCodes.Status200OK, typeof(IEnumerable<TodoResponse>))
+            .Produces(StatusCodes.Status400BadRequest)
+            .WithName("GetTeamTasks")
+            .WithTags("Team");
 
         endpoints.MapDelete("/todo/{todoId}", DeleteTodoHandler)
-        .Produces(StatusCodes.Status204NoContent)
-        .Produces(StatusCodes.Status400BadRequest)
-        .WithName("DeleteTodo")
-        .WithTags("Todo");
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status400BadRequest)
+            .WithName("DeleteTodo")
+            .WithTags("Todo");
 
         return endpoints;
     }
@@ -114,7 +113,7 @@ public static class TodoEndpoints
     }
 
     [Authorize(Roles = Roles.USER)]
-    private static async Task<IResult> GetTeamTodosHandler([FromServices] TodoService todoService, [FromRoute] int teamId)
+    public static async Task<IResult> GetTeamTodosHandler([FromServices] TodoService todoService, [FromRoute] int teamId)
     {
         try
         {
@@ -129,14 +128,14 @@ public static class TodoEndpoints
     }
 
     [Authorize(Roles = Roles.USER)]
-    private static async Task<IResult> DeleteTodoHandler(HttpContext http, [FromServices] TodoService todoService, [FromRoute] int todoId)
+    public static async Task<IResult> DeleteTodoHandler(HttpContext http, [FromServices] TodoService todoService, [FromRoute] int todoId)
     {
         var jwt = http.Request.Cookies["access_token"];
 
         try
         {
             await todoService.DeleteTodoAsync(jwt, todoId);
-            return Results.Ok();
+            return Results.NoContent();
         }
         catch (Exception ex)
         {
@@ -146,7 +145,7 @@ public static class TodoEndpoints
     }
 
     [Authorize(Roles = Roles.USER)]
-    private static async Task<IResult> GetTodoHistoryHandler([FromServices] TodoService todoService, [FromRoute] int todoId)
+    public static async Task<IResult> GetTodoHistoryHandler([FromServices] TodoService todoService, [FromRoute] int todoId)
     {
         try
         {
