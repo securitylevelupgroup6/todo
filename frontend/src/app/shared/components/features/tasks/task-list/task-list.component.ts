@@ -8,12 +8,12 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
   standalone: true,
   imports: [CommonModule, TaskCardComponent, ButtonComponent],
   template: `
-    <div class="space-y-4">
-      <div class="flex items-center justify-between">
-        <div>
+    <section class="space-y-4">
+      <section class="flex items-center justify-between">
+        <section>
           <h2 class="text-2xl font-bold">{{ title }}</h2>
           <p class="text-sm text-muted-foreground">{{ description }}</p>
-        </div>
+        </section>
         <app-button
           *ngIf="showAddButton"
           variant="primary"
@@ -21,18 +21,18 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
         >
           Add Task
         </app-button>
-      </div>
+      </section>
 
-      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <section class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <app-task-card
           *ngFor="let task of tasks"
           [task]="task"
           (onEdit)="onEdit.emit($event)"
           (onDelete)="onDelete.emit($event)"
         ></app-task-card>
-      </div>
+      </section>
 
-      <div
+      <section
         *ngIf="tasks.length === 0"
         class="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center"
       >
@@ -61,8 +61,8 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
         >
           Add Task
         </app-button>
-      </div>
-    </div>
+      </section>
+    </section>
   `,
   styles: []
 })

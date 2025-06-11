@@ -1,11 +1,11 @@
 <main class="container mx-auto px-4 py-8">
   <!-- Header Section -->
   <header class="mb-8">
-    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-      <div>
+    <section class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <section>
         <h1 class="text-3xl font-bold tracking-tight">Tasks</h1>
         <p class="mt-2 text-muted-foreground">Manage and track your team's tasks</p>
-      </div>
+      </section>
       <button
         (click)="openCreateModal()"
         class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
@@ -15,17 +15,17 @@
         </svg>
         Create Task
       </button>
-    </div>
+    </section>
   </header>
 
   <!-- Loading State -->
-  <div *ngIf="isLoading" class="flex justify-center items-center py-8">
-    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  <section *ngIf="isLoading" class="flex justify-center items-center py-8">
+    <section class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></section>
     <span class="ml-2 text-muted-foreground">Loading tasks...</span>
-  </div>
+  </section>
 
   <!-- Error Message -->
-  <div *ngIf="errorMessage" class="mb-6 rounded-lg border border-destructive bg-destructive/10 p-4">
+  <section *ngIf="errorMessage" class="mb-6 rounded-lg border border-destructive bg-destructive/10 p-4">
     <p class="text-sm text-destructive">{{ errorMessage }}</p>
     <button 
       (click)="loadTasks()" 
@@ -33,11 +33,11 @@
     >
       Try again
     </button>
-  </div>
+  </section>
 
   <!-- Filters Section -->
   <section class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center" *ngIf="!isLoading">
-    <div class="relative flex-1">
+    <section class="relative flex-1">
       <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
       </svg>
@@ -47,8 +47,8 @@
         placeholder="Search tasks by title or description..."
         class="w-full rounded-lg border border-input bg-background py-2 pl-10 pr-4 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       />
-    </div>
-    <div class="flex gap-2">
+    </section>
+    <section class="flex gap-2">
       <select
         [(ngModel)]="statusFilter"
         class="rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -67,7 +67,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
         </svg>
       </button>
-    </div>
+    </section>
   </section>
 
   <!-- Tasks Grid -->
@@ -75,49 +75,49 @@
     <!-- Task List -->
     <article class="lg:col-span-2 space-y-4">
       <!-- Task Cards -->
-      <div
+      <section
         *ngFor="let task of filteredTasks"
         class="group relative rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md"
       >
         <!-- Task Header -->
         <header class="mb-4">
-          <div class="flex items-start justify-between">
-            <div>
+          <section class="flex items-start justify-between">
+            <section>
               <h2 class="text-xl font-semibold tracking-tight">{{ task.title }}</h2>
               <p class="mt-1 text-sm text-muted-foreground">{{ task.description }}</p>
-            </div>
-            <div class="flex items-center gap-2">
+            </section>
+            <section class="flex items-center gap-2">
               <span
                 [class]="'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ' + getStatusColor(task.status)"
               >
                 {{ formatStatus(task.status) }}
               </span>
-            </div>
-          </div>
+            </section>
+          </section>
         </header>
 
         <!-- Task Details -->
         <section class="mb-4 grid grid-cols-1 gap-4">
-          <div class="rounded-lg bg-muted/50 p-3">
+          <section class="rounded-lg bg-muted/50 p-3">
             <p class="text-sm font-medium text-muted-foreground">Team</p>
             <p class="mt-1 font-medium">{{ task.team.name }}</p>
-          </div>
+          </section>
         </section>
 
         <!-- Task Footer -->
         <footer class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <div
+          <section class="flex items-center gap-2">
+            <section
               *ngIf="task.assignedTo"
               class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-medium"
             >
               {{ task.assignedTo.firstName.charAt(0) }}{{ task.assignedTo.lastName.charAt(0) }}
-            </div>
+            </section>
             <span class="text-sm text-muted-foreground">
               {{ task.assignedTo ? getUserDisplayName(task.assignedTo) : 'Unassigned' }}
             </span>
-          </div>
-          <div class="flex gap-2">
+          </section>
+          <section class="flex gap-2">
             <button
               (click)="openEditModal(task)"
               class="rounded-lg bg-muted px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/80"
@@ -130,12 +130,12 @@
             >
               Delete
             </button>
-          </div>
+          </section>
         </footer>
-      </div>
+      </section>
 
       <!-- Empty State -->
-      <div
+      <section
         *ngIf="filteredTasks.length === 0"
         class="rounded-lg border border-dashed p-8 text-center"
       >
@@ -165,65 +165,65 @@
           </svg>
           Create Task
         </button>
-      </div>
+      </section>
     </article>
 
     <!-- Task Stats -->
     <aside class="space-y-6">
-      <div class="rounded-lg border bg-card p-6">
+      <section class="rounded-lg border bg-card p-6">
         <h3 class="font-semibold">Task Overview</h3>
-        <div class="mt-4 space-y-4">
-          <div class="flex items-center justify-between">
+        <section class="mt-4 space-y-4">
+          <section class="flex items-center justify-between">
             <span class="text-sm text-muted-foreground">Total Tasks</span>
             <span class="font-medium">{{ tasks.length }}</span>
-          </div>
-          <div class="flex items-center justify-between">
+          </section>
+          <section class="flex items-center justify-between">
             <span class="text-sm text-muted-foreground">To Do</span>
             <span class="font-medium">{{ getTaskCount('todo') }}</span>
-          </div>
-          <div class="flex items-center justify-between">
+          </section>
+          <section class="flex items-center justify-between">
             <span class="text-sm text-muted-foreground">In Progress</span>
             <span class="font-medium">{{ getTaskCount('in_progress') }}</span>
-          </div>
-          <div class="flex items-center justify-between">
+          </section>
+          <section class="flex items-center justify-between">
             <span class="text-sm text-muted-foreground">Completed</span>
             <span class="font-medium">{{ getTaskCount('completed') }}</span>
-          </div>
-        </div>
-      </div>
+          </section>
+        </section>
+      </section>
 
       <!-- Teams Overview -->
-      <div class="rounded-lg border bg-card p-6" *ngIf="teams.length > 0">
+      <section class="rounded-lg border bg-card p-6" *ngIf="teams.length > 0">
         <h3 class="font-semibold">Your Teams</h3>
-        <div class="mt-4 space-y-3">
-          <div *ngFor="let team of teams" class="flex items-center justify-between">
+        <section class="mt-4 space-y-3">
+          <section *ngFor="let team of teams" class="flex items-center justify-between">
             <span class="text-sm">{{ team.name }}</span>
             <span class="text-xs text-muted-foreground">ID: {{ team.id }}</span>
-          </div>
-        </div>
-      </div>
+          </section>
+        </section>
+      </section>
 
       <!-- Team Members Overview -->
-      <div class="rounded-lg border bg-card p-6" *ngIf="users.length > 0">
+      <section class="rounded-lg border bg-card p-6" *ngIf="users.length > 0">
         <h3 class="font-semibold">Available Assignees</h3>
-        <div class="mt-4 space-y-2">
-          <div *ngFor="let user of users" class="flex items-center gap-2">
-            <div class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-medium">
+        <section class="mt-4 space-y-2">
+          <section *ngFor="let user of users" class="flex items-center gap-2">
+            <section class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-medium">
               {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
-            </div>
+            </section>
             <span class="text-sm">{{ user.firstName }} {{ user.lastName }}</span>
-          </div>
-        </div>
-      </div>
+          </section>
+        </section>
+      </section>
     </aside>
   </section>
 
   <!-- Create/Edit Task Modal -->
-  <div
+  <section
     *ngIf="showCreateModal"
     class="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
   >
-    <div class="w-full max-w-2xl rounded-lg border bg-card p-6 shadow-lg">
+    <section class="w-full max-w-2xl rounded-lg border bg-card p-6 shadow-lg">
       <header class="mb-6 flex items-center justify-between">
         <h2 class="text-2xl font-semibold tracking-tight">
           {{ selectedTask ? 'Edit Task' : 'Create New Task' }}
@@ -239,12 +239,12 @@
       </header>
 
       <!-- Error Message in Modal -->
-      <div *ngIf="errorMessage" class="mb-4 rounded-lg border border-destructive bg-destructive/10 p-3">
+      <section *ngIf="errorMessage" class="mb-4 rounded-lg border border-destructive bg-destructive/10 p-3">
         <p class="text-sm text-destructive">{{ errorMessage }}</p>
-      </div>
+      </section>
 
       <form (ngSubmit)="saveTask(taskForm)" #taskForm="ngForm" class="space-y-6">
-        <div class="space-y-2">
+        <section class="space-y-2">
           <label for="title" class="text-sm font-medium">Task Title</label>
           <input
             id="title"
@@ -254,9 +254,9 @@
             placeholder="Enter task title"
             required
           />
-        </div>
+        </section>
 
-        <div class="space-y-2">
+        <section class="space-y-2">
           <label for="description" class="text-sm font-medium">Description</label>
           <textarea
             id="description"
@@ -267,10 +267,10 @@
             placeholder="Enter task description"
             required
           ></textarea>
-        </div>
+        </section>
 
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div class="space-y-2">
+        <section class="grid gap-4 sm:grid-cols-2">
+          <section class="space-y-2">
             <label for="status" class="text-sm font-medium">Status</label>
             <select
               id="status"
@@ -283,9 +283,9 @@
               <option [value]="FrontendTodoStatus.InProgress">In Progress</option>
               <option [value]="FrontendTodoStatus.Completed">Completed</option>
             </select>
-          </div>
+          </section>
 
-          <div class="space-y-2">
+          <section class="space-y-2">
             <label for="team" class="text-sm font-medium">Team</label>
             <select
               id="team"
@@ -298,10 +298,10 @@
               <option value="" disabled>Select team</option>
               <option *ngFor="let team of teams" [value]="team.id">{{ team.name }}</option>
             </select>
-          </div>
-        </div>
+          </section>
+        </section>
 
-        <div class="space-y-2">
+        <section class="space-y-2">
           <label for="assignedTo" class="text-sm font-medium">Assignee</label>
           <select
             id="assignedTo"
@@ -322,9 +322,9 @@
           <p *ngIf="formData.team && availableAssignees.length === 0" class="text-xs text-muted-foreground">
             No team members found for the selected team.
           </p>
-        </div>
+        </section>
 
-        <div class="flex justify-end gap-2">
+        <section class="flex justify-end gap-2">
           <button
             type="button"
             (click)="closeModal()"
@@ -339,15 +339,15 @@
             [disabled]="isLoading"
           >
             <span *ngIf="isLoading" class="inline-flex items-center gap-2">
-              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              <section class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></section>
               Processing...
             </span>
             <span *ngIf="!isLoading">
               {{ selectedTask ? 'Save Changes' : 'Create Task' }}
             </span>
           </button>
-        </div>
+        </section>
       </form>
-    </div>
-  </div>
+    </section>
+  </section>
 </main>

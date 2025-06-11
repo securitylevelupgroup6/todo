@@ -9,6 +9,7 @@ import {
   UpdateTodoRequestDto 
 } from '../models/task.model';
 import { TeamResponse, UserResponse } from '../shared/models/team.models';
+import { IResponse, observe } from '../shared/functions/helpers.function';
 
 @Injectable({
   providedIn: 'root'
@@ -94,4 +95,7 @@ export class TaskService {
     return this.http.delete<void>(`${this.apiUrl}/todo/delete/${taskId-1}`);
   }
 
+  getUserToDos(): Observable<IResponse<BackendTodo[]>> {
+    return observe(this.http.get<BackendTodo[]>(`${this.apiUrl}/todo`));
+  }
 }

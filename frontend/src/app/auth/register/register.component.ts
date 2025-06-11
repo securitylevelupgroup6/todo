@@ -128,7 +128,7 @@ export class RegisterComponent implements AfterViewInit, OnInit {
         savedForm.value.confirmPassword,
         [
           Validators.required,
-          Validators.minLength(12),
+          Validators.minLength(8),
           Validators.maxLength(255)
         ]
       ],

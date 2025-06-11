@@ -44,12 +44,12 @@
   box-shadow: var(--shadow-sm); /* Define your shadow variables */
 }
 
-.divide-y > :not([hidden]) ~ :not([hidden]) {
+.sectionide-y > :not([hidden]) ~ :not([hidden]) {
   border-top-width: 1px;
   border-color: var(--border);
 }
 
-.divide-border {
+.sectionide-border {
   border-color: var(--border);
 }
 

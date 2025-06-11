@@ -3,8 +3,7 @@ export interface DashboardMetrics {
   activeUsers: number;
   ongoingTasks: number;
   completionRate: number;
-  tasksByStatus: Record<string, number>;
-  teamPerformance: TeamPerformance[];
+  completedTodos: number;
 }
 
 export interface TeamPerformance {

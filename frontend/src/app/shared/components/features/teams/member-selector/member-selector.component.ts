@@ -7,7 +7,7 @@ import { FormInputComponent } from '../../../ui/inputs/form-input/form-input.com
   standalone: true,
   imports: [CommonModule, FormInputComponent],
   template: `
-    <div class="space-y-4">
+    <section class="space-y-4">
       <app-form-input
         label="Search Members"
         [(ngModel)]="search"
@@ -16,22 +16,22 @@ import { FormInputComponent } from '../../../ui/inputs/form-input/form-input.com
         (ngModelChange)="onSearch.emit($event)"
       ></app-form-input>
 
-      <div class="space-y-2">
-        <div
+      <section class="space-y-2">
+        <section
           *ngFor="let member of members"
           class="flex items-center justify-between rounded-lg border p-2"
         >
-          <div class="flex items-center space-x-2">
+          <section class="flex items-center space-x-2">
             <img
               [src]="member.avatar"
               [alt]="member.name"
               class="h-8 w-8 rounded-full"
             />
-            <div>
+            <section>
               <p class="text-sm font-medium">{{ member.name }}</p>
               <p class="text-xs text-muted-foreground">{{ member.email }}</p>
-            </div>
-          </div>
+            </section>
+          </section>
           <button
             type="button"
             class="text-sm text-primary hover:text-primary/80"
@@ -39,10 +39,10 @@ import { FormInputComponent } from '../../../ui/inputs/form-input/form-input.com
           >
             Add
           </button>
-        </div>
-      </div>
+        </section>
+      </section>
 
-      <div
+      <section
         *ngIf="members.length === 0"
         class="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center"
       >
@@ -63,8 +63,8 @@ import { FormInputComponent } from '../../../ui/inputs/form-input/form-input.com
         <p class="mt-2 text-sm text-muted-foreground">
           {{ emptyStateMessage }}
         </p>
-      </div>
-    </div>
+      </section>
+    </section>
   `,
   styles: []
 })

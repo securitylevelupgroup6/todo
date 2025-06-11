@@ -7,15 +7,15 @@ import { ButtonComponent } from '../../buttons/button/button.component';
   standalone: true,
   imports: [CommonModule, ButtonComponent],
   template: `
-    <div class="space-y-4">
+    <section class="space-y-4">
       <!-- Header -->
-      <div class="flex items-center justify-between">
-        <div>
+      <section class="flex items-center justify-between">
+        <section>
           <h3 class="text-lg font-medium">{{ title }}</h3>
           <p *ngIf="description" class="text-sm text-muted-foreground">
             {{ description }}
           </p>
-        </div>
+        </section>
         <app-button
           *ngIf="!disabled"
           variant="outline"
@@ -23,19 +23,19 @@ import { ButtonComponent } from '../../buttons/button/button.component';
         >
           Add {{ itemLabel }}
         </app-button>
-      </div>
+      </section>
 
       <!-- Items -->
-      <div class="space-y-4">
-        <div
+      <section class="space-y-4">
+        <section
           *ngFor="let item of items; let i = index"
           class="group relative rounded-lg border bg-card p-4"
         >
-          <div class="flex items-start justify-between">
-            <div class="flex-1">
+          <section class="flex items-start justify-between">
+            <section class="flex-1">
               <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item, index: i }">
               </ng-container>
-            </div>
+            </section>
             <button
               *ngIf="!disabled"
               class="ml-4 text-muted-foreground hover:text-destructive"
@@ -55,12 +55,12 @@ import { ButtonComponent } from '../../buttons/button/button.component';
                 />
               </svg>
             </button>
-          </div>
-        </div>
-      </div>
+          </section>
+        </section>
+      </section>
 
       <!-- Empty State -->
-      <div
+      <section
         *ngIf="items.length === 0"
         class="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center"
       >
@@ -89,8 +89,8 @@ import { ButtonComponent } from '../../buttons/button/button.component';
         >
           Add {{ itemLabel }}
         </app-button>
-      </div>
-    </div>
+      </section>
+    </section>
   `,
   styles: []
 })
