@@ -12,23 +12,23 @@ public static class AuthEndpoints
 {
     public static IEndpointRouteBuilder AddAuthEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/auth/register", RegisterUserHandler)
+        endpoints.MapPost("/api/auth/register", RegisterUserHandler)
         .WithName("Register User")
         .WithTags("Register");
 
-        endpoints.MapPost("/auth/login", LoginUserHandler)
+        endpoints.MapPost("/api/auth/login", LoginUserHandler)
         .WithName("Login User")
         .WithTags("Login");
 
-        endpoints.MapGet("/auth/refresh", RefreshHandler)
+        endpoints.MapGet("/api/auth/refresh", RefreshHandler)
         .WithName("Refresh Token")
         .WithTags("Refresh");
 
-        endpoints.MapGet("/auth/logout", LogoutUserHandler)
+        endpoints.MapGet("/api/auth/logout", LogoutUserHandler)
         .WithName("Logout")
         .WithTags("Logout");
 
-        endpoints.MapPut("/auth/password-reset", PasswordResetHandler)
+        endpoints.MapPut("/api/auth/password-reset", PasswordResetHandler)
         .WithName("Password Reset")
         .WithTags("PasswordReset");
 
