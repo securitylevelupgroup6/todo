@@ -66,6 +66,11 @@ export interface BackendTodo {
   ownerId: number;
   todoState?: BackendTodoState;
   owner?: BackendTeamMember;
+  team?: {
+    id: number;
+    name: string;
+    teamLeadId: number;
+  }
 }
 
 // Create Todo Request DTO matching CreateTodoRequest.cs

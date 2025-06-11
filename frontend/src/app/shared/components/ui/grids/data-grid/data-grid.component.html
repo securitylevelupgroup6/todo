@@ -1,11 +1,11 @@
-<div class="space-y-4">
+<section class="space-y-4">
   <!-- Grid Header -->
-  <div class="flex items-center justify-between">
-    <div>
+  <section class="flex items-center justify-between">
+    <section>
       <h2 class="text-2xl font-bold">{{ title }}</h2>
       <p class="text-sm text-muted-foreground">{{ description }}</p>
-    </div>
-    <div class="flex items-center space-x-2">
+    </section>
+    <section class="flex items-center space-x-2">
       <app-button
         *ngIf="showRefresh"
         variant="muted"
@@ -15,8 +15,8 @@
         Refresh
       </app-button>
       <ng-content select="[gridActions]"></ng-content>
-    </div>
-  </div>
+    </section>
+  </section>
 
   <!-- Loading State -->
   <app-loading-state *ngIf="isLoading" [message]="loadingMessage"></app-loading-state>
@@ -30,10 +30,10 @@
   ></app-empty-state>
 
   <!-- Grid Content -->
-  <div *ngIf="!isLoading && data.length" class="space-y-4">
+  <section *ngIf="!isLoading && data.length" class="space-y-4">
     <!-- Filters -->
-    <div *ngIf="showFilters" class="space-y-4">
-      <div class="flex items-center justify-between">
+    <section *ngIf="showFilters" class="space-y-4">
+      <section class="flex items-center justify-between">
         <h3 class="text-sm font-medium">Filters</h3>
         <app-button
           variant="muted"
@@ -42,9 +42,9 @@
         >
           Clear Filters
         </app-button>
-      </div>
-      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <div *ngFor="let column of filterableColumns" class="space-y-2">
+      </section>
+      <section class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <section *ngFor="let column of filterableColumns" class="space-y-2">
           <label [for]="column.key" class="text-sm font-medium">
             {{ column.label }}
           </label>
@@ -70,7 +70,7 @@
             </option>
           </select>
           <!-- Number Filter -->
-          <div *ngIf="column.filterType === 'number'" class="flex space-x-2">
+          <section *ngIf="column.filterType === 'number'" class="flex space-x-2">
             <input
               type="number"
               [id]="column.key + '_min'"
@@ -85,14 +85,14 @@
               class="w-full rounded-md border border-input bg-background px-3 py-2"
               (input)="applyNumberFilter(column.key, $event, 'max')"
             />
-          </div>
-        </div>
-      </div>
-    </div>
+          </section>
+        </section>
+      </section>
+    </section>
 
     <!-- Grouping -->
-    <div *ngIf="showGrouping" class="space-y-4">
-      <div class="flex items-center justify-between">
+    <section *ngIf="showGrouping" class="space-y-4">
+      <section class="flex items-center justify-between">
         <h3 class="text-sm font-medium">Group By</h3>
         <app-button
           variant="muted"
@@ -101,8 +101,8 @@
         >
           Clear Groups
         </app-button>
-      </div>
-      <div class="flex flex-wrap gap-2">
+      </section>
+      <section class="flex flex-wrap gap-2">
         <button
           *ngFor="let column of groupableColumns"
           class="rounded-md border px-3 py-1 text-sm"
@@ -113,13 +113,13 @@
         >
           {{ column.label }}
         </button>
-      </div>
-    </div>
+      </section>
+    </section>
 
     <!-- Grid -->
-    <div class="rounded-lg border bg-card">
+    <section class="rounded-lg border bg-card">
       <!-- Table -->
-      <div class="relative overflow-x-auto">
+      <section class="relative overflow-x-auto">
         <table class="w-full text-left">
           <!-- Header -->
           <thead class="bg-muted/50 text-sm uppercase">
@@ -143,7 +143,7 @@
                 [style.width]="column.width"
                 [style.text-align]="column.align || 'left'"
               >
-                <div class="flex items-center space-x-2">
+                <section class="flex items-center space-x-2">
                   <span>{{ column.label }}</span>
                   <!-- Sort Icon -->
                   <button
@@ -194,7 +194,7 @@
                       />
                     </svg>
                   </button>
-                </div>
+                </section>
               </th>
               <!-- Actions Column -->
               <th
@@ -242,24 +242,24 @@
                 *ngIf="showActions"
                 class="px-4 py-3"
               >
-                <div class="flex items-center space-x-2">
+                <section class="flex items-center space-x-2">
                   <ng-content
                     select="[rowActions]"
                     [row]="row"
                   ></ng-content>
-                </div>
+                </section>
               </td>
             </tr>
           </tbody>
         </table>
-      </div>
+      </section>
 
       <!-- Pagination -->
-      <div
+      <section
         *ngIf="showPagination"
         class="flex items-center justify-between border-t px-4 py-3"
       >
-        <div class="flex items-center space-x-2">
+        <section class="flex items-center space-x-2">
           <span class="text-sm text-muted-foreground">
             Showing {{ paginationStart }} to {{ paginationEnd }} of {{ paginationConfig.totalItems }} entries
           </span>
@@ -272,8 +272,8 @@
               {{ size }} per page
             </option>
           </select>
-        </div>
-        <div class="flex items-center space-x-2">
+        </section>
+        <section class="flex items-center space-x-2">
           <button
             class="rounded-md border border-input bg-background px-3 py-1 text-sm disabled:opacity-50"
             [disabled]="paginationConfig.page === 1"
@@ -288,8 +288,8 @@
           >
             Next
           </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div> 
+        </section>
+      </section>
+    </section>
+  </section>
+</section> 

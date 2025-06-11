@@ -7,7 +7,7 @@ import { ButtonComponent } from '../../buttons/button/button.component';
   standalone: true,
   imports: [CommonModule, ButtonComponent],
   template: `
-    <div
+    <section
       class="rounded-lg border bg-card p-6"
       [class.col-span-1]="!span"
       [class.col-span-2]="span === 2"
@@ -15,14 +15,14 @@ import { ButtonComponent } from '../../buttons/button/button.component';
       [class.col-span-4]="span === 4"
     >
       <!-- Card Header -->
-      <div class="mb-4 flex items-center justify-between">
-        <div>
+      <section class="mb-4 flex items-center justify-between">
+        <section>
           <h3 class="text-lg font-semibold">{{ title }}</h3>
           <p *ngIf="description" class="text-sm text-muted-foreground">
             {{ description }}
           </p>
-        </div>
-        <div class="flex items-center space-x-2">
+        </section>
+        <section class="flex items-center space-x-2">
           <app-button
             *ngIf="showRefresh"
             variant="muted"
@@ -32,14 +32,14 @@ import { ButtonComponent } from '../../buttons/button/button.component';
             Refresh
           </app-button>
           <ng-content select="[cardActions]"></ng-content>
-        </div>
-      </div>
+        </section>
+      </section>
 
       <!-- Card Content -->
-      <div class="space-y-4">
+      <section class="space-y-4">
         <!-- Metric -->
-        <div *ngIf="metric" class="space-y-2">
-          <div class="flex items-baseline justify-between">
+        <section *ngIf="metric" class="space-y-2">
+          <section class="flex items-baseline justify-between">
             <span class="text-2xl font-bold">{{ metric.value }}</span>
             <span
               *ngIf="metric.change"
@@ -49,39 +49,39 @@ import { ButtonComponent } from '../../buttons/button/button.component';
             >
               {{ metric.change > 0 ? '+' : '' }}{{ metric.change }}%
             </span>
-          </div>
+          </section>
           <p *ngIf="metric.label" class="text-sm text-muted-foreground">
             {{ metric.label }}
           </p>
-        </div>
+        </section>
 
         <!-- Chart -->
-        <div *ngIf="showChart" class="h-[200px]">
+        <section *ngIf="showChart" class="h-[200px]">
           <ng-content select="[chart]"></ng-content>
-        </div>
+        </section>
 
         <!-- List -->
-        <div *ngIf="showList" class="space-y-2">
+        <section *ngIf="showList" class="space-y-2">
           <ng-content select="[list]"></ng-content>
-        </div>
+        </section>
 
         <!-- Default Content -->
         <ng-content *ngIf="!metric && !showChart && !showList"></ng-content>
-      </div>
+      </section>
 
       <!-- Card Footer -->
-      <div
+      <section
         *ngIf="showFooter"
         class="mt-4 flex items-center justify-between border-t pt-4"
       >
-        <div class="text-sm text-muted-foreground">
+        <section class="text-sm text-muted-foreground">
           <ng-content select="[footer]"></ng-content>
-        </div>
-        <div class="flex items-center space-x-2">
+        </section>
+        <section class="flex items-center space-x-2">
           <ng-content select="[footerActions]"></ng-content>
-        </div>
-      </div>
-    </div>
+        </section>
+      </section>
+    </section>
   `,
   styles: []
 })

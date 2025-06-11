@@ -128,7 +128,7 @@ interface FormSectionConfig {
               </select>
 
               <!-- Checkbox Input -->
-              <div *ngIf="field.type === 'checkbox'" class="flex items-center space-x-2">
+              <section *ngIf="field.type === 'checkbox'" class="flex items-center space-x-2">
                 <input
                   type="checkbox"
                   [id]="field.name"
@@ -140,11 +140,11 @@ interface FormSectionConfig {
                 <label [for]="field.name" class="text-sm font-medium">
                   {{ field.label }}
                 </label>
-              </div>
+              </section>
 
               <!-- Radio Input -->
-              <div *ngIf="field.type === 'radio'" class="space-y-2">
-                <div *ngFor="let option of field.options" class="flex items-center space-x-2">
+              <section *ngIf="field.type === 'radio'" class="space-y-2">
+                <section *ngFor="let option of field.options" class="flex items-center space-x-2">
                   <input
                     type="radio"
                     [id]="option.value"
@@ -157,8 +157,8 @@ interface FormSectionConfig {
                   <label [for]="option.value" class="text-sm font-medium">
                     {{ option.label }}
                   </label>
-                </div>
-              </div>
+                </section>
+              </section>
 
               <!-- Textarea Input -->
               <textarea

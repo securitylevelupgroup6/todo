@@ -24,8 +24,8 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
         [error]="errors.description"
       ></app-form-input>
 
-      <div class="grid grid-cols-2 gap-4">
-        <div>
+      <section class="grid grid-cols-2 gap-4">
+        <section>
           <label class="text-sm font-medium">Status</label>
           <select
             [(ngModel)]="task.status"
@@ -36,9 +36,9 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
             <option value="in_progress">In Progress</option>
             <option value="completed">Completed</option>
           </select>
-        </div>
+        </section>
 
-        <div>
+        <section>
           <label class="text-sm font-medium">Priority</label>
           <select
             [(ngModel)]="task.priority"
@@ -49,8 +49,8 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
             <option value="medium">Medium</option>
             <option value="high">High</option>
           </select>
-        </div>
-      </div>
+        </section>
+      </section>
 
       <app-form-input
         label="Due Date"
@@ -61,7 +61,7 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
         [error]="errors.dueDate"
       ></app-form-input>
 
-      <div class="flex justify-end space-x-2">
+      <section class="flex justify-end space-x-2">
         <app-button
           type="button"
           variant="muted"
@@ -75,7 +75,7 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
         >
           {{ submitLabel }}
         </app-button>
-      </div>
+      </section>
     </form>
   `,
   styles: []

@@ -7,7 +7,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="space-y-2">
+    <section class="space-y-2">
       <label *ngIf="label" [for]="id" class="text-sm font-medium leading-none">{{ label }}</label>
       <input
         [type]="type"
@@ -22,7 +22,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
         class="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       />
       <p *ngIf="error" class="text-sm text-destructive">{{ error }}</p>
-    </div>
+    </section>
   `,
   providers: [
     {

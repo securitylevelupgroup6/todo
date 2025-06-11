@@ -1,11 +1,11 @@
 <main class="container mx-auto px-4 py-8">
   <!-- Header Section -->
   <header class="mb-8">
-    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-      <div>
+    <section class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <section>
         <h1 class="text-3xl font-bold tracking-tight">Teams</h1>
         <p class="mt-2 text-muted-foreground">Manage your organization's teams and their members</p>
-      </div>
+      </section>
       <button
         (click)="openCreateModal()"
         class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
@@ -15,12 +15,12 @@
         </svg>
         Create Team
       </button>
-    </div>
+    </section>
   </header>
 
   <!-- Filters Section -->
   <section class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center">
-    <div class="relative flex-1">
+    <section class="relative flex-1">
       <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
       </svg>
@@ -30,28 +30,28 @@
         placeholder="Search teams..."
         class="w-full rounded-lg border border-input bg-background py-2 pl-10 pr-4 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       />
-    </div>
+    </section>
   </section>
 
   <!-- Loading State -->
   <section *ngIf="loading" class="flex items-center justify-center py-12">
-    <div class="flex items-center gap-3">
+    <section class="flex items-center gap-3">
       <svg class="h-6 w-6 animate-spin text-primary" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
       <span class="text-muted-foreground">Loading your teams...</span>
-    </div>
+    </section>
   </section>
 
   <!-- Error State -->
   <section *ngIf="error && !loading" class="rounded-lg border border-destructive/20 bg-destructive/10 p-4 mb-6">
-    <div class="flex items-center gap-2">
+    <section class="flex items-center gap-2">
       <svg class="h-5 w-5 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
       <p class="text-sm text-destructive">{{ error }}</p>
-    </div>
+    </section>
   </section>
 
   <!-- Teams Grid -->
@@ -63,48 +63,48 @@
     >
       <!-- Team Header -->
       <header class="mb-4">
-        <div class="flex items-start justify-between">
-          <div>
+        <section class="flex items-start justify-between">
+          <section>
             <h2 class="text-xl font-semibold tracking-tight">{{ team.name }}</h2>
             <p class="mt-1 text-sm text-muted-foreground">Created {{ formatDate(team.createdAt) }}</p>
-          </div>
-        </div>
+          </section>
+        </section>
       </header>
 
       <!-- Team Stats -->
       <section class="mb-4">
-        <div class="grid grid-cols-2 gap-3">
-          <div class="rounded-lg bg-muted/50 p-3">
+        <section class="grid grid-cols-2 gap-3">
+          <section class="rounded-lg bg-muted/50 p-3">
             <p class="text-sm font-medium text-muted-foreground">Members</p>
             <p class="mt-1 text-2xl font-semibold">{{ team.memberCount }}</p>
-          </div>
-          <div class="rounded-lg bg-muted/50 p-3">
+          </section>
+          <section class="rounded-lg bg-muted/50 p-3">
             <p class="text-sm font-medium text-muted-foreground">Tasks</p>
             <p class="mt-1 text-2xl font-semibold">{{ team.taskCount || 0 }}</p>
-          </div>
-        </div>
-        <div class="mt-3 rounded-lg bg-muted/50 p-3">
-          <div class="flex justify-between items-center">
+          </section>
+        </section>
+        <section class="mt-3 rounded-lg bg-muted/50 p-3">
+          <section class="flex justify-between items-center">
             <p class="text-sm font-medium text-muted-foreground">Completion Rate</p>
             <span class="text-sm font-semibold" [ngClass]="getStatusColor(team.status)">
               {{ getTeamStatusText(team.status) }}
             </span>
-          </div>
-          <div class="mt-2 w-full bg-gray-200 rounded-full h-2">
-            <div 
+          </section>
+          <section class="mt-2 w-full bg-gray-200 rounded-full h-2">
+            <section 
               class="bg-blue-600 h-2 rounded-full transition-all duration-300" 
               [style.width.%]="team.completionRate || 0"
               [style.min-width]="team.completionRate && team.completionRate > 0 ? '2px' : '0'">
-            </div>
-          </div>
+            </section>
+          </section>
           <p class="mt-1 text-sm text-muted-foreground">{{ getCompletionRateDisplay(team.completionRate) }}</p>
-        </div>
+        </section>
       </section>
 
       <!-- Team Members -->
       <section class="mb-4">
         <h3 class="mb-2 text-sm font-medium text-muted-foreground">Team Members</h3>
-        <div class="flex -space-x-2">
+        <section class="flex -space-x-2">
           <figure
             *ngFor="let member of team.members.slice(0, 3)"
             class="inline-block h-8 w-8 rounded-full ring-2 ring-background"
@@ -117,12 +117,12 @@
           >
             +{{ team.members.length - 3 }}
           </figure>
-        </div>
+        </section>
       </section>
 
       <!-- Team Footer -->
       <footer class="flex items-center justify-end">
-        <div class="flex gap-2">
+        <section class="flex gap-2">
           <button
             (click)="openEditModal(team)"
             class="rounded-lg bg-muted px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/80"
@@ -135,7 +135,7 @@
           >
             View Details
           </button>
-        </div>
+        </section>
       </footer>
     </article>
 
@@ -174,11 +174,11 @@
   </section>
 
   <!-- Create/Edit Team Modal -->
-  <div
+  <section
     *ngIf="showCreateModal"
     class="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
   >
-    <div class="w-full max-w-2xl rounded-lg border bg-card p-6 shadow-lg">
+    <section class="w-full max-w-2xl rounded-lg border bg-card p-6 shadow-lg">
       <header class="mb-6 flex items-center justify-between">
         <h2 class="text-2xl font-semibold tracking-tight">
           {{ selectedTeam ? 'Edit Team' : 'Create New Team' }}
@@ -194,7 +194,7 @@
       </header>
 
       <form (ngSubmit)="saveTeam(teamForm)" #teamForm="ngForm" class="space-y-6">
-        <div class="space-y-2">
+        <section class="space-y-2">
           <label for="name" class="text-sm font-medium">Team Name</label>
           <input
             id="name"
@@ -204,10 +204,10 @@
             placeholder="Enter team name"
             required
           />
-        </div>
+        </section>
 
 
-        <div class="flex justify-end gap-2">
+        <section class="flex justify-end gap-2">
           <button
             type="button"
             (click)="closeModal()"
@@ -221,22 +221,22 @@
           >
             {{ selectedTeam ? 'Save Changes' : 'Create Team' }}
           </button>
-        </div>
+        </section>
       </form>
-    </div>
-  </div>
+    </section>
+  </section>
 
   <!-- Team Details Modal -->
-  <div
+  <section
     *ngIf="showDetailsModal && selectedTeam"
     class="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
   >
-    <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-lg border bg-card p-6 shadow-lg">
+    <section class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-lg border bg-card p-6 shadow-lg">
       <header class="mb-6 flex items-center justify-between">
-        <div>
+        <section>
           <h2 class="text-2xl font-semibold tracking-tight">{{ selectedTeam.name }}</h2>
           <p class="text-muted-foreground">Team Details</p>
-        </div>
+        </section>
         <button
           (click)="closeDetailsModal()"
           class="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -249,26 +249,26 @@
 
       <!-- Team Overview -->
       <section class="mb-6">
-        <div class="rounded-lg border bg-card p-4">
+        <section class="rounded-lg border bg-card p-4">
           <h3 class="text-sm font-medium text-muted-foreground">Team Information</h3>
-          <div class="mt-3 space-y-2">
-            <div class="flex justify-between">
+          <section class="mt-3 space-y-2">
+            <section class="flex justify-between">
               <span class="text-sm">Total Members:</span>
               <span class="text-sm font-medium">{{ selectedTeam.memberCount }}</span>
-            </div>
-            <div class="flex justify-between">
+            </section>
+            <section class="flex justify-between">
               <span class="text-sm">Created:</span>
               <span class="text-sm font-medium">{{ formatDate(selectedTeam.createdAt) }}</span>
-            </div>
-          </div>
-        </div>
+            </section>
+          </section>
+        </section>
       </section>
 
       <!-- Team Members List -->
       <section class="mb-6">
         <h3 class="mb-4 text-lg font-semibold">Team Members ({{ selectedTeam.members.length }})</h3>
-        <div class="space-y-3">
-          <div
+        <section class="space-y-3">
+          <section
             *ngFor="let member of selectedTeam.members"
             class="flex items-center gap-3 rounded-lg border p-3"
           >
@@ -277,39 +277,39 @@
               [alt]="member.name"
               class="h-10 w-10 rounded-full object-cover"
             />
-            <div class="flex-1">
+            <section class="flex-1">
               <h4 class="font-medium">{{ member.name }}</h4>
               <p class="text-sm text-muted-foreground">{{ member.role }}</p>
-            </div>
-            <span class="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+            </section>
+            <span class="rounded-full px-2.5 py-0.5 text-xs font-medium text-primary">
               {{ member.role }}
             </span>
-          </div>
-        </div>
+          </section>
+        </section>
       </section>
 
       <!-- Team Todos Section -->
       <section class="mb-6" *ngIf="selectedTeam.todos && selectedTeam.todos.length > 0">
         <h3 class="mb-4 text-lg font-semibold">Team Tasks ({{ selectedTeam.todos.length }})</h3>
-        <div class="space-y-3 max-h-60 overflow-y-auto">
-          <div
+        <section class="space-y-3 max-h-60 overflow-y-auto">
+          <section
             *ngFor="let todo of selectedTeam.todos"
             class="flex items-center gap-3 rounded-lg border p-3"
           >
-            <div class="flex-1">
+            <section class="flex-1">
               <h4 class="font-medium">{{ todo.title }}</h4>
               <p class="text-sm text-muted-foreground">{{ todo.description }}</p>
-            </div>
+            </section>
             <span class="rounded-full px-2.5 py-0.5 text-xs font-medium" [ngClass]="getStatusColor(todo.status)">
               {{ todo.status }}
             </span>
-          </div>
-        </div>
+          </section>
+        </section>
       </section>
 
       <!-- Team Actions -->
       <footer class="flex justify-between gap-2 border-t pt-4">
-        <div class="flex gap-2">
+        <section class="flex gap-2">
           <button
             *ngIf="canAddMembers(selectedTeam)"
             (click)="openAddMemberModal(selectedTeam)"
@@ -317,8 +317,8 @@
           >
             Add Member
           </button>
-        </div>
-        <div class="flex gap-2">
+        </section>
+        <section class="flex gap-2">
           <button
             (click)="closeDetailsModal()"
             class="rounded-lg bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/80"
@@ -332,17 +332,17 @@
           >
             Edit Team
           </button>
-        </div>
+        </section>
       </footer>
-    </div>
-  </div>
+    </section>
+  </section>
 
   <!-- Add Member Modal -->
-  <div
+  <section
     *ngIf="showAddMemberModal && selectedTeam"
     class="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
   >
-    <div class="w-full max-w-md rounded-lg border bg-card p-6 shadow-lg">
+    <section class="w-full max-w-md rounded-lg border bg-card p-6 shadow-lg">
       <header class="mb-6 flex items-center justify-between">
         <h2 class="text-xl font-semibold tracking-tight">Add Member to {{ selectedTeam.name }}</h2>
         <button
@@ -357,9 +357,9 @@
 
       <form (ngSubmit)="addTeamMember(addMemberForm)" #addMemberForm="ngForm" class="space-y-6">
         <!-- Add By Selection -->
-        <div class="space-y-2">
+        <section class="space-y-2">
           <label class="text-sm font-medium">Add member by:</label>
-          <div class="flex gap-4">
+          <section class="flex gap-4">
             <label class="flex items-center">
               <input
                 type="radio"
@@ -380,11 +380,11 @@
               />
               <span class="text-sm">User ID</span>
             </label>
-          </div>
-        </div>
+          </section>
+        </section>
 
         <!-- Username Input -->
-        <div class="space-y-2" *ngIf="addMemberFormData.addBy === 'username'">
+        <section class="space-y-2" *ngIf="addMemberFormData.addBy === 'username'">
           <label for="username" class="text-sm font-medium">Username</label>
           <input
             id="username"
@@ -396,10 +396,10 @@
             [required]="addMemberFormData.addBy === 'username'"
           />
           <p class="text-xs text-muted-foreground">Enter the username of the user you want to add to this team.</p>
-        </div>
+        </section>
 
         <!-- User ID Input -->
-        <div class="space-y-2" *ngIf="addMemberFormData.addBy === 'userId'">
+        <section class="space-y-2" *ngIf="addMemberFormData.addBy === 'userId'">
           <label for="userId" class="text-sm font-medium">User ID</label>
           <input
             id="userId"
@@ -412,9 +412,9 @@
             min="1"
           />
           <p class="text-xs text-muted-foreground">Enter the ID of the user you want to add to this team.</p>
-        </div>
+        </section>
 
-        <div class="flex justify-end gap-2">
+        <section class="flex justify-end gap-2">
           <button
             type="button"
             (click)="closeAddMemberModal()"
@@ -429,8 +429,8 @@
           >
             {{ loading ? 'Adding...' : 'Add Member' }}
           </button>
-        </div>
+        </section>
       </form>
-    </div>
-  </div>
+    </section>
+  </section>
 </main>

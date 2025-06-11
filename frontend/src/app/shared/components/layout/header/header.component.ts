@@ -8,8 +8,8 @@ import { RouterModule } from '@angular/router';
   imports: [CommonModule, RouterModule],
   template: `
     <header class="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div class="container flex h-14 items-center">
-        <div class="mr-4 flex">
+      <section class="container flex h-14 items-center">
+        <section class="mr-4 flex">
           <a class="mr-6 flex items-center space-x-2" routerLink="/">
             <span class="font-bold">Task Manager</span>
           </a>
@@ -24,8 +24,8 @@ import { RouterModule } from '@angular/router';
               {{ item.label }}
             </a>
           </nav>
-        </div>
-        <div class="flex flex-1 items-center justify-end space-x-4">
+        </section>
+        <section class="profile flex flex-1 items-center justify-end space-x-4">
           <nav class="flex items-center space-x-2">
             <button
               *ngIf="showProfile"
@@ -37,11 +37,12 @@ import { RouterModule } from '@angular/router';
               </svg>
             </button>
           </nav>
-        </div>
-      </div>
+          <button mat-button>Logout</button>
+        </section>
+      </section>
     </header>
   `,
-  styles: []
+  styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent {
   @Input() navItems: { label: string; route: string }[] = [];

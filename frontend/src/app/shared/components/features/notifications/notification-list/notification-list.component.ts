@@ -8,13 +8,13 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
   standalone: true,
   imports: [CommonModule, NotificationItemComponent, ButtonComponent],
   template: `
-    <div class="space-y-4">
-      <div class="flex items-center justify-between">
-        <div>
+    <section class="space-y-4">
+      <section class="flex items-center justify-between">
+        <section>
           <h2 class="text-2xl font-bold">{{ title }}</h2>
           <p class="text-sm text-muted-foreground">{{ description }}</p>
-        </div>
-        <div class="flex items-center space-x-2">
+        </section>
+        <section class="flex items-center space-x-2">
           <app-button
             *ngIf="showMarkAllRead && unreadCount > 0"
             variant="secondary"
@@ -29,11 +29,11 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
           >
             Clear all
           </app-button>
-        </div>
-      </div>
+        </section>
+      </section>
 
-      <div class="space-y-2">
-        <div
+      <section class="space-y-2">
+        <section
           *ngFor="let notification of notifications"
           class="animate-in fade-in slide-in-from-bottom-2"
         >
@@ -42,10 +42,10 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
             (onAction)="onAction.emit($event)"
             (onMarkAsRead)="onMarkAsRead.emit($event)"
           ></app-notification-item>
-        </div>
-      </div>
+        </section>
+      </section>
 
-      <div
+      <section
         *ngIf="notifications.length === 0"
         class="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center"
       >
@@ -66,8 +66,8 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
         <p class="mt-2 text-sm text-muted-foreground">
           {{ emptyStateMessage }}
         </p>
-      </div>
-    </div>
+      </section>
+    </section>
   `,
   styles: []
 })

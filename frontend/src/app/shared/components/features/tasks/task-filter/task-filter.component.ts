@@ -7,7 +7,7 @@ import { FormInputComponent } from '../../../ui/inputs/form-input/form-input.com
   standalone: true,
   imports: [CommonModule, FormInputComponent],
   template: `
-    <div class="space-y-4">
+    <section class="space-y-4">
       <app-form-input
         label="Search"
         [(ngModel)]="filters.search"
@@ -16,8 +16,8 @@ import { FormInputComponent } from '../../../ui/inputs/form-input/form-input.com
         (ngModelChange)="onFilterChange.emit(filters)"
       ></app-form-input>
 
-      <div class="grid grid-cols-2 gap-4">
-        <div>
+      <section class="grid grid-cols-2 gap-4">
+        <section>
           <label class="text-sm font-medium">Status</label>
           <select
             [(ngModel)]="filters.status"
@@ -30,9 +30,9 @@ import { FormInputComponent } from '../../../ui/inputs/form-input/form-input.com
             <option value="in_progress">In Progress</option>
             <option value="completed">Completed</option>
           </select>
-        </div>
+        </section>
 
-        <div>
+        <section>
           <label class="text-sm font-medium">Priority</label>
           <select
             [(ngModel)]="filters.priority"
@@ -45,10 +45,10 @@ import { FormInputComponent } from '../../../ui/inputs/form-input/form-input.com
             <option value="medium">Medium</option>
             <option value="high">High</option>
           </select>
-        </div>
-      </div>
+        </section>
+      </section>
 
-      <div class="flex items-center space-x-2">
+      <section class="flex items-center space-x-2">
         <label class="text-sm font-medium">Sort by:</label>
         <select
           [(ngModel)]="filters.sortBy"
@@ -78,8 +78,8 @@ import { FormInputComponent } from '../../../ui/inputs/form-input/form-input.com
             />
           </svg>
         </button>
-      </div>
-    </div>
+      </section>
+    </section>
   `,
   styles: []
 })

@@ -7,21 +7,21 @@ import { ButtonComponent } from '../../buttons/button/button.component';
   standalone: true,
   imports: [CommonModule, ButtonComponent],
   template: `
-    <div class="space-y-4">
+    <section class="space-y-4">
       <!-- Table Header -->
-      <div class="flex items-center justify-between">
-        <div>
+      <section class="flex items-center justify-between">
+        <section>
           <h2 class="text-2xl font-bold">{{ title }}</h2>
           <p class="text-sm text-muted-foreground">{{ description }}</p>
-        </div>
-        <div class="flex items-center space-x-2">
+        </section>
+        <section class="flex items-center space-x-2">
           <ng-content select="[tableActions]"></ng-content>
-        </div>
-      </div>
+        </section>
+      </section>
 
       <!-- Table -->
-      <div class="rounded-md border">
-        <div class="relative w-full overflow-auto">
+      <section class="rounded-md border">
+        <section class="relative w-full overflow-auto">
           <table class="w-full caption-bottom text-sm">
             <thead class="[&_tr]:border-b">
               <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
@@ -42,7 +42,7 @@ import { ButtonComponent } from '../../buttons/button/button.component';
                   [class.cursor-pointer]="column.sortable"
                   (click)="column.sortable && onSort.emit(column.key)"
                 >
-                  <div class="flex items-center space-x-2">
+                  <section class="flex items-center space-x-2">
                     <span>{{ column.label }}</span>
                     <ng-container *ngIf="column.sortable">
                       <svg
@@ -74,7 +74,7 @@ import { ButtonComponent } from '../../buttons/button/button.component';
                         />
                       </svg>
                     </ng-container>
-                  </div>
+                  </section>
                 </th>
                 <th
                   *ngIf="actions"
@@ -116,23 +116,23 @@ import { ButtonComponent } from '../../buttons/button/button.component';
                   *ngIf="actions"
                   class="h-12 px-4 text-right align-middle"
                 >
-                  <div class="flex justify-end space-x-2">
+                  <section class="flex justify-end space-x-2">
                     <ng-container *ngTemplateOutlet="actions; context: { $implicit: item }">
                     </ng-container>
-                  </div>
+                  </section>
                 </td>
               </tr>
             </tbody>
           </table>
-        </div>
-      </div>
+        </section>
+      </section>
 
       <!-- Pagination -->
-      <div class="flex items-center justify-between">
-        <div class="text-sm text-muted-foreground">
+      <section class="flex items-center justify-between">
+        <section class="text-sm text-muted-foreground">
           Showing {{ startIndex + 1 }} to {{ endIndex }} of {{ totalItems }} entries
-        </div>
-        <div class="flex items-center space-x-2">
+        </section>
+        <section class="flex items-center space-x-2">
           <app-button
             variant="muted"
             [disabled]="currentPage === 1"
@@ -140,7 +140,7 @@ import { ButtonComponent } from '../../buttons/button/button.component';
           >
             Previous
           </app-button>
-          <div class="flex items-center space-x-1">
+          <section class="flex items-center space-x-1">
             <button
               *ngFor="let page of pageNumbers"
               class="h-8 w-8 rounded-md border"
@@ -151,7 +151,7 @@ import { ButtonComponent } from '../../buttons/button/button.component';
             >
               {{ page }}
             </button>
-          </div>
+          </section>
           <app-button
             variant="muted"
             [disabled]="currentPage === totalPages"
@@ -159,11 +159,11 @@ import { ButtonComponent } from '../../buttons/button/button.component';
           >
             Next
           </app-button>
-        </div>
-      </div>
+        </section>
+      </section>
 
       <!-- Empty State -->
-      <div
+      <section
         *ngIf="data.length === 0"
         class="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center"
       >
@@ -184,8 +184,8 @@ import { ButtonComponent } from '../../buttons/button/button.component';
         <p class="mt-2 text-sm text-muted-foreground">
           {{ emptyStateMessage }}
         </p>
-      </div>
-    </div>
+      </section>
+    </section>
   `,
   styles: []
 })

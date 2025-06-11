@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     <footer class="border-t bg-background">
-      <div class="container flex h-14 items-center justify-between">
+      <section class="container flex h-14 items-center justify-between">
         <p class="text-sm text-muted-foreground">
           {{ copyright }}
         </p>
@@ -22,7 +22,7 @@ import { CommonModule } from '@angular/common';
             {{ link.label }}
           </a>
         </nav>
-      </div>
+      </section>
     </footer>
   `,
   styles: []

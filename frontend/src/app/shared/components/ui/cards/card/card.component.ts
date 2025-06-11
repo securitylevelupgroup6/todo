@@ -6,13 +6,13 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div [class]="'rounded-lg border bg-card p-6 ' + (className || '')">
-      <div *ngIf="title" class="mb-4">
+    <section [class]="'rounded-lg border bg-card p-6 ' + (className || '')">
+      <section *ngIf="title" class="mb-4">
         <h3 class="text-xl font-semibold">{{ title }}</h3>
         <p *ngIf="description" class="text-sm text-muted-foreground">{{ description }}</p>
-      </div>
+      </section>
       <ng-content></ng-content>
-    </div>
+    </section>
   `,
   styles: []
 })

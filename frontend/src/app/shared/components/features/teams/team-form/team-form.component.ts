@@ -24,21 +24,21 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
         [error]="errors.description"
       ></app-form-input>
 
-      <div>
+      <section>
         <label class="text-sm font-medium">Team Members</label>
-        <div class="mt-2 space-y-2">
-          <div
+        <section class="mt-2 space-y-2">
+          <section
             *ngFor="let member of team.members"
             class="flex items-center justify-between rounded-lg border p-2"
           >
-            <div class="flex items-center space-x-2">
+            <section class="flex items-center space-x-2">
               <img
                 [src]="member.avatar"
                 [alt]="member.name"
                 class="h-8 w-8 rounded-full"
               />
               <span class="text-sm">{{ member.name }}</span>
-            </div>
+            </section>
             <button
               type="button"
               class="text-sm text-destructive hover:text-destructive/80"
@@ -46,8 +46,8 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
             >
               Remove
             </button>
-          </div>
-        </div>
+          </section>
+        </section>
         <button
           type="button"
           class="mt-2 text-sm text-primary hover:text-primary/80"
@@ -55,9 +55,9 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
         >
           + Add Member
         </button>
-      </div>
+      </section>
 
-      <div class="flex justify-end space-x-2">
+      <section class="flex justify-end space-x-2">
         <app-button
           type="button"
           variant="muted"
@@ -71,7 +71,7 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
         >
           {{ submitLabel }}
         </app-button>
-      </div>
+      </section>
     </form>
   `,
   styles: []

@@ -7,14 +7,14 @@ import { ButtonComponent } from '../../buttons/button/button.component';
   standalone: true,
   imports: [CommonModule, ButtonComponent],
   template: `
-    <div class="container mx-auto max-w-7xl px-4 py-6">
+    <section class="container mx-auto max-w-7xl px-4 py-6">
       <!-- Dashboard Header -->
-      <div class="mb-6 flex items-center justify-between">
-        <div>
+      <section class="mb-6 flex items-center justify-between">
+        <section>
           <h1 class="text-3xl font-bold">{{ title }}</h1>
           <p class="text-sm text-muted-foreground">{{ description }}</p>
-        </div>
-        <div class="flex items-center space-x-2">
+        </section>
+        <section class="flex items-center space-x-2">
           <app-button
             *ngIf="showRefresh"
             variant="muted"
@@ -24,27 +24,27 @@ import { ButtonComponent } from '../../buttons/button/button.component';
             Refresh All
           </app-button>
           <ng-content select="[headerActions]"></ng-content>
-        </div>
-      </div>
+        </section>
+      </section>
 
       <!-- Dashboard Content -->
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <section class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <ng-content></ng-content>
-      </div>
+      </section>
 
       <!-- Dashboard Footer -->
-      <div
+      <section
         *ngIf="showFooter"
         class="mt-6 flex items-center justify-between rounded-lg border bg-muted/50 p-4"
       >
-        <div class="text-sm text-muted-foreground">
+        <section class="text-sm text-muted-foreground">
           <ng-content select="[footer]"></ng-content>
-        </div>
-        <div class="flex items-center space-x-2">
+        </section>
+        <section class="flex items-center space-x-2">
           <ng-content select="[footerActions]"></ng-content>
-        </div>
-      </div>
-    </div>
+        </section>
+      </section>
+    </section>
   `,
   styles: []
 })

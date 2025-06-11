@@ -8,9 +8,9 @@ import { RouterModule } from '@angular/router';
   imports: [CommonModule, RouterModule],
   template: `
     <aside class="fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r bg-background">
-      <div class="flex h-14 items-center border-b px-4">
+      <section class="flex h-14 items-center border-b px-4">
         <h2 class="text-lg font-semibold">{{ title }}</h2>
-      </div>
+      </section>
       <nav class="flex-1 space-y-1 p-4">
         <a
           *ngFor="let item of items"
@@ -36,9 +36,9 @@ import { RouterModule } from '@angular/router';
           {{ item.label }}
         </a>
       </nav>
-      <div class="border-t p-4">
+      <section class="border-t p-4">
         <ng-content></ng-content>
-      </div>
+      </section>
     </aside>
   `,
   styles: []

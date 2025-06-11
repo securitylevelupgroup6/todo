@@ -9,23 +9,23 @@ Chart.register(...registerables);
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="grid gap-6 md:grid-cols-2">
+    <section class="grid gap-6 md:grid-cols-2">
       <!-- Tasks by Status -->
-      <div>
+      <section>
         <h3 class="mb-4 text-sm font-medium text-muted-foreground">Tasks by Status</h3>
-        <div class="aspect-square">
+        <section class="aspect-square">
           <canvas #statusChart></canvas>
-        </div>
-      </div>
+        </section>
+      </section>
 
       <!-- Tasks by Priority -->
-      <div>
+      <section>
         <h3 class="mb-4 text-sm font-medium text-muted-foreground">Tasks by Priority</h3>
-        <div class="aspect-square">
+        <section class="aspect-square">
           <canvas #priorityChart></canvas>
-        </div>
-      </div>
-    </div>
+        </section>
+      </section>
+    </section>
   `,
   styles: [`
     :host {

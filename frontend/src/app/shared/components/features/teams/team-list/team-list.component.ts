@@ -8,12 +8,12 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
   standalone: true,
   imports: [CommonModule, TeamCardComponent, ButtonComponent],
   template: `
-    <div class="space-y-4">
-      <div class="flex items-center justify-between">
-        <div>
+    <section class="space-y-4">
+      <section class="flex items-center justify-between">
+        <section>
           <h2 class="text-2xl font-bold">{{ title }}</h2>
           <p class="text-sm text-muted-foreground">{{ description }}</p>
-        </div>
+        </section>
         <app-button
           *ngIf="showAddButton"
           variant="primary"
@@ -21,18 +21,18 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
         >
           Create Team
         </app-button>
-      </div>
+      </section>
 
-      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <section class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <app-team-card
           *ngFor="let team of teams"
           [team]="team"
           (onEdit)="onEdit.emit($event)"
           (onDelete)="onDelete.emit($event)"
         ></app-team-card>
-      </div>
+      </section>
 
-      <div
+      <section
         *ngIf="teams.length === 0"
         class="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center"
       >
@@ -61,8 +61,8 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
         >
           Create Team
         </app-button>
-      </div>
-    </div>
+      </section>
+    </section>
   `,
   styles: []
 })
