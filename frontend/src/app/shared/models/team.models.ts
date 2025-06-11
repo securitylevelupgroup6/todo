@@ -19,7 +19,8 @@ export interface CreateTeamRequest {
 }
 
 export interface AddTeamMemberRequest {
-  userId: number;
+  userId?: number;
+  username?: string;
 }
 
 export interface TeamMemberResponse {
