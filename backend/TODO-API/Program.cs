@@ -25,7 +25,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowLocalhost", policy =>
     {
-        policy.WithOrigins("http://localhost:4200") // Frontend URL
+        policy.WithOrigins("https://todo.pastpaperportal.co.za") 
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
