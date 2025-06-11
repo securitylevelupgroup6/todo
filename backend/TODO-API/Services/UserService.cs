@@ -201,20 +201,9 @@ public class UserService(TodoContext todoContext, IDataProtectionProvider provid
             todoContext.Users.Add(user);
             todoContext.SaveChanges();
 
-            // TODO: Uncomment this before demo!!!!!!!
-            // Role role = todoContext.Roles.FirstOrDefault(r => r.Name == "USER") ?? throw new RoleNotFoundException();
-            // UserRole defaultRole = new() { RoleId = role.Id, UserId = user.Id };
-            // user.UserRoles = [defaultRole];
-
-            Role userRole = todoContext.Roles.FirstOrDefault(r => r.Name == Roles.USER) ?? throw new RoleNotFoundException();
-            Role adminRole = todoContext.Roles.FirstOrDefault(r => r.Name == Roles.ADMIN) ?? throw new RoleNotFoundException();
-            Role tlRole = todoContext.Roles.FirstOrDefault(r => r.Name == Roles.TEAMLEAD) ?? throw new RoleNotFoundException();
-
-            UserRole URole = new() { RoleId = userRole.Id, UserId = user.Id };
-            UserRole ARole = new() { RoleId = adminRole.Id, UserId = user.Id };
-            UserRole TLRole = new() { RoleId = tlRole.Id, UserId = user.Id };
-
-            user.UserRoles = [URole, ARole, TLRole];
+            Role role = todoContext.Roles.FirstOrDefault(r => r.Name == "USER") ?? throw new RoleNotFoundException();
+            UserRole defaultRole = new() { RoleId = role.Id, UserId = user.Id };
+            user.UserRoles = [defaultRole];
 
             todoContext.SaveChanges();
 
