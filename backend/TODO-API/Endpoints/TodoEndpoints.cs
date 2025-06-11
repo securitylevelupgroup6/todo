@@ -27,7 +27,7 @@ public static class TodoEndpoints
             .WithName("UpdateTodo")
             .WithTags("Todo");
 
-        endpoints.MapGet("/todo/{todoId}/history", GetTodoHistoryHandler)
+        endpoints.MapGet("/todo/history/{todoId}", GetTodoHistoryHandler)
             .Produces(StatusCodes.Status200OK, typeof(TodoHistoryResponse))
             .Produces(StatusCodes.Status400BadRequest)
             .WithName("GetTodoHistory")
@@ -44,7 +44,7 @@ public static class TodoEndpoints
             .WithName("GetTeamTasks")
             .WithTags("Team");
 
-        endpoints.MapDelete("/todo/{todoId}", DeleteTodoHandler)
+        endpoints.MapDelete("/todo/delete/{todoId}", DeleteTodoHandler)
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status400BadRequest)
             .WithName("DeleteTodo")
@@ -113,7 +113,7 @@ public static class TodoEndpoints
     }
 
     [Authorize(Roles = Roles.USER)]
-    public static async Task<IResult> GetTeamTodosHandler([FromServices] TodoService todoService, [FromRoute] int teamId)
+    public async static Task<IResult> GetTeamTodosHandler(HttpContext http, [FromServices] TodoService todoService, [FromRoute] int teamId)
     {
         try
         {
@@ -128,7 +128,7 @@ public static class TodoEndpoints
     }
 
     [Authorize(Roles = Roles.USER)]
-    public static async Task<IResult> DeleteTodoHandler(HttpContext http, [FromServices] TodoService todoService, [FromRoute] int todoId)
+    public async static Task<IResult> DeleteTodoHandler(HttpContext http, [FromServices] TodoService todoService, [FromRoute] int todoId)
     {
         var jwt = http.Request.Cookies["access_token"];
 
@@ -145,7 +145,7 @@ public static class TodoEndpoints
     }
 
     [Authorize(Roles = Roles.USER)]
-    public static async Task<IResult> GetTodoHistoryHandler([FromServices] TodoService todoService, [FromRoute] int todoId)
+    public async static Task<IResult> GetTodoHistoryHandler(HttpContext http, [FromServices] TodoService todoService, [FromRoute] int todoId)
     {
         try
         {
