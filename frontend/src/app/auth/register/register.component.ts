@@ -1,8 +1,8 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormBuilder, Form, Validators } from '@angular/forms';
-import { AuthService, RegisterUser } from '../../core/services/auth.service';
+import { AuthRequest, AuthService, RegisterUser } from '../../core/services/auth.service';
 import {MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -11,6 +11,7 @@ import {MatIconModule} from '@angular/material/icon';
 import { MultifactorAuthenticationComponent } from '../multifactor-authentication/multifactor-authentication.component';
 import { passwordValidator } from '../../shared/functions/helpers.function';
 import { FormStateService } from '../../shared/data-access/services/state.service';
+import { LoaderComponent } from "../../shared/components/ui/loader/loader.component";
 
 interface PasswordValidation {
   hasUpperCase: boolean;
@@ -24,9 +25,9 @@ interface PasswordValidation {
   selector: 'app-register',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     NgIf,
-    RouterModule, 
+    RouterModule,
     FormsModule,
     MatButtonModule,
     MatInputModule,
@@ -35,11 +36,12 @@ interface PasswordValidation {
     ReactiveFormsModule,
     MatIconModule,
     MultifactorAuthenticationComponent,
-  ],
+    LoaderComponent
+],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
-export class RegisterComponent implements AfterViewInit {
+export class RegisterComponent implements AfterViewInit, OnInit {
   name: string = '';
   email: string = '';
   password: string = '';
@@ -49,6 +51,8 @@ export class RegisterComponent implements AfterViewInit {
   passwordValidation: PasswordValidation;
   currentPassword: string = '';
   isLoading: boolean = false;
+  registrationRequest: AuthRequest = { requestType: ''};
+  registrationError: any;
 
   constructor(
     private router: Router,
@@ -65,6 +69,12 @@ export class RegisterComponent implements AfterViewInit {
       hasLowerCase: false,
     }
   }
+
+  ngOnInit(): void {
+    this.authService.currentAuthType.subscribe(data => {
+      if(data) this.registrationRequest = data;
+    })
+  }
   
   ngAfterViewInit(): void {
     this.registrationForm.get('password')?.valueChanges.subscribe(value => {
@@ -74,16 +84,26 @@ export class RegisterComponent implements AfterViewInit {
   }
 
   onSubmit() {
-    const user: RegisterUser = { ...this.registrationForm.value };
-    if(this.registrationForm.valid) {
+    if(this.registrationForm.valid && !this.otp) {
+      const user: RegisterUser = { ...this.registrationForm.value };
+      this.isLoading = true;
+
       this.authService.register(user).subscribe(data => {
         if(data.results) {
-          this.otp = data.results.otpUri;
+          this.otp = data.results?.otpUri;
           this.formStateService.set(this.registrationForm);
+          this.isLoading = false;
+          this.authService.updateAuthRequest('register');
         } else {
           this.otp = '';
+          this.isLoading = false;
+          this.registrationError = data.errors ? data.errors?.error : { error: '' };
         }
       });
+    }
+
+    if(this.registrationForm.valid && this.otp && !this.registrationRequest.requestType) {
+      this.authService.updateAuthRequest('register');      
     }
   }
 

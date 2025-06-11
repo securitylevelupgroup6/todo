@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TaskService } from '../services/task.service';
-import { UserService } from '../shared/data-access/services/login.service';
+import { UserService } from '../services/user.service';
+import { AuthService } from '../core/services/auth.service';
 import { 
   BackendTodo, 
   TodoResponseDto, 
@@ -13,6 +14,8 @@ import {
   StatusMapping,
   UserResponseDto
 } from '../models/task.model';
+import { TeamResponse, UserResponse } from '../shared/models/team.models';
+import { catchError, of, forkJoin } from 'rxjs';
 
 interface Task {
   id: number;
@@ -56,19 +59,17 @@ export class TasksComponent implements OnInit {
   
   statuses: string[] = ['all', 'todo', 'in_progress', 'completed'];
   
-  // Mock teams data - in a real app, this would come from a teams service
-  teams = [
-    { id: 1, name: 'Frontend Development' },
-    { id: 2, name: 'UI/UX Design' },
-    { id: 3, name: 'Backend Development' }
-  ];
+  // Dynamic teams data from backend
+  teams: TeamResponse[] = [];
   
-  // Mock users data - in a real app, this would come from a users service
-  users = [
-    { id: 1, username: 'jdoe', firstName: 'John', lastName: 'Doe', roles: ['USER'] },
-    { id: 2, username: 'jsmith', firstName: 'Jane', lastName: 'Smith', roles: ['USER'] },
-    { id: 3, username: 'mjohnson', firstName: 'Mike', lastName: 'Johnson', roles: ['TEAM_LEAD'] }
-  ];
+  // Dynamic users data from backend (team members)
+  users: UserResponse[] = [];
+  
+  // Available assignees for the selected team
+  availableAssignees: UserResponse[] = [];
+  
+  // Current user's teams
+  currentUserTeams: TeamResponse[] = [];
 
   formData: TaskFormData = {
     title: '',
@@ -80,11 +81,61 @@ export class TasksComponent implements OnInit {
 
   constructor(
     private taskService: TaskService,
-    private userService: UserService
+    private userService: UserService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
-    this.loadTasks();
+    this.loadInitialData();
+  }
+
+  loadInitialData() {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    // Load teams and tasks in parallel
+    forkJoin({
+      teams: this.taskService.getUserTeams(),
+      tasks: this.taskService.getTasks()
+    }).pipe(
+      catchError(error => {
+        console.error('Error loading initial data:', error);
+        this.errorMessage = 'Failed to load data. Please try again.';
+        return of({ teams: [], tasks: [] });
+      })
+    ).subscribe(({ teams, tasks }) => {
+      this.currentUserTeams = teams;
+      this.teams = teams;
+      this.tasks = tasks.map(todo => this.mapBackendTodoToTask(todo));
+      
+      // Load team members for all teams
+      this.loadTeamMembers();
+      
+      this.isLoading = false;
+    });
+  }
+
+  private loadTeamMembers() {
+    if (this.teams.length === 0) return;
+
+    const memberRequests = this.teams.map(team =>
+      this.taskService.getTeamMembers(team.id).pipe(
+        catchError(() => of([]))
+      )
+    );
+
+    forkJoin(memberRequests).subscribe(teamMembersArrays => {
+      // Combine all team members into a single unique users list
+      const allUsers: UserResponse[] = [];
+      teamMembersArrays.forEach(members => {
+        members.forEach(member => {
+          if (!allUsers.find(u => u.id === member.id)) {
+            allUsers.push(member);
+          }
+        });
+      });
+      this.users = allUsers;
+    });
   }
 
   loadTasks() {
@@ -194,6 +245,7 @@ export class TasksComponent implements OnInit {
       assignedTo: null,
       team: ''
     };
+    this.availableAssignees = [];
     this.showCreateModal = true;
   }
 
@@ -206,13 +258,41 @@ export class TasksComponent implements OnInit {
       assignedTo: task.assignedTo?.id.toString() || null,
       team: task.team.id.toString()
     };
+    // Load team members for the selected team
+    this.onTeamChange(task.team.id.toString());
     this.showCreateModal = true;
+  }
+
+  onTeamChange(teamId: string) {
+    if (!teamId) {
+      this.availableAssignees = [];
+      this.formData.assignedTo = null;
+      return;
+    }
+
+    const teamIdNumber = parseInt(teamId);
+    this.taskService.getTeamMembers(teamIdNumber).pipe(
+      catchError(error => {
+        console.error(`Error loading team members for team ${teamIdNumber}:`, error);
+        return of([]);
+      })
+    ).subscribe(members => {
+      this.availableAssignees = members;
+      // Reset assignee if current assignee is not in the new team
+      if (this.formData.assignedTo) {
+        const isAssigneeInTeam = members.some(member => member.id.toString() === this.formData.assignedTo);
+        if (!isAssigneeInTeam) {
+          this.formData.assignedTo = null;
+        }
+      }
+    });
   }
 
   closeModal() {
     this.showCreateModal = false;
     this.selectedTask = null;
     this.errorMessage = '';
+    this.availableAssignees = [];
     this.formData = {
       title: '',
       description: '',
@@ -247,14 +327,22 @@ export class TasksComponent implements OnInit {
 
     this.taskService.createTask(createRequest).subscribe({
       next: (backendTodo: BackendTodo) => {
-        const newTask = this.mapBackendTodoToTask(backendTodo);
-        this.tasks.push(newTask);
+        // Refresh the entire task list to get the latest data with proper team information
+        this.loadTasks();
         this.closeModal();
         this.isLoading = false;
       },
       error: (error) => {
         console.error('Error creating task:', error);
-        this.errorMessage = 'Failed to create task. Please try again.';
+        if (error.status === 400) {
+          this.errorMessage = 'Unable to create task. The selected user may not be a member of the selected team.';
+        } else if (error.status === 401) {
+          this.errorMessage = 'Authentication failed. Please log in again.';
+        } else if (error.status === 403) {
+          this.errorMessage = 'You do not have permission to assign tasks to this user.';
+        } else {
+          this.errorMessage = 'Failed to create task. Please try again.';
+        }
         this.isLoading = false;
       }
     });
@@ -284,20 +372,23 @@ export class TasksComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error updating task:', error);
-        this.errorMessage = 'Failed to update task. Please try again.';
+        if (error.status === 400) {
+          this.errorMessage = 'Unable to update task. The selected assignee may not be a member of the selected team.';
+        } else if (error.status === 401) {
+          this.errorMessage = 'Authentication failed. Please log in again.';
+        } else if (error.status === 403) {
+          this.errorMessage = 'You do not have permission to update this task.';
+        } else {
+          this.errorMessage = 'Failed to update task. Please try again.';
+        }
         this.isLoading = false;
       }
     });
   }
 
   deleteTask(task: Task) {
-    if (confirm('Are you sure you want to delete this task?')) {
-      // Note: No delete endpoint available in backend, so we'll just remove from local array
-      // In a real app, you would call a delete API endpoint here
-      const index = this.tasks.findIndex(t => t.id === task.id);
-      if (index !== -1) {
-        this.tasks.splice(index, 1);
-      }
-    }
+    // Delete functionality is disabled as requested
+    alert('Delete functionality is coming soon! This feature is not yet available.');
+    this.taskService.deleteTask(task.id); // This just logs a message
   }
 }

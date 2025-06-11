@@ -2,13 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule, FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthRequest, AuthService } from '../../core/services/auth.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MultifactorAuthenticationComponent } from "../multifactor-authentication/multifactor-authentication.component";
+import { LoaderComponent } from "../../shared/components/ui/loader/loader.component";
 
 @Component({
   selector: 'app-login',
@@ -24,7 +25,8 @@ import { MultifactorAuthenticationComponent } from "../multifactor-authenticatio
     MatCardModule,
     ReactiveFormsModule,
     MatIconModule,
-    MultifactorAuthenticationComponent
+    MultifactorAuthenticationComponent,
+    LoaderComponent
 ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss', '../register/register.component.scss']
@@ -34,20 +36,25 @@ export class LoginComponent implements OnInit {
   password: string = '';
   loginForm: FormGroup;
   isLoading: boolean = false;
-  loginRequest: boolean = false;
+  loginRequest: AuthRequest = { requestType: '' };
 
   constructor(
     private router: Router,
     private formBuilder: FormBuilder,
+    private authService: AuthService
   ) {
     this.loginForm = this.getLoginForm();
   }
 
-  ngOnInit(): void { }
+  ngOnInit(): void { 
+    this.authService.currentAuthType.subscribe(data => {
+      if(data) this.loginRequest = data; 
+    })
+   }
 
   onSubmit() {
     if(this.loginForm.valid) {
-      this.loginRequest = true;
+      this.authService.updateAuthRequest('login');
     }
   }
 

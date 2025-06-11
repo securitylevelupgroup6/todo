@@ -1,5 +1,5 @@
 import { CommonModule, NgIf } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -7,18 +7,20 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Router, RouterModule } from '@angular/router';
 import { QRCodeComponent } from 'angularx-qrcode';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthRequest, AuthService } from '../../core/services/auth.service';
 import { ErrorMessages } from '../../shared/enums/enums';
 import { UserService } from '../../shared/data-access/services/login.service';
 import { LoginCredentials } from '../../models/user.model';
+import { Header } from '../../models/auth.model';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-multifactor-authentication',
   standalone: true,
-  imports: [ 
+  imports: [
     NgIf,
     CommonModule,
-    RouterModule, 
+    RouterModule,
     FormsModule,
     MatButtonModule,
     MatInputModule,
@@ -26,20 +28,32 @@ import { LoginCredentials } from '../../models/user.model';
     MatCardModule,
     ReactiveFormsModule,
     QRCodeComponent,
-  ],
+    MatIconModule
+],
   templateUrl: './multifactor-authentication.component.html',
   styleUrl: './multifactor-authentication.component.scss'
 })
-export class MultifactorAuthenticationComponent {
+export class MultifactorAuthenticationComponent implements OnInit {
 
   @Input()
   otp!: string; // For QR code display during registration
 
   @Input()
   registrationForm!: FormGroup; // Login form from parent component
+  authRequest: AuthRequest = { requestType: '' }
 
   @Input()
-  loginRequest: boolean = false;
+  isLoading: boolean = false;
+
+  registrationHeader: Header = {
+    heading: 'Enable Two-factor authentication',
+    subHeading: 'Please scan QR code below using any authenticator application'
+  }
+
+  loginHeader: Header = {
+    heading: 'Two-factor authentication',
+    subHeading: 'Please enter code below'
+  }
 
   otpForm: FormGroup;
   required: string = ErrorMessages.REQUIRED_FIELD;
@@ -53,8 +67,18 @@ export class MultifactorAuthenticationComponent {
     private userService: UserService,
   ) {
     this.otpForm = this.formBuilder.group({
-      otp: ['', Validators.required]
+      otp: ['', [
+        Validators.required,
+        Validators.minLength(6),
+        Validators.maxLength(6),
+      ]]
     });
+  }
+
+  ngOnInit(): void {
+    this.authService.currentAuthType.subscribe(data => {
+      if(data) this.authRequest = data;
+    })
   }
 
   onSubmit(): void {
@@ -83,7 +107,6 @@ export class MultifactorAuthenticationComponent {
         this.userService.updateUser(userRecord);
         
         // Reset the MFA state and navigate
-        this.loginRequest = false;
         this.isSubmitting = false;
         this.router.navigate(['']);
       },
@@ -102,9 +125,6 @@ export class MultifactorAuthenticationComponent {
     if (this.registrationForm) {
       this.registrationForm.markAllAsTouched();
     }
-
-    // Set error message
-    this.errorMessage = 'Please fill in all required fields.';
     
     // Set specific form errors for better UX
     if (!this.otpForm.get('otp')?.value) {
@@ -116,19 +136,25 @@ export class MultifactorAuthenticationComponent {
     console.error('MFA Login error:', error);
     
     // Handle different types of errors
-    if (error.status === 401) {
-      this.errorMessage = 'Invalid OTP or login credentials. Please try again.';
-      this.otpForm.get('otp')?.setErrors({ 'invalidOtp': true });
-    } else if (error.status === 400) {
-      this.errorMessage = 'Invalid request. Please check your input and try again.';
-    } else if (error.status === 500) {
-      this.errorMessage = 'Server error. Please try again later.';
-    } else if (error.error?.message) {
-      this.errorMessage = error.error.message;
-    } else {
-      this.errorMessage = 'An unexpected error occurred. Please try again.';
+    switch(error.status) {
+      case 401: 
+        this.errorMessage = 'Invalid OTP or login credentials. Please try again.';
+        this.otpForm.get('otp')?.setErrors({ 'invalidOtp': true });
+        this.backToSignInOrRegistration();
+        break;
+      case 400:
+        this.errorMessage = 'Invalid request. Please check your input and try again.';
+        this.backToSignInOrRegistration();
+        break;
+      case 500:
+        this.errorMessage = 'Server error. Please try again later.';
+        this.backToSignInOrRegistration();
+        break
+      default:
+        this.errorMessage = 'An unexpected error occurred. Please try again.';
+        this.backToSignInOrRegistration();
+        break;
     }
-
     // Clear the OTP field for retry
     this.otpForm.get('otp')?.setValue('');
   }
@@ -138,5 +164,18 @@ export class MultifactorAuthenticationComponent {
     this.otpForm.reset();
     this.errorMessage = '';
     this.isSubmitting = false;
+  }
+
+  backToSignInOrRegistration(): void {
+    if(this.authRequest.requestType === 'login') {
+      this.router.navigate(['/auth/login']);
+    } else {
+      this.router.navigate(['/auth/register']);
+    }
+  }
+
+  onBack(): void {
+    this.authService.updateAuthRequest('');
+    this.otp = '';
   }
 }

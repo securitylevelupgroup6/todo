@@ -1,10 +1,11 @@
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 
 export interface IResponse<T> {
   results?: T;
-  errors?: string[];
+  errors?: HttpErrorResponse;
 }
 
 type ErrorFunction = (arg: any) => void;
@@ -25,9 +26,7 @@ export function observe<T>(
       if (err.status !== 400) {
         error = err.message;
       }
-      return of({
-        errors: [error],
-      }) as Observable<IResponse<T>>;
+      return of({ errors: err }) as Observable<IResponse<T>>;
     }),
   );
 }
