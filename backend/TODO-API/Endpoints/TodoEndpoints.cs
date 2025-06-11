@@ -20,7 +20,7 @@ public static class TodoEndpoints
             .WithName("CreateTodo")
             .WithTags("Todo");
 
-        endpoints.MapPut("/todo/{todoId}", UpdateTodoHandler)
+        endpoints.MapPut("/todo", UpdateTodoHandler)
             .Accepts<UpdateTodoRequest>("application/json")
             .Produces(StatusCodes.Status200OK, typeof(TodoResponse))
             .Produces(StatusCodes.Status400BadRequest)
@@ -90,7 +90,7 @@ public static class TodoEndpoints
     }
 
     [Authorize(Roles = Roles.USER)]
-    public async static Task<IResult> UpdateTodoHandler(HttpContext http, [FromServices] TodoService todoService, [FromBody] UpdateTodoRequest request, [FromRoute] int todoId)
+    public async static Task<IResult> UpdateTodoHandler(HttpContext http, [FromServices] TodoService todoService, [FromBody] UpdateTodoRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
         var jwt = http.Request.Cookies["access_token"];

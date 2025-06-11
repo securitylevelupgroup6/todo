@@ -103,6 +103,16 @@ public class TodoService(TodoContext dbContext, TodoRepository todoRepository)
             currentState.TeamId = request.TeamId ?? currentState.TeamId;
 
             todo.TodoState = currentState;
+            var oldState = new TodoState
+            {
+                Title = currentStateCopy.Title,
+                Description = currentStateCopy.Description,
+                StatusId = currentStateCopy.StatusId,
+                AssigneeId = currentStateCopy.AssigneeId,
+                TeamId = currentStateCopy.TeamId
+            };
+
+            await dbContext.AddAsync(oldState);
             await dbContext.SaveChangesAsync();
 
             var todoHistoryRequest = new CreateTodoHistoryRequest
@@ -110,9 +120,10 @@ public class TodoService(TodoContext dbContext, TodoRepository todoRepository)
                 Todo = todo,
                 Date = DateTime.UtcNow,
                 Reporter = dbContext.TeamMembers.FirstOrDefault((tm) => tm.Id == currentState.AssigneeId && tm.TeamId == currentState.TeamId) ?? throw new Exception("No Team member found for the new state"),
-                OldState = currentStateCopy,
+                OldState = oldState,
                 UpdatedState = currentState
             };
+
 
             await todoRepository.CreateTodoHistoryAsync(todoHistoryRequest);
 
