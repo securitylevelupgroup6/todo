@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://todo.pastpaperportal.co.za'
+  apiUrl: 'https://todo.pastpaperportal.co.za/api'
 };
