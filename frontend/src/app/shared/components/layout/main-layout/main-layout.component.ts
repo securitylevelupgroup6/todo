@@ -10,16 +10,14 @@ import { FooterComponent } from '../footer/footer.component';
   standalone: true,
   imports: [CommonModule, RouterModule, HeaderComponent, SidebarComponent, FooterComponent],
   template: `
-    <div class="relative min-h-screen">
+    <section class="relative min-h-screen">
       <app-header
         [navItems]="navItems"
         [showSettings]="showSettings"
         [showProfile]="showProfile"
-        (onSettingsClick)="onSettingsClick.emit()"
-        (onProfileClick)="onProfileClick.emit()"
       ></app-header>
       
-      <div class="flex">
+      <section class="flex">
         <app-sidebar
           [title]="sidebarTitle"
           [items]="sidebarItems"
@@ -28,13 +26,13 @@ import { FooterComponent } from '../footer/footer.component';
         <main class="flex-1 p-6 ml-64">
           <ng-content></ng-content>
         </main>
-      </div>
+      </section>
       
       <app-footer
         [copyright]="copyright"
         [links]="footerLinks"
       ></app-footer>
-    </div>
+    </section>
   `,
   styles: []
 })

@@ -7,11 +7,11 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
   standalone: true,
   imports: [CommonModule, ButtonComponent],
   template: `
-    <div
+    <section
       class="flex items-start space-x-4 rounded-lg border bg-card p-4"
       [class.border-primary/20]="notification.read"
     >
-      <div
+      <section
         class="flex h-10 w-10 items-center justify-center rounded-full"
         [ngClass]="{
           'text-primary': notification.type === 'info',
@@ -78,18 +78,18 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
             />
           </svg>
         </ng-container>
-      </div>
+      </section>
 
-      <div class="flex-1 space-y-1">
-        <div class="flex items-center justify-between">
+      <section class="flex-1 space-y-1">
+        <section class="flex items-center justify-between">
           <p class="text-sm font-medium">{{ notification.title }}</p>
           <span class="text-xs text-muted-foreground">
             {{ notification.time | date:'short' }}
           </span>
-        </div>
+        </section>
         <p class="text-sm text-muted-foreground">{{ notification.message }}</p>
         
-        <div *ngIf="notification.actions?.length" class="mt-2 flex items-center space-x-2">
+        <section *ngIf="notification.actions?.length" class="mt-2 flex items-center space-x-2">
           <app-button
             *ngFor="let action of notification.actions"
             [variant]="action.variant || 'secondary'"
@@ -97,8 +97,8 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
           >
             {{ action.label }}
           </app-button>
-        </div>
-      </div>
+        </section>
+      </section>
 
       <button
         *ngIf="!notification.read"
@@ -115,7 +115,7 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
           />
         </svg>
       </button>
-    </div>
+    </section>
   `,
   styles: []
 })

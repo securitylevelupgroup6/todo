@@ -70,7 +70,8 @@ export class DashboardService {
       ongoingTasks: this.calculateOngoingTasks(this.mockTodos, this.mockTodoStates, this.mockTodoStatuses),
       completionRate: this.calculateCompletionRate(this.mockTodos, this.mockTodoStates, this.mockTodoStatuses),
       tasksByStatus,
-      teamPerformance
+      teamPerformance,
+      completedTodos: 0,
     });
   }
 

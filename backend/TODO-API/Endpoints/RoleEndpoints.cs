@@ -7,7 +7,7 @@ public static class RoleEndpoints
 {
     public static IEndpointRouteBuilder AddRoleEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet("/roles", GetRolesHandler)
+        endpoints.MapGet("/api/roles", GetRolesHandler)
         .WithName("Get Roles")
         .WithTags("Get All Roles");
 

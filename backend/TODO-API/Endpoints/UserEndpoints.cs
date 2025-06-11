@@ -10,15 +10,15 @@ public static class UserEndpoints
 {
     public static IEndpointRouteBuilder AddUserEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/users/{username}/role", AddRoleHandler)
+        endpoints.MapPost("/api/users/{username}/role", AddRoleHandler)
         .WithName("Assign Roles")
         .WithTags("Assign Roles to User");
 
-        endpoints.MapGet("/users/roles", GetUserRoles)
+        endpoints.MapGet("/api/users/roles", GetUserRoles)
         .WithName("Get User Roles")
         .WithTags("Get User's Roles");
 
-        endpoints.MapGet("/users/teams", GetUserTeamsHandler)
+        endpoints.MapGet("/api/users/teams", GetUserTeamsHandler)
         .WithName("Get Teams")
         .WithTags("Get a user's teams");
 

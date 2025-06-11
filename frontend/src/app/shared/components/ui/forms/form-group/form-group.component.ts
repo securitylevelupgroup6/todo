@@ -7,7 +7,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div
+    <section
       class="space-y-4"
       [class.opacity-50]="disabled"
       [class.pointer-events-none]="disabled"
@@ -21,15 +21,15 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
         <ng-content></ng-content>
 
         <!-- Form Actions -->
-        <div *ngIf="showActions" class="flex items-center justify-end space-x-2">
+        <section *ngIf="showActions" class="flex items-center justify-end space-x-2">
           <ng-container *ngTemplateOutlet="actions"></ng-container>
-        </div>
+        </section>
       </form>
 
       <!-- Form Errors -->
-      <div *ngIf="errors.length > 0" class="rounded-md bg-destructive/15 p-4">
-        <div class="flex">
-          <div class="flex-shrink-0">
+      <section *ngIf="errors.length > 0" class="rounded-md bg-destructive/15 p-4">
+        <section class="flex">
+          <section class="flex-shrink-0">
             <svg
               class="h-5 w-5 text-destructive"
               fill="none"
@@ -43,18 +43,18 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
                 d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-          </div>
-          <div class="ml-3">
+          </section>
+          <section class="ml-3">
             <h3 class="text-sm font-medium text-destructive">Form Errors</h3>
-            <div class="mt-2 text-sm text-destructive">
+            <section class="mt-2 text-sm text-destructive">
               <ul class="list-disc space-y-1 pl-5">
                 <li *ngFor="let error of errors">{{ error }}</li>
               </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+            </section>
+          </section>
+        </section>
+      </section>
+    </section>
   `,
   providers: [
     {

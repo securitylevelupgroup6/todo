@@ -1,11 +1,11 @@
-<div class="space-y-4">
+<section class="space-y-4">
   <!-- Chart Header -->
-  <div class="flex items-center justify-between">
-    <div>
+  <section class="flex items-center justify-between">
+    <section>
       <h2 class="text-2xl font-bold">{{ title }}</h2>
       <p class="text-sm text-muted-foreground">{{ description }}</p>
-    </div>
-    <div class="flex items-center space-x-2">
+    </section>
+    <section class="flex items-center space-x-2">
       <!-- Chart Type Selector -->
       <select
         *ngIf="showTypeSelector"
@@ -28,8 +28,8 @@
       </app-button>
       <!-- Custom Actions -->
       <ng-content select="[chartActions]"></ng-content>
-    </div>
-  </div>
+    </section>
+  </section>
 
   <!-- Loading State -->
   <app-loading-state *ngIf="isLoading" [message]="loadingMessage"></app-loading-state>
@@ -43,30 +43,30 @@
   ></app-empty-state>
 
   <!-- Chart Content -->
-  <div *ngIf="!isLoading && datasets.length" class="space-y-4">
+  <section *ngIf="!isLoading && datasets.length" class="space-y-4">
     <!-- Chart Container -->
-    <div
+    <section
       class="relative rounded-lg border bg-card p-4"
       [style.height.px]="height"
     >
       <canvas #chartCanvas></canvas>
-    </div>
+    </section>
 
     <!-- Chart Legend -->
-    <div
+    <section
       *ngIf="showLegend"
       class="flex flex-wrap items-center justify-center gap-4"
     >
-      <div
+      <section
         *ngFor="let dataset of datasets"
         class="flex items-center space-x-2"
       >
-        <div
+        <section
           class="h-3 w-3 rounded-full"
           [style.background-color]="dataset.backgroundColor"
-        ></div>
+        ></section>
         <span class="text-sm">{{ dataset.label }}</span>
-      </div>
-    </div>
-  </div>
-</div> 
+      </section>
+    </section>
+  </section>
+</section> 

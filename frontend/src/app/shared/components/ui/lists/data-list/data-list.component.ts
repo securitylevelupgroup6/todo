@@ -7,60 +7,60 @@ import { ButtonComponent } from '../../buttons/button/button.component';
   standalone: true,
   imports: [CommonModule, ButtonComponent],
   template: `
-    <div class="space-y-4">
+    <section class="space-y-4">
       <!-- List Header -->
-      <div class="flex items-center justify-between">
-        <div>
+      <section class="flex items-center justify-between">
+        <section>
           <h2 class="text-2xl font-bold">{{ title }}</h2>
           <p class="text-sm text-muted-foreground">{{ description }}</p>
-        </div>
-        <div class="flex items-center space-x-2">
+        </section>
+        <section class="flex items-center space-x-2">
           <ng-content select="[listActions]"></ng-content>
-        </div>
-      </div>
+        </section>
+      </section>
 
       <!-- List -->
-      <div class="space-y-2">
-        <div
+      <section class="space-y-2">
+        <section
           *ngFor="let item of data"
           class="group relative rounded-lg border bg-card p-4 transition-colors hover:bg-muted/50"
           [class.border-primary/20]="isSelected(item)"
         >
-          <div class="flex items-start space-x-4">
+          <section class="flex items-start space-x-4">
             <!-- Selection Checkbox -->
-            <div *ngIf="selectable" class="pt-1">
+            <section *ngIf="selectable" class="pt-1">
               <input
                 type="checkbox"
                 [checked]="isSelected(item)"
                 (change)="toggleSelect(item)"
                 class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
               />
-            </div>
+            </section>
 
             <!-- Item Content -->
-            <div class="flex-1">
+            <section class="flex-1">
               <ng-container *ngTemplateOutlet="itemTemplate; context: { $implicit: item }">
               </ng-container>
-            </div>
+            </section>
 
             <!-- Item Actions -->
-            <div
+            <section
               *ngIf="actions"
               class="flex items-center space-x-2 opacity-0 transition-opacity group-hover:opacity-100"
             >
               <ng-container *ngTemplateOutlet="actions; context: { $implicit: item }">
               </ng-container>
-            </div>
-          </div>
-        </div>
-      </div>
+            </section>
+          </section>
+        </section>
+      </section>
 
       <!-- Pagination -->
-      <div class="flex items-center justify-between">
-        <div class="text-sm text-muted-foreground">
+      <section class="flex items-center justify-between">
+        <section class="text-sm text-muted-foreground">
           Showing {{ startIndex + 1 }} to {{ endIndex }} of {{ totalItems }} entries
-        </div>
-        <div class="flex items-center space-x-2">
+        </section>
+        <section class="flex items-center space-x-2">
           <app-button
             variant="muted"
             [disabled]="currentPage === 1"
@@ -68,7 +68,7 @@ import { ButtonComponent } from '../../buttons/button/button.component';
           >
             Previous
           </app-button>
-          <div class="flex items-center space-x-1">
+          <section class="flex items-center space-x-1">
             <button
               *ngFor="let page of pageNumbers"
               class="h-8 w-8 rounded-md border"
@@ -79,7 +79,7 @@ import { ButtonComponent } from '../../buttons/button/button.component';
             >
               {{ page }}
             </button>
-          </div>
+          </section>
           <app-button
             variant="muted"
             [disabled]="currentPage === totalPages"
@@ -87,11 +87,11 @@ import { ButtonComponent } from '../../buttons/button/button.component';
           >
             Next
           </app-button>
-        </div>
-      </div>
+        </section>
+      </section>
 
       <!-- Empty State -->
-      <div
+      <section
         *ngIf="data.length === 0"
         class="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center"
       >
@@ -112,8 +112,8 @@ import { ButtonComponent } from '../../buttons/button/button.component';
         <p class="mt-2 text-sm text-muted-foreground">
           {{ emptyStateMessage }}
         </p>
-      </div>
-    </div>
+      </section>
+    </section>
   `,
   styles: []
 })

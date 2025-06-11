@@ -15,12 +15,12 @@ interface Step {
   standalone: true,
   imports: [CommonModule, ButtonComponent],
   template: `
-    <div class="space-y-8">
+    <section class="space-y-8">
       <!-- Steps -->
       <nav aria-label="Progress">
         <ol role="list" class="space-y-4 md:flex md:space-x-8 md:space-y-0">
           <li *ngFor="let step of steps; let i = index" class="md:flex-1">
-            <div
+            <section
               class="group flex flex-col border-l-4 py-2 pl-4 md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4"
               [class.border-primary]="currentStep === i"
               [class.border-muted]="currentStep !== i"
@@ -35,18 +35,18 @@ interface Step {
               <span *ngIf="step.description" class="text-sm text-muted-foreground">
                 {{ step.description }}
               </span>
-            </div>
+            </section>
           </li>
         </ol>
       </nav>
 
       <!-- Step Content -->
-      <div class="mt-8">
+      <section class="mt-8">
         <ng-content></ng-content>
-      </div>
+      </section>
 
       <!-- Navigation -->
-      <div class="mt-8 flex justify-between">
+      <section class="mt-8 flex justify-between">
         <app-button
           *ngIf="currentStep > 0"
           variant="muted"
@@ -54,7 +54,7 @@ interface Step {
         >
           Previous
         </app-button>
-        <div *ngIf="currentStep === 0"></div>
+        <section *ngIf="currentStep === 0"></section>
 
         <app-button
           *ngIf="currentStep < steps.length - 1"
@@ -68,8 +68,8 @@ interface Step {
         >
           Submit
         </app-button>
-      </div>
-    </div>
+      </section>
+    </section>
   `,
   styles: []
 })

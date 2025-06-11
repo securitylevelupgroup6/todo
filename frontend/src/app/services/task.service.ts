@@ -112,6 +112,19 @@ export class TaskService {
   }
 
   /**
+   * Get team member data including the team_member.id for a specific user in a team
+   * Returns the full team member response which includes the team_member.id
+   */
+  getTeamMemberData(teamId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/teams/${teamId}/team-members`).pipe(
+      catchError(error => {
+        console.error(`Error loading team member data for team ${teamId}:`, error);
+        return of([]);
+      })
+    );
+  }
+
+  /**
    * Placeholder delete method - shows disabled message
    */
   deleteTask(taskId: number): void {
@@ -154,7 +167,7 @@ export class TaskService {
     };
   }
 
-  getUserToDos(): Observable<IResponse<any>> {
-    return observe(this.http.get<any>(`${this.apiUrl}/todo`));
+  getUserToDos(): Observable<IResponse<BackendTodo[]>> {
+    return observe(this.http.get<BackendTodo[]>(`${this.apiUrl}/todo`));
   }
 }

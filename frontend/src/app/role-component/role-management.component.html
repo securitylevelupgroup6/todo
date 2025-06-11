@@ -1,0 +1,115 @@
+<main class="container mx-auto px-4 py-8">
+  <!-- Header Section -->
+  <header class="mb-8">
+    <section class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <section>
+        <h1 class="text-3xl font-bold tracking-tight">Role Management</h1>
+        <p class="mt-2 text-muted-foreground">View and manage application roles.</p>
+      </section>
+    </section>
+  </header>
+
+  <!-- Loading State -->
+  <section *ngIf="isLoading" class="flex items-center justify-center py-12">
+    <section class="flex items-center gap-3">
+      <svg class="h-6 w-6 animate-spin text-primary" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span class="text-muted-foreground">Loading roles...</span>
+    </section>
+  </section>
+
+  <!-- Error State -->
+  <section *ngIf="error && !isLoading" class="rounded-lg border border-destructive/20 bg-destructive/10 p-4 mb-6">
+    <section class="flex items-center gap-2">
+      <svg class="h-5 w-5 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <p class="text-sm text-destructive">{{ error }}</p>
+    </section>
+  </section>
+
+  <!-- Assign Roles Form -->
+  <section *ngIf="!isLoading && !error" class="rounded-lg border bg-card p-6 shadow-sm">
+    <h2 class="mb-6 text-xl font-semibold tracking-tight">Assign Roles to User</h2>
+
+    <form [formGroup]="assignRoleForm" (ngSubmit)="onAssignRoles()" class="space-y-6">
+      <!-- Username Input -->
+      <section class="space-y-2">
+        <label for="username" class="block text-sm font-medium text-muted-foreground">Username</label>
+        <input
+          id="username"
+          type="text"
+          formControlName="username"
+          placeholder="Enter username"
+          class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          [ngClass]="{ 'border-destructive': assignRoleForm.get('username')?.invalid && (assignRoleForm.get('username')?.dirty || assignRoleForm.get('username')?.touched) }"
+        />
+        <section *ngIf="assignRoleForm.get('username')?.invalid && (assignRoleForm.get('username')?.dirty || assignRoleForm.get('username')?.touched)" class="mt-1 text-xs text-destructive">
+          <span *ngIf="assignRoleForm.get('username')?.errors?.['required']">Username is required.</span>
+        </section>
+      </section>
+
+      <!-- Role Checkboxes -->
+      <section class="space-y-2" formGroupName="selectedRoles">
+        <label class="block text-sm font-medium text-muted-foreground">Select Roles</label>
+        <section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <section *ngFor="let role of allRoles" class="flex items-center">
+            <input
+              type="checkbox"
+              [id]="'role-' + role.id"
+              [formControlName]="getRoleControlName(role.id)"
+              class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <label [for]="'role-' + role.id" class="ml-2 block text-sm text-foreground">
+              {{ role.name }}
+            </label>
+          </section>
+        </section>
+      </section>
+
+      <!-- Submit Button -->
+      <section class="flex justify-end">
+        <button
+          type="submit"
+          [disabled]="isAssigning || assignRoleForm.invalid"
+          class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+        >
+          <svg *ngIf="isAssigning" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          {{ isAssigning ? 'Assigning...' : 'Assign Roles' }}
+        </button>
+      </section>
+    </form>
+
+    <!-- Assignment Feedback -->
+    <section *ngIf="assignSuccess" class="mt-4 rounded-md bg-green-50 p-4">
+      <section class="flex">
+        <section class="flex-shrink-0">
+          <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+        </section>
+        <section class="ml-3">
+          <p class="text-sm font-medium text-green-800">{{ assignSuccess }}</p>
+        </section>
+      </section>
+    </section>
+
+    <section *ngIf="assignError" class="mt-4 rounded-md bg-red-50 p-4">
+      <section class="flex">
+        <section class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12zm-1-5a1 1 0 112 0v2a1 1 0 11-2 0v-2zm0-4a1 1 0 112 0 1 1 0 01-2 0z" clip-rule="evenodd" />
+          </svg>
+        </section>
+        <section class="ml-3">
+          <p class="text-sm font-medium text-red-800">{{ assignError }}</p>
+        </section>
+      </section>
+    </section>
+  </section>
+</main>

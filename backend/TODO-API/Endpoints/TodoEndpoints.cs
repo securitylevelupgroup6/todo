@@ -13,38 +13,38 @@ public static class TodoEndpoints
 {
     public static IEndpointRouteBuilder AddTodoEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/todo", CreateTodoHandler)
+        endpoints.MapPost("/api/todo", CreateTodoHandler)
             .Accepts<CreateTodoRequest>("application/json")
             .Produces(StatusCodes.Status201Created, typeof(TodoResponse))
             .Produces(StatusCodes.Status400BadRequest)
             .WithName("CreateTodo")
             .WithTags("Todo");
 
-        endpoints.MapPut("/todo/{todoId}", UpdateTodoHandler)
+        endpoints.MapPut("/api/todo", UpdateTodoHandler)
             .Accepts<UpdateTodoRequest>("application/json")
             .Produces(StatusCodes.Status200OK, typeof(TodoResponse))
             .Produces(StatusCodes.Status400BadRequest)
             .WithName("UpdateTodo")
             .WithTags("Todo");
 
-        endpoints.MapGet("/todo/history/{todoId}", GetTodoHistoryHandler)
+        endpoints.MapGet("/api/todo/history/{todoId}", GetTodoHistoryHandler)
             .Produces(StatusCodes.Status200OK, typeof(TodoHistoryResponse))
             .Produces(StatusCodes.Status400BadRequest)
             .WithName("GetTodoHistory")
             .WithTags("Todo");
 
-        endpoints.MapGet("/todo", GetUsersTodos)
+        endpoints.MapGet("/api/todo", GetUsersTodos)
             .Produces(StatusCodes.Status200OK)
             .WithName("GetTodos")
             .WithTags("Todo");
 
-        endpoints.MapGet("/todo/team/{teamId}", GetTeamTodosHandler)
+        endpoints.MapGet("/api/todo/team/{teamId}", GetTeamTodosHandler)
             .Produces(StatusCodes.Status200OK, typeof(IEnumerable<TodoResponse>))
             .Produces(StatusCodes.Status400BadRequest)
             .WithName("GetTeamTasks")
             .WithTags("Team");
 
-        endpoints.MapDelete("/todo/delete/{todoId}", DeleteTodoHandler)
+        endpoints.MapDelete("/api/todo/delete/{todoId}", DeleteTodoHandler)
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status400BadRequest)
             .WithName("DeleteTodo")
@@ -90,7 +90,7 @@ public static class TodoEndpoints
     }
 
     [Authorize(Roles = Roles.USER)]
-    public async static Task<IResult> UpdateTodoHandler(HttpContext http, [FromServices] TodoService todoService, [FromBody] UpdateTodoRequest request, [FromRoute] int todoId)
+    public async static Task<IResult> UpdateTodoHandler(HttpContext http, [FromServices] TodoService todoService, [FromBody] UpdateTodoRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
         var jwt = http.Request.Cookies["access_token"];

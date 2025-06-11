@@ -6,20 +6,20 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="space-y-6">
+    <section class="space-y-6">
       <!-- Section Header -->
-      <div *ngIf="title || description" class="space-y-1">
+      <section *ngIf="title || description" class="space-y-1">
         <h3 *ngIf="title" class="text-lg font-medium">{{ title }}</h3>
         <p *ngIf="description" class="text-sm text-muted-foreground">
           {{ description }}
         </p>
-      </div>
+      </section>
 
       <!-- Section Content -->
-      <div class="space-y-4">
+      <section class="space-y-4">
         <ng-content></ng-content>
-      </div>
-    </div>
+      </section>
+    </section>
   `,
   styles: []
 })

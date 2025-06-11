@@ -7,24 +7,24 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
   standalone: true,
   imports: [CommonModule, ButtonComponent],
   template: `
-    <div class="rounded-lg border bg-card p-4">
-      <div class="flex items-start justify-between">
-        <div class="space-y-1">
+    <section class="rounded-lg border bg-card p-4">
+      <section class="flex items-start justify-between">
+        <section class="space-y-1">
           <h3 class="font-medium">{{ team.name }}</h3>
           <p class="text-sm text-muted-foreground">{{ team.description }}</p>
-        </div>
-        <div class="flex items-center space-x-2">
+        </section>
+        <section class="flex items-center space-x-2">
           <span
             class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-primary"
           >
             {{ team.members.length }} members
           </span>
-        </div>
-      </div>
+        </section>
+      </section>
       
-      <div class="mt-4">
-        <div class="flex -space-x-2">
-          <div
+      <section class="mt-4">
+        <section class="flex -space-x-2">
+          <section
             *ngFor="let member of team.members.slice(0, 5)"
             class="inline-block h-8 w-8 rounded-full ring-2 ring-background"
             [title]="member.name"
@@ -34,24 +34,24 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
               [alt]="member.name"
               class="h-full w-full rounded-full object-cover"
             />
-          </div>
-          <div
+          </section>
+          <section
             *ngIf="team.members.length > 5"
             class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-medium ring-2 ring-background"
           >
             +{{ team.members.length - 5 }}
-          </div>
-        </div>
-      </div>
+          </section>
+        </section>
+      </section>
       
-      <div class="mt-4 flex items-center justify-between">
-        <div class="flex items-center space-x-2 text-sm text-muted-foreground">
+      <section class="mt-4 flex items-center justify-between">
+        <section class="flex items-center space-x-2 text-sm text-muted-foreground">
           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
           <span>Created {{ team.createdAt | date }}</span>
-        </div>
-        <div class="flex items-center space-x-2">
+        </section>
+        <section class="flex items-center space-x-2">
           <app-button
             variant="secondary"
             (onClick)="onEdit.emit(team)"
@@ -64,9 +64,9 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
           >
             Delete
           </app-button>
-        </div>
-      </div>
-    </div>
+        </section>
+      </section>
+    </section>
   `,
   styles: []
 })

@@ -6,6 +6,7 @@ namespace TODO_API.Utilities;
 
 public static class Sanitizers
 {
+    // Configure the sanitizer to ensure normal punctuation and text is preserved
     public static readonly HtmlSanitizer Sanitizer = new HtmlSanitizer();
 
     public static CreateTodoRequest Sanitize(this CreateTodoRequest request)
@@ -26,7 +27,7 @@ public static class Sanitizers
 
         request.Title = request.Title != null ? Sanitizer.Sanitize(request.Title) : null;
         request.Description = request.Description != null ? Sanitizer.Sanitize(request.Description) : null;
-        request.Description = request.Status != null ? Sanitizer.Sanitize(request.Status) : null;
+        request.Status = request.Status != null ? Sanitizer.Sanitize(request.Status) : null;
 
         return request;
     }

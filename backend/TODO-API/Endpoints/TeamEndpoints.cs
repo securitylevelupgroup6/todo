@@ -14,21 +14,21 @@ public static class TeamEndpoints
 {
     public static IEndpointRouteBuilder AddTeamEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/teams", CreateTeamHandler)
+        endpoints.MapPost("/api/teams", CreateTeamHandler)
         .Accepts<CreateTeamRequest>("application/json")
         .Produces(StatusCodes.Status201Created, typeof(Team))
         .Produces(StatusCodes.Status400BadRequest)
         .WithName("CreateTeam")
         .WithTags("Team");
 
-        endpoints.MapPost("/teams/{teamId}/members", AddTeamMemberHandler)
+        endpoints.MapPost("/api/teams/{teamId}/members", AddTeamMemberHandler)
         .Accepts<AddTeamMemberRequest>("application/json")
         .Produces(StatusCodes.Status200OK, typeof(TeamMember))
         .Produces(StatusCodes.Status400BadRequest)
         .WithName("AddTeamMember")
         .WithTags("Team");
 
-        endpoints.MapGet("/teams/{teamId}/members", GetTeamMembersHandler)
+        endpoints.MapGet("/api/teams/{teamId}/members", GetTeamMembersHandler)
         .Produces(StatusCodes.Status200OK, typeof(IEnumerable<UserResponse>))
         .Produces(StatusCodes.Status400BadRequest)
         .WithName("GetTeamUsers")

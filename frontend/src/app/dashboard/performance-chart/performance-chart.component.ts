@@ -9,9 +9,9 @@ Chart.register(...registerables);
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="h-[400px]">
+    <section class="h-[400px]">
       <canvas #performanceChart></canvas>
-    </div>
+    </section>
   `,
   styles: [`
     :host {

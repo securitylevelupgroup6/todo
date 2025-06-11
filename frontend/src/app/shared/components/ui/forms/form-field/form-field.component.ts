@@ -6,9 +6,9 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="space-y-2">
+    <section class="space-y-2">
       <!-- Label -->
-      <div *ngIf="label" class="flex items-center justify-between">
+      <section *ngIf="label" class="flex items-center justify-between">
         <label
           [for]="id"
           class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -16,27 +16,27 @@ import { CommonModule } from '@angular/common';
           {{ label }}
           <span *ngIf="required" class="text-destructive">*</span>
         </label>
-        <div *ngIf="labelHint" class="text-sm text-muted-foreground">
+        <section *ngIf="labelHint" class="text-sm text-muted-foreground">
           {{ labelHint }}
-        </div>
-      </div>
+        </section>
+      </section>
 
       <!-- Input -->
-      <div class="relative">
+      <section class="relative">
         <ng-content></ng-content>
-        <div
+        <section
           *ngIf="prefix"
           class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
         >
           <ng-container *ngTemplateOutlet="prefix"></ng-container>
-        </div>
-        <div
+        </section>
+        <section
           *ngIf="suffix"
           class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
         >
           <ng-container *ngTemplateOutlet="suffix"></ng-container>
-        </div>
-      </div>
+        </section>
+      </section>
 
       <!-- Description -->
       <p *ngIf="description" class="text-sm text-muted-foreground">
@@ -47,7 +47,7 @@ import { CommonModule } from '@angular/common';
       <p *ngIf="error" class="text-sm font-medium text-destructive">
         {{ error }}
       </p>
-    </div>
+    </section>
   `,
   styles: []
 })

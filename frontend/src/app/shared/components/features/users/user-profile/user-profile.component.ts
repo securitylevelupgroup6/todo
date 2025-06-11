@@ -7,9 +7,9 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
   standalone: true,
   imports: [CommonModule, ButtonComponent],
   template: `
-    <div class="rounded-lg border bg-card p-6">
-      <div class="flex items-start space-x-4">
-        <div class="relative">
+    <section class="rounded-lg border bg-card p-6">
+      <section class="flex items-start space-x-4">
+        <section class="relative">
           <img
             [src]="user.avatar"
             [alt]="user.name"
@@ -26,12 +26,12 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           </button>
-        </div>
+        </section>
         
-        <div class="flex-1 space-y-1">
-          <div class="flex items-center justify-between">
+        <section class="flex-1 space-y-1">
+          <section class="flex items-center justify-between">
             <h3 class="text-lg font-semibold">{{ user.name }}</h3>
-            <div class="flex items-center space-x-2">
+            <section class="flex items-center space-x-2">
               <app-button
                 *ngIf="editable"
                 variant="secondary"
@@ -39,47 +39,47 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
               >
                 Edit Profile
               </app-button>
-            </div>
-          </div>
+            </section>
+          </section>
           
           <p class="text-sm text-muted-foreground">{{ user.email }}</p>
           
-          <div class="flex items-center space-x-4 text-sm text-muted-foreground">
-            <div class="flex items-center space-x-1">
+          <section class="flex items-center space-x-4 text-sm text-muted-foreground">
+            <section class="flex items-center space-x-1">
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
               <span>{{ user.role }}</span>
-            </div>
-            <div class="flex items-center space-x-1">
+            </section>
+            <section class="flex items-center space-x-1">
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               <span>Joined {{ user.joinedAt | date }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+            </section>
+          </section>
+        </section>
+      </section>
 
-      <div *ngIf="user.bio" class="mt-4">
+      <section *ngIf="user.bio" class="mt-4">
         <p class="text-sm text-muted-foreground">{{ user.bio }}</p>
-      </div>
+      </section>
 
-      <div *ngIf="user.stats" class="mt-4 grid grid-cols-3 gap-4 border-t pt-4">
-        <div class="text-center">
+      <section *ngIf="user.stats" class="mt-4 grid grid-cols-3 gap-4 border-t pt-4">
+        <section class="text-center">
           <p class="text-2xl font-semibold">{{ user.stats.teams }}</p>
           <p class="text-sm text-muted-foreground">Teams</p>
-        </div>
-        <div class="text-center">
+        </section>
+        <section class="text-center">
           <p class="text-2xl font-semibold">{{ user.stats.tasks }}</p>
           <p class="text-sm text-muted-foreground">Tasks</p>
-        </div>
-        <div class="text-center">
+        </section>
+        <section class="text-center">
           <p class="text-2xl font-semibold">{{ user.stats.completed }}</p>
           <p class="text-sm text-muted-foreground">Completed</p>
-        </div>
-      </div>
-    </div>
+        </section>
+      </section>
+    </section>
   `,
   styles: []
 })

@@ -1,0 +1,105 @@
+/* Styles for role-management.component.scss */
+
+/* General container styling */
+.container {
+  max-width: 1200px; /* Or your preferred max-width */
+}
+
+/* Header styling */
+.text-3xl {
+  color: var(--foreground); /* Or your primary text color */
+}
+
+.text-muted-foreground {
+  color: var(--muted-foreground); /* Or your secondary text color */
+}
+
+/* Loading and Error States */
+.animate-spin {
+  color: var(--primary); /* Or your primary brand color */
+}
+
+.border-destructive\/20 {
+  border-color: rgba(var(--destructive-rgb), 0.2);
+}
+
+.bg-destructive\/10 {
+  background-color: rgba(var(--destructive-rgb), 0.1);
+}
+
+.text-destructive {
+  color: var(--destructive); /* Or your error text color */
+}
+
+/* Table Styling */
+.border {
+  border-color: var(--border);
+}
+
+.bg-card {
+  background-color: var(--card);
+}
+
+.shadow-sm {
+  box-shadow: var(--shadow-sm); /* Define your shadow variables */
+}
+
+.sectionide-y > :not([hidden]) ~ :not([hidden]) {
+  border-top-width: 1px;
+  border-color: var(--border);
+}
+
+.sectionide-border {
+  border-color: var(--border);
+}
+
+
+.bg-muted\/50 {
+  background-color: rgba(var(--muted-rgb), 0.5); /* Ensure --muted-rgb is defined e.g. 240, 240, 240 */
+}
+
+
+.text-xs {
+  font-size: 0.75rem; /* 12px */
+  line-height: 1rem; /* 16px */
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.tracking-wider {
+  letter-spacing: 0.05em;
+}
+
+.bg-background {
+  background-color: var(--background);
+}
+
+.hover\:bg-muted\/50:hover {
+  background-color: rgba(var(--muted-rgb), 0.5); /* Ensure --muted-rgb is defined */
+}
+
+.text-foreground {
+  color: var(--foreground);
+}
+
+/* Ensure you have these CSS variables defined in your global styles (e.g., styles.scss or a theme file) */
+/*
+:root {
+  --foreground: #000;
+  --muted-foreground: #666;
+  --primary: #007bff;
+  --destructive: #dc3545;
+  --destructive-rgb: 220, 53, 69;
+  --border: #dee2e6;
+  --card: #fff;
+  --background: #f8f9fa;
+  --muted-rgb: 240, 240, 240; // Example muted color
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+*/
