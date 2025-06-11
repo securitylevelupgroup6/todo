@@ -54,10 +54,10 @@ public static class TodoEndpoints
     }
 
     [Authorize(Roles = $"{Roles.USER},{Roles.TEAMLEAD}")]
-    public async static Task<IResult> GetUsersTodos(HttpContext http, TodoService todoService)
+    public async static Task<IResult> GetUsersTodos(HttpContext http, TodoService todoService, bool? includeAll)
     {
         var jwt = http.Request.Cookies["access_token"];
-        return Results.Ok(await todoService.GetUserTodosAsync(jwt));
+        return Results.Ok(await todoService.GetUserTodosAsync(jwt, includeAll ?? false));
     }
 
 
