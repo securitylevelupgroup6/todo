@@ -119,7 +119,7 @@ server {
     root $FRONTEND_APP_DIR;
     index index.html;
 
-    location /api {
+    location /api/ {
         proxy_pass http://localhost:5000;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
