@@ -87,7 +87,6 @@ public class UserService(TodoContext todoContext, IDataProtectionProvider provid
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
             return false;
         }
     }
@@ -131,12 +130,10 @@ public class UserService(TodoContext todoContext, IDataProtectionProvider provid
         }
         catch (DbUpdateException ex)
         {
-            Console.WriteLine(ex);
             return ResetPasswordResult.DatabaseError;
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
             return ResetPasswordResult.UnknownError;
         }
         return ResetPasswordResult.Success;
@@ -211,13 +208,11 @@ public class UserService(TodoContext todoContext, IDataProtectionProvider provid
         }
         catch (DbUpdateException exception)
         {
-            Console.WriteLine(exception.StackTrace);
             otpUri = null;
             return RegistrationResult.DatabaseError;
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.StackTrace);
             otpUri = null;
             return RegistrationResult.UnknownError;
         }

@@ -33,7 +33,6 @@ public class TeamRepository([FromServices] TodoContext context)
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
             throw new Exception("An error occurred while creating the team.", ex);
         }
     }
@@ -44,7 +43,7 @@ public class TeamRepository([FromServices] TodoContext context)
         {
             // Determine user based on what was provided in the request
             User? user = null;
-            
+
             if (request.UserId.HasValue)
             {
                 user = await context.Users.FindAsync(request.UserId.Value);
@@ -77,7 +76,6 @@ public class TeamRepository([FromServices] TodoContext context)
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
             throw new Exception("An error occurred while adding the user to the team.", ex);
         }
     }

@@ -32,7 +32,6 @@ public class TodoService(TodoContext dbContext, TodoRepository todoRepository)
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
             throw new Exception("An error occurred while creating the todo.", ex);
         }
     }
@@ -47,7 +46,7 @@ public class TodoService(TodoContext dbContext, TodoRepository todoRepository)
         .Where(c => c.Type == ClaimTypes.Role)
         .Select(c => c.Value)
         .ToList();
-        Console.WriteLine(JsonSerializer.Serialize(roles));
+
         if (roles.Any(role => role == "TEAM_LEAD")) return true;
 
         // return whether or not the users id matched the proposed owner id
@@ -113,7 +112,9 @@ public class TodoService(TodoContext dbContext, TodoRepository todoRepository)
             currentState.Title = request.Title ?? currentState.Title;
 
             currentState.StatusId = dbContext.TodoStatuses.FirstOrDefault((status) => status.StatusName == request.Status)?.Id ?? currentState.StatusId;
-            Console.WriteLine(currentState.StatusId);
+
+            currentState.TeamId = request.TeamId ?? currentState.TeamId;
+            currentState.StatusId = dbContext.TodoStatuses.FirstOrDefault((status) => status.StatusName == request.Status)?.Id ?? currentState.StatusId;
 
             currentState.TeamId = request.TeamId ?? currentState.TeamId;
 
@@ -151,7 +152,6 @@ public class TodoService(TodoContext dbContext, TodoRepository todoRepository)
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
             throw new Exception("An error occurred while updating the todo.", ex);
         }
     }

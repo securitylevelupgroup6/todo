@@ -97,7 +97,6 @@ public static class TeamEndpoints
 
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
             return Results.BadRequest(new { error = ex.Message });
         }
     }

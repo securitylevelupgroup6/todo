@@ -67,7 +67,6 @@ public static class TodoEndpoints
         ArgumentNullException.ThrowIfNull(request);
         var jwt = http.Request.Cookies["access_token"];
 
-        Console.WriteLine(!todoService.validateUserForCreation(jwt, request.OwnerUserId));
         if (!todoService.validateUserForCreation(jwt, request.OwnerUserId))
         {
             // User has insufficient roles to assign to the provided owner
@@ -107,7 +106,6 @@ public static class TodoEndpoints
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
             return Results.BadRequest(new { error = ex.Message });
         }
     }
@@ -139,7 +137,6 @@ public static class TodoEndpoints
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
             return Results.BadRequest(new { error = ex.Message });
         }
     }

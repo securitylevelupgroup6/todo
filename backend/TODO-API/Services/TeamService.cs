@@ -23,7 +23,6 @@ public class TeamService(TeamRepository teamRepository)
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.StackTrace);
             throw new Exception("An error occurred while creating the team.", ex);
         }
     }
