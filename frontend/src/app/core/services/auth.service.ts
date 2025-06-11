@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap, map } from 'rxjs'; // Ensured map is imported
 import { Router } from '@angular/router';
 import { User, UserRecord, LoginCredentials } from '../../models/user.model';
 import { environment } from '../../../environments/environment';
@@ -110,5 +110,16 @@ export class AuthService {
 
   updateAuthRequest(requestType: string) {
     this.requestSubject.next({ requestType: requestType })
+  }
+
+  // Add this method to get user roles
+  getUserRoles(): Observable<string[]> {
+    // This should ideally fetch roles from a secure endpoint or use roles stored during login
+    // For now, let's assume roles are part of the UserRecord stored in localStorage
+    // Or, if you have an endpoint like /users/roles that returns current user's roles:
+    return this.http.get<{ roles: string[] }>(`${this.apiBaseUrl}/users/roles`, { withCredentials: true })
+      .pipe(
+        map((response: { roles: string[] }) => response.roles || []) // Corrected map usage
+      );
   }
 }

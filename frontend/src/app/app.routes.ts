@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout.component';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   {
@@ -21,8 +22,9 @@ export const routes: Routes = [
         loadComponent: () => import('./tasks/tasks.component').then(m => m.TasksComponent)
       },
       {
-        path: 'settings',
-        loadComponent: () => import('./settings/settings.component').then(m => m.SettingsComponent)
+        path: 'roles',
+        loadComponent: () => import('./role-component/role-management.component').then(m => m.RoleManagementComponent),
+        canActivate: [adminGuard]
       }
     ]
   },

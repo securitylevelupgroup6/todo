@@ -15,8 +15,6 @@ import { FooterComponent } from '../footer/footer.component';
         [navItems]="navItems"
         [showSettings]="showSettings"
         [showProfile]="showProfile"
-        (onSettingsClick)="onSettingsClick.emit()"
-        (onProfileClick)="onProfileClick.emit()"
       ></app-header>
       
       <div class="flex">

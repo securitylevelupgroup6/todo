@@ -285,6 +285,8 @@ export class TasksComponent implements OnInit {
           this.formData.assignedTo = null;
         }
       }
+      // Clear any existing error messages when team changes successfully
+      this.errorMessage = '';
     });
   }
 
@@ -351,12 +353,30 @@ export class TasksComponent implements OnInit {
   private updateTask() {
     if (!this.selectedTask) return;
 
+    // Validate that assignee is a valid team member if specified
+    if (this.formData.assignedTo) {
+      const assigneeId = parseInt(this.formData.assignedTo);
+      const teamId = parseInt(this.formData.team);
+      
+      // Check if the assignee is in the available assignees for the selected team
+      const isValidAssignee = this.availableAssignees.some(assignee => assignee.id === assigneeId);
+      
+      if (!isValidAssignee) {
+        this.errorMessage = 'The selected assignee is not a member of the selected team. Please choose a valid team member.';
+        this.isLoading = false;
+        return;
+      }
+    }
+
+    // For now, let's try not sending assigneeId to see if that resolves the backend issue
+    // The backend might have issues with the assigneeId vs team_member.id mismatch
     const updateRequest: UpdateTodoRequestDto = {
       todoId: this.selectedTask.id,
       title: this.formData.title,
       description: this.formData.description,
       status: StatusMapping.frontendToBackend(this.formData.status),
-      assigneeId: this.formData.assignedTo ? parseInt(this.formData.assignedTo) : undefined,
+      // Temporarily commenting out assigneeId to test if that's causing the issue
+      // assigneeId: this.formData.assignedTo ? parseInt(this.formData.assignedTo) : undefined,
       teamId: parseInt(this.formData.team)
     };
 
