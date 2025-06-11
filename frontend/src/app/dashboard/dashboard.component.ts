@@ -53,8 +53,8 @@ export class DashboardComponent implements OnInit {
           totalTeams: this.getTeamCount(data.results),
           activeUsers: 0,
           ongoingTasks: outstandingTodos,
-          completionRate: (completedTodos / data.results.length) * 100,
-          completedTodos: completedTodos,
+          completionRate: (completedTodos / data.results.length) * 100 ,
+          completedTodos: completedTodos || 0,
         }
       } else {
 
@@ -63,14 +63,16 @@ export class DashboardComponent implements OnInit {
   }
 
   getTodoStateCount(todos: BackendTodo[], statusOfTodo: string): number {
-    return todos.map(
+    const stateCount: number = todos.map(
       (todo: BackendTodo) => todo.todoState?.status?.statusName
     ).filter(status => status?.toLowerCase() === statusOfTodo).length;
+    return isNaN(stateCount) ? 0 : stateCount
   }
 
   getTeamCount(todos: BackendTodo[]): number {
-    return todos.map(
+    const teamCount: number = todos.map(
       (todo: BackendTodo) => todo.team?.name
-    ).length
+    ).length;
+    return isNaN(teamCount) ? 0 : teamCount;
   }
 }

@@ -35,4 +35,14 @@ export class HeaderComponent implements OnInit {
     const lastInitial = lastName ? lastName.charAt(0).toUpperCase() : '';
     return firstInitial + lastInitial;
   }
+
+  logout(): void {
+    this.authService.logout().subscribe({
+      next: () => {
+      },
+      error: (error) => {
+        console.error('Logout error:', error);
+      }
+    });
+  }
 }

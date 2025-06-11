@@ -95,9 +95,6 @@ export class AuthService {
 
   private clearUser(): void {
     localStorage.removeItem('currentUser');
-    // Keep legacy cleanup for backward compatibility
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
   }
 
   getCurrentUser(): UserRecord | null {

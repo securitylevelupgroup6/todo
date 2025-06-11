@@ -17,14 +17,24 @@
     <section class="flex items-center gap-x-2 lg:gap-x-4 ml-auto">
       <!-- Profile -->
       <section class="relative">
-        <button class="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground">
+        <div class="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium text-muted-foreground">
           <figure class="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-medium shadow-sm">
             {{ userInitials || 'U' }}
           </figure>
           <span class="hidden lg:inline-block">{{ userFullName || 'User' }}</span>
-          <svg class="h-4 w-4 hidden lg:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </div>
+      </section>
+      
+      <!-- Logout Button -->
+      <section class="relative">
+        <button 
+          (click)="logout()"
+          class="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+          title="Logout">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
+          <span class="hidden sm:inline-block">Logout</span>
         </button>
       </section>
     </section>

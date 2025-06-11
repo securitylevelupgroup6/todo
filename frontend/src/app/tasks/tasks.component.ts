@@ -157,8 +157,10 @@ export class TasksComponent implements OnInit {
 
   private mapBackendTodoToTask(backendTodo: BackendTodo): Task {
     const assignedTo = backendTodo.todoState?.assignee?.user || null;
-    const teamId = backendTodo.todoState?.teamId || 0;
-    const team = this.teams.find(t => t.id === teamId) || { id: teamId, name: 'Unknown Team' };
+    const team = {
+      id: backendTodo.todoState?.team?.id || 0,
+      name: backendTodo.todoState?.team?.name || 'Unknown Team'
+    };
     const status = backendTodo.todoState?.status?.statusName 
       ? StatusMapping.backendToFrontend(backendTodo.todoState.status.statusName)
       : FrontendTodoStatus.Todo;
@@ -328,7 +330,7 @@ export class TasksComponent implements OnInit {
     };
 
     this.taskService.createTask(createRequest).subscribe({
-      next: (backendTodo: BackendTodo) => {
+      next: (todoResponse: TodoResponseDto) => {
         // Refresh the entire task list to get the latest data with proper team information
         this.loadTasks();
         this.closeModal();
@@ -368,25 +370,18 @@ export class TasksComponent implements OnInit {
       }
     }
 
-    // For now, let's try not sending assigneeId to see if that resolves the backend issue
-    // The backend might have issues with the assigneeId vs team_member.id mismatch
     const updateRequest: UpdateTodoRequestDto = {
       todoId: this.selectedTask.id,
       title: this.formData.title,
       description: this.formData.description,
       status: StatusMapping.frontendToBackend(this.formData.status),
-      // Temporarily commenting out assigneeId to test if that's causing the issue
-      // assigneeId: this.formData.assignedTo ? parseInt(this.formData.assignedTo) : undefined,
+      assigneeId: this.formData.assignedTo ? parseInt(this.formData.assignedTo, 10) : undefined,
       teamId: parseInt(this.formData.team)
     };
 
     this.taskService.updateTask(updateRequest).subscribe({
       next: (todoResponse: TodoResponseDto) => {
-        const updatedTask = this.mapTodoResponseToTask(todoResponse, parseInt(this.formData.team));
-        const index = this.tasks.findIndex(t => t.id === this.selectedTask!.id);
-        if (index !== -1) {
-          this.tasks[index] = updatedTask;
-        }
+        this.loadTasks();
         this.closeModal();
         this.isLoading = false;
       },
@@ -407,8 +402,30 @@ export class TasksComponent implements OnInit {
   }
 
   deleteTask(task: Task) {
-    // Delete functionality is disabled as requested
-    alert('Delete functionality is coming soon! This feature is not yet available.');
-    this.taskService.deleteTask(task.id); // This just logs a message
+    if (confirm(`Are you sure you want to delete the task "${task.title}"?`)) {
+      this.isLoading = true;
+      this.errorMessage = '';
+
+      this.taskService.deleteTask(task.id).subscribe({
+        next: () => {
+          // Remove the task from the local array for immediate UI update
+          this.tasks = this.tasks.filter(t => t.id !== task.id);
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error deleting task:', error);
+          if (error.status === 401) {
+            this.errorMessage = 'Authentication failed. Please log in again.';
+          } else if (error.status === 403) {
+            this.errorMessage = 'You do not have permission to delete this task.';
+          } else if (error.status === 404) {
+            this.errorMessage = 'Task not found.';
+          } else {
+            this.errorMessage = 'Failed to delete task. Please try again.';
+          }
+          this.isLoading = false;
+        }
+      });
+    }
   }
 }

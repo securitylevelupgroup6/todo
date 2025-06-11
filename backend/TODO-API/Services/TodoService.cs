@@ -77,64 +77,69 @@ public class TodoService(TodoContext dbContext, TodoRepository todoRepository)
 
     internal async Task<Todo> UpdateTodoAsync(string jwt, UpdateTodoRequest request)
     {
-        try
+    try
+    {
+        var todo = dbContext.Todos
+        .Include(todo => todo.Owner)
+        .ThenInclude(owner => owner.User)
+        .Include(todo => todo.TodoState)
+        .ThenInclude(ts => ts.Assignee)
+        .ThenInclude((assignee) => assignee.User) // this is NOT a null reference exception waiting to happen because EF will skip the ThenInclude in the case that assignee is null
+        .Include(todo => todo.TodoState)
+        .ThenInclude(ts => ts.Status)
+        .FirstOrDefault((todo) => todo.Id == request.TodoId) ?? throw new ArgumentException("Todo not found.", nameof(request.TodoId));
+
+        if (!ValidateUserForTodoUpdates(jwt, todo.Id)) throw new UnauthorizedAccessException("User does not have permission to update this todo.");
+
+        var currentState = todo.TodoState;
+        var currentStateCopy = JsonSerializer.Deserialize<TodoState>(JsonSerializer.Serialize(currentState));
+
+        currentState.Description = request.Description ?? currentState.Description;
+        currentState.Title = request.Title ?? currentState.Title;
+
+        currentState.StatusId = dbContext.TodoStatuses.FirstOrDefault((status) => status.StatusName == request.Status)?.Id ?? currentState.StatusId;
+        Console.WriteLine(currentState.StatusId);
+
+        currentState.TeamId = request.TeamId ?? currentState.TeamId;
+
+        var teamMember = dbContext.TeamMembers
+.FirstOrDefault((tm) => tm.UserId == request.AssigneeId && tm.TeamId == currentState.TeamId);
+
+        currentState.AssigneeId = teamMember != null ? teamMember.Id : currentState.AssigneeId;
+
+        todo.TodoState = currentState;
+        var oldState = new TodoState
         {
-            var todo = dbContext.Todos
-            .Include(todo => todo.Owner)
-            .ThenInclude(owner => owner.User)
-            .Include(todo => todo.TodoState)
-            .ThenInclude(ts => ts.Assignee)
-            .ThenInclude((assignee) => assignee.User) // this is NOT a null reference exception waiting to happen because EF will skip the ThenInclude in the case that assignee is null
-            .Include(todo => todo.TodoState)
-            .ThenInclude(ts => ts.Status)
-            .FirstOrDefault((todo) => todo.Id == request.TodoId) ?? throw new ArgumentException("Todo not found.", nameof(request.TodoId));
+            Title = currentStateCopy.Title,
+            Description = currentStateCopy.Description,
+            StatusId = currentStateCopy.StatusId,
+            AssigneeId = currentStateCopy.AssigneeId,
+            TeamId = currentStateCopy.TeamId
+        };
 
-            if (!ValidateUserForTodoUpdates(jwt, todo.Id)) throw new UnauthorizedAccessException("User does not have permission to update this todo.");
+        await dbContext.AddAsync(oldState);
+        await dbContext.SaveChangesAsync();
 
-            var currentState = todo.TodoState;
-            var currentStateCopy = JsonSerializer.Deserialize<TodoState>(JsonSerializer.Serialize(currentState));
-
-            currentState.Description = request.Description ?? currentState.Description;
-            currentState.Title = request.Title ?? currentState.Title;
-
-            currentState.StatusId = dbContext.TodoStatuses.FirstOrDefault((status) => status.StatusName == request.Status)?.Id ?? currentState.StatusId;
-            Console.WriteLine(currentState.StatusId);
-            currentState.AssigneeId = request.AssigneeId ?? currentState.AssigneeId;
-            currentState.TeamId = request.TeamId ?? currentState.TeamId;
-
-            todo.TodoState = currentState;
-            var oldState = new TodoState
-            {
-                Title = currentStateCopy.Title,
-                Description = currentStateCopy.Description,
-                StatusId = currentStateCopy.StatusId,
-                AssigneeId = currentStateCopy.AssigneeId,
-                TeamId = currentStateCopy.TeamId
-            };
-
-            await dbContext.AddAsync(oldState);
-            await dbContext.SaveChangesAsync();
-
-            var todoHistoryRequest = new CreateTodoHistoryRequest
-            {
-                Todo = todo,
-                Date = DateTime.UtcNow,
-                Reporter = dbContext.TeamMembers.FirstOrDefault((tm) => tm.Id == currentState.AssigneeId && tm.TeamId == currentState.TeamId) ?? throw new Exception("No Team member found for the new state"),
-                OldState = oldState,
-                UpdatedState = currentState
-            };
-
-
-            await todoRepository.CreateTodoHistoryAsync(todoHistoryRequest);
-
-            return todo;
-        }
-        catch (Exception ex)
+        var todoHistoryRequest = new CreateTodoHistoryRequest
         {
-            Console.WriteLine(ex);
-            throw new Exception("An error occurred while updating the todo.", ex);
-        }
+            Todo = todo,
+            Date = DateTime.UtcNow,
+            Reporter = teamMember,
+            OldState = oldState,
+            UpdatedState = currentState
+        };
+
+
+        await todoRepository.CreateTodoHistoryAsync(todoHistoryRequest);
+
+        return todo;
     }
+    catch (Exception ex)
+    {
+        Console.WriteLine(ex);
+        throw new Exception("An error occurred while updating the todo.", ex);
+    }
+}
 
     internal async Task<IEnumerable<Todo>> GetTeamTodosAsync(int teamId)
     {
