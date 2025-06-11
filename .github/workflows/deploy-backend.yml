@@ -49,6 +49,26 @@ jobs:
         run: |
             dotnet publish -c Release -r linux-x64 --self-contained true /p:PublishSingleFile=true
             scp -o StrictHostKeyChecking=no -i ../../ec2_key.pem ./bin/Release/net9.0/linux-x64/publish/* ubuntu@$EC2_IP:~/build 
+      - name: Setup Node.js for frontend build
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install frontend dependencies and build
+        working-directory: frontend
+        run: |
+          npm install
+          npm run build -- --configuration=production
+
+      - name: SSH into EC2 and clean up old frontend build
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@$EC2_IP << 'EOF'
+          sudo rm -rf ~/frontend-build* 
+          EOF
+
+      - name: Copy frontend build result to EC2
+        run: |
+          scp -r -o StrictHostKeyChecking=no -i ec2_key.pem ./frontend/dist/frontend/browser/* ubuntu@$EC2_IP:~/frontend-build 
 
       - name: SSH into EC2 and run commands
         run: |
