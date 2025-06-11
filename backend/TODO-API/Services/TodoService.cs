@@ -112,10 +112,6 @@ public class TodoService(TodoContext dbContext, TodoRepository todoRepository)
             currentState.Title = request.Title ?? currentState.Title;
 
             currentState.StatusId = dbContext.TodoStatuses.FirstOrDefault((status) => status.StatusName == request.Status)?.Id ?? currentState.StatusId;
-
-            currentState.TeamId = request.TeamId ?? currentState.TeamId;
-            currentState.StatusId = dbContext.TodoStatuses.FirstOrDefault((status) => status.StatusName == request.Status)?.Id ?? currentState.StatusId;
-
             currentState.TeamId = request.TeamId ?? currentState.TeamId;
 
             var teamMember = dbContext.TeamMembers
