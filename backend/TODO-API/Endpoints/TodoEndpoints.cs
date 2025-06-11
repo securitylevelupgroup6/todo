@@ -34,7 +34,6 @@ public static class TodoEndpoints
             .WithTags("Todo");
 
         endpoints.MapGet("/api/todo", GetUsersTodos)
-            .Produces(StatusCodes.Status200OK, typeof(IEnumerable<TodoResponse>))
             .Produces(StatusCodes.Status200OK)
             .WithName("GetTodos")
             .WithTags("Todo");
@@ -58,12 +57,7 @@ public static class TodoEndpoints
     public async static Task<IResult> GetUsersTodos(HttpContext http, TodoService todoService)
     {
         var jwt = http.Request.Cookies["access_token"];
-
-        var todos = await todoService.GetUserTodosAsync(jwt);
-
-        var response = todos.Select(todo => todo.MapToTodoResponse());
-
-        return Results.Ok(response);
+        return Results.Ok(await todoService.GetUserTodosAsync(jwt));
     }
 
 
