@@ -91,7 +91,7 @@ public static class TodoEndpoints
     }
 
     [Authorize(Roles = Roles.USER)]
-    public async static Task<IResult> UpdateTodoHandler(HttpContext http, [FromServices] TodoService todoService, [FromBody] UpdateTodoRequest request, int todoId)
+    public async static Task<IResult> UpdateTodoHandler(HttpContext http, [FromServices] TodoService todoService, [FromBody] UpdateTodoRequest request, [FromRoute] int todoId)
     {
         ArgumentNullException.ThrowIfNull(request);
         var jwt = http.Request.Cookies["access_token"];
@@ -114,7 +114,7 @@ public static class TodoEndpoints
     }
 
     [Authorize(Roles = Roles.USER)]
-    private static async Task<IResult> GetTeamTodosHandler([FromServices] TodoService todoService, int teamId)
+    private static async Task<IResult> GetTeamTodosHandler([FromServices] TodoService todoService, [FromRoute] int teamId)
     {
         try
         {
@@ -129,7 +129,7 @@ public static class TodoEndpoints
     }
 
     [Authorize(Roles = Roles.USER)]
-    private static async Task<IResult> DeleteTodoHandler(HttpContext http, [FromServices] TodoService todoService, int todoId)
+    private static async Task<IResult> DeleteTodoHandler(HttpContext http, [FromServices] TodoService todoService, [FromRoute] int todoId)
     {
         var jwt = http.Request.Cookies["access_token"];
 
@@ -146,7 +146,7 @@ public static class TodoEndpoints
     }
 
     [Authorize(Roles = Roles.USER)]
-    private static async Task<IResult> GetTodoHistoryHandler([FromServices] TodoService todoService, int todoId)
+    private static async Task<IResult> GetTodoHistoryHandler([FromServices] TodoService todoService, [FromRoute] int todoId)
     {
         try
         {
