@@ -14,7 +14,7 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
       <div
         class="flex h-10 w-10 items-center justify-center rounded-full"
         [ngClass]="{
-          'bg-primary/10 text-primary': notification.type === 'info',
+          'text-primary': notification.type === 'info',
           'bg-success/10 text-success': notification.type === 'success',
           'bg-warning/10 text-warning': notification.type === 'warning',
           'bg-destructive/10 text-destructive': notification.type === 'error'

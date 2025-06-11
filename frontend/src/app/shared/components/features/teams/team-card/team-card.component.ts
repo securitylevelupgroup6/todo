@@ -15,7 +15,7 @@ import { ButtonComponent } from '../../../ui/buttons/button/button.component';
         </div>
         <div class="flex items-center space-x-2">
           <span
-            class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
+            class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-primary"
           >
             {{ team.members.length }} members
           </span>

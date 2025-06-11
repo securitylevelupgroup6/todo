@@ -216,7 +216,7 @@ export class TasksComponent implements OnInit {
       case 'todo':
         return 'bg-muted text-muted-foreground';
       case 'in_progress':
-        return 'bg-primary/10 text-primary';
+        return 'text-primary';
       case 'completed':
         return 'bg-success/10 text-success';
       default:
