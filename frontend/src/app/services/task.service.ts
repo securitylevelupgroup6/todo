@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, } from '@angular/common/http';
 import { Observable, of, catchError, map } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { 
@@ -10,6 +10,7 @@ import {
 } from '../models/task.model';
 import { TeamResponse, UserResponse } from '../shared/models/team.models';
 import { IResponse, observe } from '../shared/functions/helpers.function';
+import { UserRecord } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -95,7 +96,9 @@ export class TaskService {
     return this.http.delete<void>(`${this.apiUrl}/todo/delete/${taskId-1}`);
   }
 
-  getUserToDos(): Observable<IResponse<BackendTodo[]>> {
-    return observe(this.http.get<BackendTodo[]>(`${this.apiUrl}/todo`));
+  getUserToDos(user: UserRecord): Observable<IResponse<BackendTodo[]>> {
+    return user.roles.includes('TEAM_LEAD') 
+    ? observe(this.http.get<BackendTodo[]>(`${this.apiUrl}/todo?includeAll=${true}`))
+    : observe(this.http.get<BackendTodo[]>(`${this.apiUrl}/todo`));
   }
 }

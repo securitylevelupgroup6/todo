@@ -45,7 +45,7 @@ export class DashboardComponent implements OnInit {
 
   private loadDashboardData(): void {
     // Load metrics
-    this.taskService.getUserToDos().subscribe(data => {
+    this.taskService.getUserToDos(this.user).subscribe(data => {
       if(data.results) {
         const outstandingTodos: number = this.getTodoStateCount(data.results, 'created') + this.getTodoStateCount(data.results, 'in_progress');
         const completedTodos: number = this.getTodoStateCount(data.results, 'completed');
@@ -53,7 +53,7 @@ export class DashboardComponent implements OnInit {
           totalTeams: this.getTeamCount(data.results),
           activeUsers: 0,
           ongoingTasks: outstandingTodos,
-          completionRate: (completedTodos / data.results.length) * 100 ,
+          completionRate: data.results.length > 0 ? (completedTodos / data.results.length) * 100 : 0,
           completedTodos: completedTodos || 0,
         }
       } else {
@@ -66,13 +66,13 @@ export class DashboardComponent implements OnInit {
     const stateCount: number = todos.map(
       (todo: BackendTodo) => todo.todoState?.status?.statusName
     ).filter(status => status?.toLowerCase() === statusOfTodo).length;
-    return isNaN(stateCount) ? 0 : stateCount
+    return isNaN(stateCount) || stateCount ? 0 : stateCount
   }
 
   getTeamCount(todos: BackendTodo[]): number {
     const teamCount: number = todos.map(
       (todo: BackendTodo) => todo.team?.name
     ).length;
-    return isNaN(teamCount) ? 0 : teamCount;
+    return isNaN(teamCount) || !teamCount ? 0 : teamCount;
   }
 }
