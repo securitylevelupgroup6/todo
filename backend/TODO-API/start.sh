@@ -103,6 +103,7 @@ DOMAIN="todo.pastpaperportal.co.za"
 EMAIL="admin@$DOMAIN" 
 NGINX_CONF="/etc/nginx/sites-available/$DOMAIN"
 NGINX_LINK="/etc/nginx/sites-enabled/$DOMAIN"
+FRONTEND_APP_DIR="/home/ubuntu/frontend-build"
 
 echo "Installing nginx and certbot..."
 sudo apt update
@@ -115,7 +116,10 @@ server {
     listen 80;
     server_name $DOMAIN;
 
-    location / {
+    root $FRONTEND_APP_DIR;
+    index index.html;
+
+    location /api {
         proxy_pass http://localhost:5000;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
@@ -126,6 +130,14 @@ server {
         proxy_set_header Origin \$http_origin;
         proxy_buffering off;
         }
+    }
+
+    location / {
+        try_files \$uri \$uri/ /index.html;
+    }
+
+    location ~ /\. {
+        deny all;
     }
 }
 EOF

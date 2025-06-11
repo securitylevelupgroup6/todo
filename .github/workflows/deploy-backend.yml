@@ -63,12 +63,12 @@ jobs:
       - name: SSH into EC2 and clean up old frontend build
         run: |
           ssh -o StrictHostKeyChecking=no -i ec2_key.pem ubuntu@$EC2_IP << 'EOF'
-          sudo rm -rf /var/www/html/todo-app/* 
+          sudo rm -rf ~/frontend-build* 
           EOF
 
       - name: Copy frontend build result to EC2
         run: |
-          scp -r -o StrictHostKeyChecking=no -i ec2_key.pem ./frontend/dist/frontend/* ubuntu@$EC2_IP:/var/www/html/your-angular-app/ # Adjust destination path
+          scp -r -o StrictHostKeyChecking=no -i ec2_key.pem ./frontend/dist/frontend/* ubuntu@$EC2_IP:/var/www/html/frontend-build/ 
 
       - name: SSH into EC2 and run commands
         run: |
