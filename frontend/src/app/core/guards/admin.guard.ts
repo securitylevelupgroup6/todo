@@ -6,22 +6,20 @@ import { Observable, of } from 'rxjs';
 
 export const adminGuard: CanActivateFn = (): Observable<boolean> => {
   const router = inject(Router);
-  const authService = inject(AuthService); // Use your actual AuthService
+  const authService = inject(AuthService); 
 
   // Check if user is authenticated first
-  if (!authService.isAuthenticated()) { // Assuming an isAuthenticated method
+  if (!authService.isAuthenticated()) { 
     router.navigate(['/auth/login']);
     return of(false);
   }
 
-  // Check if user has ADMIN role
-  // This depends on how roles are stored and accessed in your AuthService
-  return authService.getUserRoles().pipe( // Assuming getUserRoles() returns Observable<string[]>
+  return authService.getUserRoles().pipe( 
     map(roles => {
       if (roles.includes('ADMIN')) {
         return true;
       } else {
-        router.navigate(['/']); // Or a 'forbidden' page
+        router.navigate(['/']); 
         return false;
       }
     })
