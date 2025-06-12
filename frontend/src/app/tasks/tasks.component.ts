@@ -17,6 +17,8 @@ import {
 import { TeamResponse, UserResponse } from '../shared/models/team.models';
 import { catchError, of, forkJoin } from 'rxjs';
 import { UserRecord } from '../models/user.model';
+import {MatDialog } from '@angular/material/dialog';
+import { DeleteDialogComponent } from '../dashboard/delete-dialog/delete-dialog.component';
 
 interface Task {
   id: number;
@@ -42,7 +44,11 @@ interface TaskFormData {
 @Component({
   selector: 'app-tasks',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    RouterModule,
+  ],
   templateUrl: './tasks.component.html',
   styleUrls: ['./tasks.component.scss']
 })
@@ -86,7 +92,8 @@ export class TasksComponent implements OnInit {
   constructor(
     private taskService: TaskService,
     private userService: UserService,
-    private authService: AuthService
+    private authService: AuthService,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit() {
@@ -270,6 +277,7 @@ export class TasksComponent implements OnInit {
     this.showCreateModal = true;
   }
 
+
   onTeamChange(teamId: string) {
     if (!teamId) {
       this.availableAssignees = [];
@@ -407,7 +415,11 @@ export class TasksComponent implements OnInit {
   }
 
   deleteTask(task: Task) {
-    if (confirm(`Are you sure you want to delete the task "${task.title}"?`)) {
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      data: { task: task.id }
+    });
+    
+    dialogRef.afterClosed().subscribe(result => {if (result) {
       this.isLoading = true;
       this.errorMessage = '';
 
@@ -431,6 +443,6 @@ export class TasksComponent implements OnInit {
           this.isLoading = false;
         }
       });
-    }
+    }})
   }
 }
