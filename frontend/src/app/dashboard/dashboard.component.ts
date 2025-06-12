@@ -6,6 +6,7 @@ import { TaskService } from '../services/task.service';
 import { AuthService } from '../core/services/auth.service';
 import { TeamResponse } from '../shared/models/team.models';
 import { BackendTodo } from '../models/task.model';
+import { UserRecord } from '../models/user.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -27,7 +28,7 @@ export class DashboardComponent implements OnInit {
   };
 
   activities: Activity[] = [];
-  user: any;
+  user: UserRecord | null;
   teams: TeamResponse[] = [];
 
   constructor(
@@ -70,9 +71,9 @@ export class DashboardComponent implements OnInit {
   }
 
   getTeamCount(todos: BackendTodo[]): number {
-    const teamCount: number = todos.map(
+    const teamCount: number = [...new Set(todos.map(
       (todo: BackendTodo) => todo.team?.name
-    ).length;
+    ))].length;
     return isNaN(teamCount) || !teamCount ? 0 : teamCount;
   }
 }

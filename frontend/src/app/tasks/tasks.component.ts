@@ -16,6 +16,7 @@ import {
 } from '../models/task.model';
 import { TeamResponse, UserResponse } from '../shared/models/team.models';
 import { catchError, of, forkJoin } from 'rxjs';
+import { UserRecord } from '../models/user.model';
 
 interface Task {
   id: number;
@@ -70,6 +71,9 @@ export class TasksComponent implements OnInit {
   
   // Current user's teams
   currentUserTeams: TeamResponse[] = [];
+  
+  // Current user
+  user!: UserRecord | null;
 
   formData: TaskFormData = {
     title: '',
@@ -87,6 +91,7 @@ export class TasksComponent implements OnInit {
 
   ngOnInit() {
     this.loadInitialData();
+    this.user = this.authService.getCurrentUser();
   }
 
   loadInitialData() {
@@ -96,7 +101,7 @@ export class TasksComponent implements OnInit {
     // Load teams and tasks in parallel
     forkJoin({
       teams: this.taskService.getUserTeams(),
-      tasks: this.taskService.getTasks()
+      tasks: this.taskService.getTasks(this.user)
     }).pipe(
       catchError(error => {
         console.error('Error loading initial data:', error);
@@ -142,7 +147,7 @@ export class TasksComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
     
-    this.taskService.getTasks().subscribe({
+    this.taskService.getTasks(this.user).subscribe({
       next: (backendTodos: BackendTodo[]) => {
         this.tasks = backendTodos.map(todo => this.mapBackendTodoToTask(todo));
         this.isLoading = false;

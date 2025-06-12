@@ -24,13 +24,19 @@ export class TaskService {
    * Get all tasks for the authenticated user - calls GET /todo
    * Returns BackendTodo[] with nested TodoState structure
    */
-  getTasks(): Observable<BackendTodo[]> {
-    return this.http.get<BackendTodo[]>(`${this.apiUrl}/todo`).pipe(
+  getTasks(user: UserRecord | null): Observable<BackendTodo[]> {
+    return user && user.roles.find(role => role.toLowerCase() === 'TEAM_LEAD') 
+    ? this.http.get<BackendTodo[]>(`${this.apiUrl}/todo?includeAll=${true}`).pipe(
       catchError(error => {
         console.error('Error loading tasks:', error);
         return of([]);
       })
-    );
+    )
+    : this.http.get<BackendTodo[]>(`${this.apiUrl}/todo`).pipe(
+      catchError(error => {
+        console.error('Error loading tasks:', error);
+        return of([]);
+      }));
   }
 
 
@@ -93,10 +99,12 @@ export class TaskService {
    * Returns void on successful deletion
    */
   deleteTask(taskId: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/todo/delete/${taskId-1}`);
+    return this.http.delete<void>(`${this.apiUrl}/todo/delete/${taskId}`);
   }
 
-  getUserToDos(user: UserRecord): Observable<IResponse<BackendTodo[]>> {
-    return observe(this.http.get<BackendTodo[]>(`${this.apiUrl}/todo?includeAll=true`))
+  getUserToDos(user: UserRecord | null): Observable<IResponse<BackendTodo[]>> {
+    return user && user.roles.find(role => role.toLowerCase() === 'team_lead') 
+    ? observe(this.http.get<BackendTodo[]>(`${this.apiUrl}/todo?includeAll=true`))
+    : observe(this.http.get<BackendTodo[]>(`${this.apiUrl}/todo`));
   }
 }
