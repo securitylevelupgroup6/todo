@@ -9,7 +9,7 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 })
 export class DeleteDialogComponent {
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: { task: number },
+    @Inject(MAT_DIALOG_DATA) public data: { taskTitle: string },
   ) {}
 }
 

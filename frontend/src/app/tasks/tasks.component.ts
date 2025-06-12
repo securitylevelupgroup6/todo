@@ -416,7 +416,7 @@ export class TasksComponent implements OnInit {
 
   deleteTask(task: Task) {
     const dialogRef = this.dialog.open(DeleteDialogComponent, {
-      data: { task: task.id }
+      data: { taskTitle: task.title }
     });
     
     dialogRef.afterClosed().subscribe(result => {if (result) {
