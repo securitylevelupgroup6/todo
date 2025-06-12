@@ -97,8 +97,6 @@ export class TaskService {
   }
 
   getUserToDos(user: UserRecord): Observable<IResponse<BackendTodo[]>> {
-    return user.roles.includes('TEAM_LEAD') 
-    ? observe(this.http.get<BackendTodo[]>(`${this.apiUrl}/todo?includeAll=${true}`))
-    : observe(this.http.get<BackendTodo[]>(`${this.apiUrl}/todo`));
+    observe(this.http.get<BackendTodo[]>(`${this.apiUrl}/todo?includeAll=${true}`))
   }
 }
