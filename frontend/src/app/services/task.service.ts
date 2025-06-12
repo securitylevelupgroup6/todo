@@ -97,6 +97,6 @@ export class TaskService {
   }
 
   getUserToDos(user: UserRecord): Observable<IResponse<BackendTodo[]>> {
-    observe(this.http.get<BackendTodo[]>(`${this.apiUrl}/todo?includeAll=true`))
+    return observe(this.http.get<BackendTodo[]>(`${this.apiUrl}/todo?includeAll=true`))
   }
 }
