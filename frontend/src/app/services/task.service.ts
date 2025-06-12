@@ -25,7 +25,7 @@ export class TaskService {
    * Returns BackendTodo[] with nested TodoState structure
    */
   getTasks(user: UserRecord | null): Observable<BackendTodo[]> {
-    return user && user.roles.find(role => role.toLowerCase() === 'TEAM_LEAD') 
+    return user && user.roles.find(role => role.toLowerCase() === 'team_lead') 
     ? this.http.get<BackendTodo[]>(`${this.apiUrl}/todo?includeAll=${true}`).pipe(
       catchError(error => {
         console.error('Error loading tasks:', error);
