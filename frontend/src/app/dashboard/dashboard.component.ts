@@ -67,7 +67,7 @@ export class DashboardComponent implements OnInit {
     const stateCount: number = todos.map(
       (todo: BackendTodo) => todo.todoState?.status?.statusName
     ).filter(status => status?.toLowerCase() === statusOfTodo).length;
-    return isNaN(stateCount) || stateCount ? 0 : stateCount
+    return isNaN(stateCount) || !stateCount ? 0 : stateCount
   }
 
   getTeamCount(todos: BackendTodo[]): number {
