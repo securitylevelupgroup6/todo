@@ -57,7 +57,7 @@ jobs:
       - name: Install frontend dependencies and build
         working-directory: frontend
         run: |
-          npm ci
+          npm install
           npm run build -- --configuration=production
 
       - name: SSH into EC2 and clean up old frontend build
