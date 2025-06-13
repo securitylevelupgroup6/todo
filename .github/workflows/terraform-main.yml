@@ -31,7 +31,7 @@ jobs:
       - name: Terraform Destroy
         working-directory: terraform/main
         if: github.ref == 'refs/heads/main'
-        run: terraform destroy
+        run: terraform destroy -auto-approve
 
         
 
